@@ -2,6 +2,8 @@ package com.examples.esame_attsw_Bellocci.view.swing;
 
 import static org.junit.Assert.*;
 
+import javax.swing.DefaultListModel;
+
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.core.matcher.JLabelMatcher;
@@ -11,6 +13,8 @@ import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.examples.esame_attsw_Bellocci.model.Book;
 
 @RunWith(GUITestRunner.class)
 public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
@@ -71,5 +75,18 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		window.button(JButtonMatcher.withText("Add book")).requireDisabled();
+	}
+	
+	@Test
+	public void testDeleteButtonIsEnableOnlyIfABookIsSelectedFromList() {
+		Book book = new Book("1", "book1");
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Book> listBooksModel = bookSwingView.getListBooksModel();
+			listBooksModel.addElement(book);
+		});
+		window.list("bookList").selectItem(0);
+		window.button(JButtonMatcher.withText("Delete book")).requireEnabled();
+		window.list("bookList").clearSelection();
+		window.button(JButtonMatcher.withText("Delete book")).requireDisabled();
 	}
 }

@@ -40,6 +40,10 @@ public class BookSwingView extends JFrame {
 	
 	private Library library;
 	
+	protected DefaultListModel<Book> getListBooksModel() {
+		return listBooksModel;
+	}
+	
 	protected BookController getBookController() {
 		return bookController;
 	}
@@ -152,6 +156,7 @@ public class BookSwingView extends JFrame {
 		listBooksModel = new DefaultListModel<>();
 		listBooks = new JList<>(listBooksModel);
 		listBooks.setName("bookList");
+		listBooks.addListSelectionListener(e -> btnDelete.setEnabled(listBooks.getSelectedIndex() != -1));
 		listBooks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scrollPane.setViewportView(listBooks);
 		
