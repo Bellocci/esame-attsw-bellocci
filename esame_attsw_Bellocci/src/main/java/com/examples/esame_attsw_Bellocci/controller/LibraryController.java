@@ -18,4 +18,15 @@ public class LibraryController {
 		libraryView.showAllLibraries(libraryRepository.getAllLibraries());
 	}
 
+	public void newLibrary(Library new_library) {
+		if(new_library.getId().trim().isEmpty())
+			throw new IllegalArgumentException("Id library cannot be empty or only blank space");
+		Library library_found = libraryRepository.findLibraryById(new_library.getId());
+		if(library_found != null) {
+			libraryView.showError("Already existing library with id " + library_found.getId(), library_found);
+			return;
+		}
+		libraryRepository.saveLibrary(new_library);
+		libraryView.libraryAdded(new_library);
+	}
 }

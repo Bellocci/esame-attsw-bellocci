@@ -56,6 +56,52 @@ public class LibraryControllerTest {
 	}
 	
 
+	@Test
+	public void testNewLibraryWhenItDoesntExistShouldAddToDatabaseAndReturnThemToTheView() {
+		// setup
+		Library new_library = new Library("1", "library1");
+		when(libraryRepository.findLibraryById("1")).thenReturn(null);
+		
+		// exercise
+		libraryController.newLibrary(new_library);
+		
+		// verify
+		InOrder inOrder = inOrder(libraryRepository, libraryView);
+		inOrder.verify(libraryRepository).saveLibrary(new_library);
+		inOrder.verify(libraryView).libraryAdded(new_library);
+	}
 	
+	@Test
+	public void testNewLibraryWhenItAlreadyExistShouldNotAddLibraryAndShowErrorToView() {
+		// setup
+		Library library = new Library("1", "library1");
+		when(libraryRepository.findLibraryById("1")).thenReturn(library);
+		
+		// exercise
+		libraryController.newLibrary(library);
+		
+		// verify
+		verify(libraryView).showError("Already existing library with id 1", library);
+		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
+	}
+	
+	@Test
+	public void testNewLibraryWhenIdIsEmptyShouldThrow() {
+		// setup
+		Library library = new Library("", "library1");
+		
+		// exercise & verify
+		assertThatThrownBy(() -> libraryController.newLibrary(library))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Id library cannot be empty or only blank space");
+	}
+	
+	@Test
+	public void testNewLibraryWhenIdAreOnlyBlankSpaceShouldThrow() {
+		Library library = new Library("  ", "library1");
+		assertThatThrownBy(() -> libraryController.newLibrary(library))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Id library cannot be empty or only blank space");
+	}
 	
 }
