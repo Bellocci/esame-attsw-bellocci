@@ -1,0 +1,82 @@
+/*
+ * JaCoCo profile
+ */
+
+apply plugin: 'jacoco'
+
+// Jacoco configuration
+
+jacoco {
+    toolVersion = "0.8.6"
+    reportsDirectory = file("$buildDir/reports/jacoco")
+}
+
+jacocoTestCoverageVerification {
+	dependsOn test
+	finalizedBy jacocoTestReport
+	
+  	violationRules {
+  	
+	   	rule {
+    		element = 'CLASS'
+    		excludes = [
+    			"com.examples.esame_attsw_Bellocci.model.*"
+    		]    
+      		limit {
+        		minimum = 0.1
+      		}
+    	}
+    	
+    	rule {
+    		element = 'CLASS'
+    		excludes = [
+    			"com.examples.esame_attsw_Bellocci.model.*"
+    		] 
+      		limit {
+        		counter = 'INSTRUCTION' 
+        		value = 'MISSEDRATIO'
+        		maximum = 0.2
+        	}
+      	} 
+    	rule {
+    		element = 'CLASS'
+    		excludes = [
+    			"com.examples.esame_attsw_Bellocci.model.*"
+    		]
+    		limit {
+    			counter = 'LINE'
+    			value = 'COVEREDRATIO'
+    			minimum = 0.8
+    		}
+    	}
+    	
+  	}
+}
+
+// Task
+
+test {
+	apply from: "profiles/profile-default.gradle"
+	
+	finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestReport {
+	dependsOn jacocoTestCoverageVerification
+	
+    reports {
+    	xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+    
+    // Remove Book and Library class from JaCoCo report
+	afterEvaluate {
+    	getClassDirectories().setFrom(
+    		files(classDirectories.files.collect {
+        		fileTree(dir: it)
+        	})
+        )
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification

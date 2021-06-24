@@ -44,3 +44,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.h2database/h2
 	implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
 }
+
+// Allows you to define the profile to be used
+// Run gradle -buildProfile=name_profile to apply it
+if (!hasProperty('buildProfile')) ext.buildProfile = 'default'  
+apply from: "profiles/profile-${buildProfile}.gradle"
