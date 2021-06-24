@@ -76,7 +76,7 @@ public class HibernateUtilTest {
 	}
 	 
 	@Test
-	public void testResetSessionFactoryShouldCloseSessionFractoryAndIstanciateItToNull() {
+	public void testResetSessionFactoryWhenSessionFactoryIsNotNullShouldCloseSessionFractoryAndIstanciateItToNull() {
 		// setup
 		HibernateUtil.setProperties(null);
 		SessionFactory sessionFactory = createSessionFactory();
@@ -100,5 +100,15 @@ public class HibernateUtilTest {
                 .applySettings(configuration.getProperties()).build();
 
         return configuration.buildSessionFactory(serviceRegistry);
+	}
+	
+	@Test
+	public void testResetSessionFactoryWhenSessionFactoryIsNullItsIstanceDoesntChange() {
+		// setup
+		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		// exercise
+		HibernateUtil.resetSessionFactory();
+		//verify
+		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
 	}
 }
