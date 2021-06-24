@@ -1,18 +1,38 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
 import com.examples.esame_attsw_Bellocci.controller.BookController;
+import com.examples.esame_attsw_Bellocci.model.Book;
 import com.examples.esame_attsw_Bellocci.model.Library;
 
 public class BookSwingView extends JFrame {
 
 	private JPanel contentPane;
+	private JTextField txtId;
+	private JTextField txtName;
+	private JButton btnAdd;
+	private DefaultListModel<Book> listBooksModel;
+	private JList<Book> listBooks;
+	private JButton btnBack;
+	private JButton btnDelete;
+	private JLabel lblErrorMessage;
 	
 	private BookController bookController;
 	
@@ -46,12 +66,103 @@ public class BookSwingView extends JFrame {
 	 * Create the frame.
 	 */
 	public BookSwingView() {
+		setTitle("Book View");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 618, 424);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
+		GridBagLayout gbl_contentPane = new GridBagLayout();
+		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		contentPane.setLayout(gbl_contentPane);
+		
+		JLabel lblId = new JLabel("id");
+		GridBagConstraints gbc_lblId = new GridBagConstraints();
+		gbc_lblId.insets = new Insets(0, 0, 5, 5);
+		gbc_lblId.gridx = 0;
+		gbc_lblId.gridy = 0;
+		contentPane.add(lblId, gbc_lblId);
+		
+		txtId = new JTextField();
+		txtId.setName("idTextBox");
+		GridBagConstraints gbc_txtId = new GridBagConstraints();
+		gbc_txtId.gridwidth = 2;
+		gbc_txtId.insets = new Insets(0, 0, 5, 0);
+		gbc_txtId.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtId.gridx = 1;
+		gbc_txtId.gridy = 0;
+		contentPane.add(txtId, gbc_txtId);
+		txtId.setColumns(10);
+		
+		JLabel lblName = new JLabel("name");
+		GridBagConstraints gbc_lblName = new GridBagConstraints();
+		gbc_lblName.insets = new Insets(0, 0, 5, 5);
+		gbc_lblName.gridx = 0;
+		gbc_lblName.gridy = 1;
+		contentPane.add(lblName, gbc_lblName);
+		
+		txtName = new JTextField();
+		txtName.setName("nameTextBox");
+		GridBagConstraints gbc_txtName = new GridBagConstraints();
+		gbc_txtName.gridwidth = 2;
+		gbc_txtName.insets = new Insets(0, 0, 5, 0);
+		gbc_txtName.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtName.gridx = 1;
+		gbc_txtName.gridy = 1;
+		contentPane.add(txtName, gbc_txtName);
+		txtName.setColumns(10);
+		
+		btnAdd = new JButton("Add book");
+		btnAdd.setEnabled(false);
+		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
+		gbc_btnAdd.gridwidth = 2;
+		gbc_btnAdd.insets = new Insets(0, 0, 5, 0);
+		gbc_btnAdd.gridx = 1;
+		gbc_btnAdd.gridy = 2;
+		contentPane.add(btnAdd, gbc_btnAdd);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.gridwidth = 3;
+		gbc_scrollPane.gridheight = 6;
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 4;
+		contentPane.add(scrollPane, gbc_scrollPane);
+		
+		listBooksModel = new DefaultListModel<>();
+		listBooks = new JList<>(listBooksModel);
+		listBooks.setName("bookList");
+		listBooks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		scrollPane.setViewportView(listBooks);
+		
+		btnBack = new JButton("Back to libraries");
+		GridBagConstraints gbc_btnBack = new GridBagConstraints();
+		gbc_btnBack.insets = new Insets(0, 0, 5, 5);
+		gbc_btnBack.gridx = 1;
+		gbc_btnBack.gridy = 11;
+		contentPane.add(btnBack, gbc_btnBack);
+		
+		btnDelete = new JButton("Delete book");
+		btnDelete.setEnabled(false);
+		GridBagConstraints gbc_btnDelete = new GridBagConstraints();
+		gbc_btnDelete.insets = new Insets(0, 0, 5, 0);
+		gbc_btnDelete.gridx = 2;
+		gbc_btnDelete.gridy = 11;
+		contentPane.add(btnDelete, gbc_btnDelete);
+		
+		lblErrorMessage = new JLabel(" ");
+		lblErrorMessage.setForeground(Color.RED);
+		lblErrorMessage.setName("errorLabelMessage");
+		GridBagConstraints gbc_lblErrorMessage = new GridBagConstraints();
+		gbc_lblErrorMessage.gridwidth = 3;
+		gbc_lblErrorMessage.gridx = 0;
+		gbc_lblErrorMessage.gridy = 13;
+		contentPane.add(lblErrorMessage, gbc_lblErrorMessage);
 	}
 
 }
