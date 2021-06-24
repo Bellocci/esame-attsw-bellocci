@@ -1,4 +1,4 @@
-package com.examples.esame_attsw.Bellocci.model;
+package com.examples.esame_attsw_Bellocci.model;
 
 import java.util.ArrayList;
 import java.util.List;
