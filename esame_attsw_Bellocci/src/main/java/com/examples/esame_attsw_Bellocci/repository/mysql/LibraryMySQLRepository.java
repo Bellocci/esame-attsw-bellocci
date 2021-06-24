@@ -33,12 +33,8 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-            // start a transaction
             transaction = session.beginTransaction();
-
-            // get Student entity using load() method
             libraries = session.createQuery("FROM Library", Library.class).list();
-            //transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -53,8 +49,23 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public Library findLibraryById(String id_library) {
-		// TODO Auto-generated method stub
-		return null;
+		Library library = new Library();
+		transaction = null;
+		session = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            library = session.get(Library.class, id_library);
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
+		return library;
 	}
 	
 	
