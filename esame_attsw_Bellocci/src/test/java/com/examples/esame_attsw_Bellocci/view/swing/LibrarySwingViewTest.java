@@ -1,6 +1,8 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,5 +110,17 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		openButton.requireEnabled();
 		window.list("libraryList").clearSelection();
 		openButton.requireDisabled();
+	}
+	
+	@Test
+	public void testShowAllLibrariesShouldAddLibrariesToTheList() {
+		Library library1 = new Library("1", "library1");
+		Library library2 = new Library("2", "library2");
+		GuiActionRunner.execute(() -> {
+			librarySwingView.showAllLibraries(Arrays.asList(library1, library2));
+		});
+		String[] listLibraries = window.list().contents();
+		assertThat(listLibraries)
+			.containsExactly(library1.toString(), library2.toString());
 	}
 }

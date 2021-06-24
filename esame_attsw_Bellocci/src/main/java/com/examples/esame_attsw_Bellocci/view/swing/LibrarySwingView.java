@@ -196,8 +196,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	@Override
 	public void showAllLibraries(List<Library> libraries) {
-		// TODO Auto-generated method stub
-		
+		libraries.stream().forEach(listLibraryModel::addElement);
 	}
 
 	@Override
