@@ -20,7 +20,8 @@ jacocoTestCoverageVerification {
 	   	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*"
+    			"com.examples.esame_attsw_Bellocci.model.*",
+    			"com.examples.esame_attsw_Bellocci.view.*"
     		]    
       		limit {
         		minimum = 0.1
@@ -30,7 +31,8 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*"
+    			"com.examples.esame_attsw_Bellocci.model.*",
+    			"com.examples.esame_attsw_Bellocci.view.*"
     		] 
       		limit {
         		counter = 'INSTRUCTION' 
@@ -41,7 +43,8 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*"
+    			"com.examples.esame_attsw_Bellocci.model.*",
+    			"com.examples.esame_attsw_Bellocci.view.*"
     		]
     		limit {
     			counter = 'LINE'
@@ -75,7 +78,7 @@ jacocoTestReport {
     		files(classDirectories.files.collect {
         		fileTree(dir: it, exclude: [
         			"**/Library.class",
-        			"**/Book.class"
+        			"**/Book.class",
         		])
         	})
         )

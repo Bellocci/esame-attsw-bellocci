@@ -6,18 +6,23 @@ pitest {
 	targetClasses = [
 		"com.examples.esame_attsw_Bellocci.controller.*",
 		"com.examples.esame_attsw_Bellocci.repository.mysql.*",
-		"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil.java"
+		"com.examples.esame_attsw_Bellocci.hibernate.*",
 	]
 	// Which test classes use
-	targetTests = ["com.examples.esame_attsw_Bellocci.*"]
-	// Which methods excludes
-	excludedMethods = [
-		"get*",
-		"set*",
-		"toString",
-		"hashCode",
-		"equals"
+	targetTests = [
+		"com.examples.esame_attsw_Bellocci.controller.*",
+		"com.examples.esame_attsw_Bellocci.repository.*",
+		"com.examples.esame_attsw_Bellocci.hibernate.*"
 	]
+	// Which methods excludes
+	//excludedMethods = [
+	//	"get*",
+	//	"set*",
+	//	"toString",
+	//	"hashCode",
+	//	"equals"
+	//]
+	
 	outputFormats = ['XML', 'HTML']
 	// List of operations of mutations
 	mutators = [
