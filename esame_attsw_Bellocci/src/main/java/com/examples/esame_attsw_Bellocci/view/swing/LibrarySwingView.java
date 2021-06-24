@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -71,8 +73,19 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
+		KeyAdapter btnAddEnabler = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnAdd.setEnabled(
+					!txtId.getText().trim().isEmpty() &&
+					!txtName.getText().trim().isEmpty()
+				);
+			}
+		};
+		
 		txtId = new JTextField();
 		txtId.setName("idTextBox");
+		txtId.addKeyListener(btnAddEnabler);
 		
 		JLabel lblId = new JLabel("id");
 		lblId.setHorizontalAlignment(SwingConstants.CENTER);
@@ -107,6 +120,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		txtName = new JTextField();
 		txtName.setName("nameTextBox");
 		txtName.setColumns(10);
+		txtName.addKeyListener(btnAddEnabler);
 		GridBagConstraints gbc_txtName = new GridBagConstraints();
 		gbc_txtName.anchor = GridBagConstraints.NORTH;
 		gbc_txtName.fill = GridBagConstraints.HORIZONTAL;
@@ -118,6 +132,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		
 		btnAdd = new JButton("Add Library");
 		btnAdd.setEnabled(false);
+		btnAdd.addKeyListener(btnAddEnabler);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.anchor = GridBagConstraints.NORTH;
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 5);

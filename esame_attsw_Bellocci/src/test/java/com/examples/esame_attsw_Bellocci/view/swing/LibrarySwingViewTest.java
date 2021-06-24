@@ -42,4 +42,13 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		window.label(JLabelMatcher.withText(" "));
 	}
 
+	@Test
+	public void testWhenIdAndNameAreNotEmptyAddLibraryButtonShouldBeEnabled() {
+		// setup
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("library1");
+		
+		// exercise & verify
+		window.button(JButtonMatcher.withText("Add Library")).requireEnabled();
+	}
 }
