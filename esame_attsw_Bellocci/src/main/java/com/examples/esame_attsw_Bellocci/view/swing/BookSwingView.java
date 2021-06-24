@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -23,8 +24,9 @@ import javax.swing.border.EmptyBorder;
 import com.examples.esame_attsw_Bellocci.controller.BookController;
 import com.examples.esame_attsw_Bellocci.model.Book;
 import com.examples.esame_attsw_Bellocci.model.Library;
+import com.examples.esame_attsw_Bellocci.view.BookView;
 
-public class BookSwingView extends JFrame {
+public class BookSwingView extends JFrame implements BookView {
 
 	private JPanel contentPane;
 	private JTextField txtId;
@@ -183,6 +185,35 @@ public class BookSwingView extends JFrame {
 		gbc_lblErrorMessage.gridx = 0;
 		gbc_lblErrorMessage.gridy = 13;
 		contentPane.add(lblErrorMessage, gbc_lblErrorMessage);
+	}
+
+	@Override
+	public void showAllBooks(List<Book> books) {
+		books.stream().forEach(listBooksModel::addElement);
+	}
+
+	@Override
+	public void bookAdded(Book book) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void bookRemoved(Book book) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showError(String message, Book book) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void closeViewError(String message, Library library) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

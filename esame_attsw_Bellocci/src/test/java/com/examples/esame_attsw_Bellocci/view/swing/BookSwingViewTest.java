@@ -1,6 +1,8 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.Arrays;
 
 import javax.swing.DefaultListModel;
 
@@ -79,14 +81,38 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 	
 	@Test
 	public void testDeleteButtonIsEnableOnlyIfABookIsSelectedFromList() {
+		// setup
 		Book book = new Book("1", "book1");
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Book> listBooksModel = bookSwingView.getListBooksModel();
 			listBooksModel.addElement(book);
 		});
+		
+		// exercise
 		window.list("bookList").selectItem(0);
+		
+		// verify
 		window.button(JButtonMatcher.withText("Delete book")).requireEnabled();
 		window.list("bookList").clearSelection();
 		window.button(JButtonMatcher.withText("Delete book")).requireDisabled();
+	}
+	
+	@Test
+	public void testShowAllBooksShouldAddBookToTheList() {
+		// setup
+		Book book1 = new Book("1", "book1");
+		Book book2 = new Book("2", "book2");
+		
+		// exercise
+		GuiActionRunner.execute(
+			() -> bookSwingView.showAllBooks(Arrays.asList(book1, book2))
+		);
+		
+		// verify
+		String[] listContents = window.list("bookList").contents();
+		assertThat(listContents).containsExactly(
+				new Book("1", "book1").toString(), 
+				new Book("2", "book2").toString()
+		);
 	}
 }
