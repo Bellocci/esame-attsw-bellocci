@@ -2,9 +2,7 @@ package com.examples.esame_attsw_Bellocci.hibernate.util;
 
 import java.io.File;
 import java.util.Properties;
-import java.util.function.IntPredicate;
 
-import org.hibernate.HibernateError;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
