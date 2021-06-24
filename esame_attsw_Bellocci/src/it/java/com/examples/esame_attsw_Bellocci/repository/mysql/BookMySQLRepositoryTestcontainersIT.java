@@ -38,8 +38,6 @@ public class BookMySQLRepositoryTestcontainersIT {
 				.withPassword("password");
 		mySQLContainer.start();
 		
-		
-		//Map<String, String> settings = new HashMap<>();
 		settings = new Properties();
 		
 		settings.put(Environment.DRIVER, mySQLContainer.getDriverClassName());
@@ -78,7 +76,6 @@ public class BookMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
 	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
 	        for(Library library: libraries)
@@ -86,13 +83,14 @@ public class BookMySQLRepositoryTestcontainersIT {
 	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
 	        for(Book book: books)
 	        	session.delete(book);
-	        //transaction.commit();
+	        transaction.commit();
 		} catch(Exception e) {
 			if(transaction != null)
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 	
@@ -126,9 +124,7 @@ public class BookMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
-	        // save the student objects
 	        session.save(library);
 	        transaction.commit();
 		} catch(Exception e) {
@@ -136,7 +132,8 @@ public class BookMySQLRepositoryTestcontainersIT {
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 	
@@ -146,19 +143,38 @@ public class BookMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
 	        book.setLibrary(library);
 	        session.save(book);
-	        // save the student objects
 	        transaction.commit();
 		} catch(Exception e) {
 			if(transaction != null)
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 
+	@Test
+	public void testFindBookById() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		
+		Book book1 = new Book("1", "book1");
+		Book book2 = new Book("2", "book2");
+		addBookOfLibraryToDatabase(book1, library);
+		addBookOfLibraryToDatabase(book2, library);
+		
+		// exercise
+		Book book_found = bookRepository.findBookById("2");
+		
+		// verify
+		assertThat(book_found.getId()).isEqualTo("2");
+		assertThat(book_found.getName()).isEqualTo("book2");
+	}
+	
+	
 }
