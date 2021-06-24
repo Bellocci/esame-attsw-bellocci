@@ -135,8 +135,10 @@ public class LibraryMySQLRepositoryTest {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibrariesToDatabase(library);
+		
 		// exercise
 		Library library_found = libraryRepository.findLibraryById("1");
+		
 		// verify
 		assertThat(library_found.getId()).isEqualTo("1");
 		assertThat(library_found.getName()).isEqualTo("library1");
@@ -147,6 +149,7 @@ public class LibraryMySQLRepositoryTest {
 	public void testFoundLibraryByIdWhenLibraryDidntContainInTheDatabaseShouldReturnNull() {
 		// exercise
 		Library library_found = libraryRepository.findLibraryById("1");
+		
 		// verify
 		assertThat(library_found).isNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
@@ -160,8 +163,10 @@ public class LibraryMySQLRepositoryTest {
 		List<Library> listLibraries = getAllLibrariesFromDatabase();
 		assertThat(listLibraries).hasSize(1);
 		Library new_library = new Library("2", "new_library");
+		
 		// exercise
 		libraryRepository.saveLibrary(new_library);
+		
 		// verify
 		listLibraries = getAllLibrariesFromDatabase();
 		assertThat(listLibraries).hasSize(2);
@@ -213,24 +218,7 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testSaveLibraryWhenDatabaseAlreadyContainLibraryWithSameIdShouldNotAddToDatabase() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		List<Library> listLibraries = getAllLibrariesFromDatabase();
-		assertThat(listLibraries).hasSize(1);
-		Library library_exist = new Library("1", "exist");
-		// exercise
-		libraryRepository.saveLibrary(library_exist);
-		// verify
-		listLibraries = getAllLibrariesFromDatabase();
-		assertThat(listLibraries).hasSize(1);
-		assertThat(listLibraries).noneMatch(e -> e.getName().equals("exist"));
-		assertThat(libraryRepository.getSession().isOpen()).isFalse();
-	}
-	
-	@Test
-	public void testDeleteLibraryWhenDatabaseContainLibraryWithoutBooksShouldRemoveLibraryFromDatabase() {
+	public void testDeleteLibraryWhenDatabaseContainLibraryWithoutBooksShouldRemoveOnlyLibraryFromDatabase() {
 		// setup
 		Library library1 = new Library("1", "library");
 		Library library2 = new Library("2", "library2");
@@ -238,8 +226,10 @@ public class LibraryMySQLRepositoryTest {
 		addLibrariesToDatabase(library2);
 		List<Library> listLibraries = getAllLibrariesFromDatabase();
 		assertThat(listLibraries).hasSize(2);
+		
 		// exercise
 		libraryRepository.deleteLibrary("2");
+		
 		// verify
 		Library library_found = searchLibraryInTheDatabase(library2);
 		assertThat(library_found).isNull();
@@ -262,8 +252,10 @@ public class LibraryMySQLRepositoryTest {
 		addBookOfLibraryToDatabase(library2, "2", "book2");
 		List<Book> listBooks = getAllBooksFromDatabase();
 		assertThat(listBooks).hasSize(2);
+		
 		// exercise
 		libraryRepository.deleteLibrary("1");
+		
 		// verify
 		Library library_found = searchLibraryInTheDatabase(library1);
 		assertThat(library_found).isNull();
@@ -312,20 +304,5 @@ public class LibraryMySQLRepositoryTest {
         	if(session != null)
         		session.close();
         }
-	}
-	
-	@Test
-	public void testDeleteLibraryWhenDatabaseDoesntContainLibraryShouldNotChangeDatabase() {
-		// setup
-		Library library1 = new Library("1", "library");
-		addLibrariesToDatabase(library1);
-		List<Library> listLibraries = getAllLibrariesFromDatabase();
-		assertThat(listLibraries).hasSize(1);
-		// exercise
-		libraryRepository.deleteLibrary("2");
-		// verify
-		listLibraries = getAllLibrariesFromDatabase();
-		assertThat(listLibraries).hasSize(1);
-		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 }
