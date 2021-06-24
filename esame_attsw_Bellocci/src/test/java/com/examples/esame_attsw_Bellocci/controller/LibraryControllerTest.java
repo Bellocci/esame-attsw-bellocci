@@ -139,4 +139,35 @@ public class LibraryControllerTest {
 		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
 	}
 	
+	@Test
+	public void testFindLibraryWhenLibraryExist() {
+		// setup
+		Library library = new Library("1", "library1");
+		when(libraryRepository.findLibraryById("1")).thenReturn(library);
+		
+		// exercise
+		libraryController.findLibrary(library);
+		
+		// verify
+		InOrder inOrder = inOrder(libraryRepository, libraryView);
+		inOrder.verify(libraryRepository).findLibraryById("1");
+		inOrder.verify(libraryView).showAllBooksOfLibrary(library);
+	}
+	
+	@Test
+	public void testFindLibraryWhenLibraryDoesntExist() {
+		// setup
+		Library library = new Library("1", "library1");
+		when(libraryRepository.findLibraryById("1")).thenReturn(null);
+		
+		// exercise
+		libraryController.findLibrary(library);
+		
+		// verify
+		InOrder inOrder = inOrder(libraryRepository, libraryView);
+		inOrder.verify(libraryRepository).findLibraryById("1");
+		inOrder.verify(libraryView).libraryRemoved(library);
+		inOrder.verify(libraryView).showError("Doesn't exist library with id 1", library);
+		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
+	}
 }
