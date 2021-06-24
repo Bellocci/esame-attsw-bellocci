@@ -2,6 +2,7 @@ package com.examples.esame_attsw_Bellocci.view.swing;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
@@ -9,9 +10,12 @@ import javax.swing.DefaultListModel;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.examples.esame_attsw_Bellocci.controller.BookController;
 import com.examples.esame_attsw_Bellocci.controller.LibraryController;
 import com.examples.esame_attsw_Bellocci.model.Library;
 
@@ -35,6 +39,12 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 	@Mock
 	private LibraryController libraryController;
 	
+	@Mock 
+	private BookSwingView bookSwingView;
+	
+	@Mock
+	private BookController bookController;
+	
 	private AutoCloseable closeable;
 
 	@Override
@@ -43,6 +53,7 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			librarySwingView = new LibrarySwingView();
 			librarySwingView.setLibraryController(libraryController);
+			librarySwingView.setBookSwingView(bookSwingView);
 			return librarySwingView;
 		});
 		window = new FrameFixture(robot(), librarySwingView);
@@ -253,5 +264,29 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		// verify
 		verify(libraryController).findLibrary(library);
 		
+	}
+	
+	@Test
+	public void testShowAllBooksShouldSetLibraryViewNoVisibleAndInitBookViewAndSetVisible() {
+		// setup
+		Library library = new Library("1", "library1");
+		when(bookSwingView.getBookController()).thenReturn(bookController);
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Library> listLibraryModel = librarySwingView.getListLibraryModel();
+			listLibraryModel.addElement(library);
+		});
+		
+		// exercise
+		GuiActionRunner.execute(() -> {
+			librarySwingView.showAllBooksOfLibrary(library);
+		});
+		
+		// verify
+		InOrder inOrder = Mockito.inOrder(bookSwingView, bookController);
+		inOrder.verify(bookSwingView).setLibrary(library);
+		inOrder.verify(bookSwingView).setVisible(true);
+		inOrder.verify(bookSwingView).getBookController();
+		inOrder.verify(bookController).allBooks(library);
+		assertThat(librarySwingView.isVisible()).isFalse();
 	}
 }

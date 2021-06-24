@@ -42,6 +42,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	private DefaultListModel<Library> listLibraryModel;
 	
 	private LibraryController libraryController;
+	private BookSwingView bookSwingView = new BookSwingView();
 	
 	protected DefaultListModel<Library> getListLibraryModel() {
 		return listLibraryModel;
@@ -53,6 +54,10 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	
 	public void setLibraryController(LibraryController libraryController) {
 		this.libraryController = libraryController;
+	}
+	
+	public void setBookSwingView(BookSwingView bookSwingView) {
+		this.bookSwingView = bookSwingView;
 	}
 
 	/**
@@ -238,8 +243,10 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	@Override
 	public void showAllBooksOfLibrary(Library library) {
-		// TODO Auto-generated method stub
-		
+		bookSwingView.setLibrary(library);
+		bookSwingView.setVisible(true);
+		this.setVisible(false);
+		bookSwingView.getBookController().allBooks(library);
 	}
 
 	private void clearErrorMessage() {
