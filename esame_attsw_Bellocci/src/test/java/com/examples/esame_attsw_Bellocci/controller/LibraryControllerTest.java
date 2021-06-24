@@ -94,14 +94,49 @@ public class LibraryControllerTest {
 		assertThatThrownBy(() -> libraryController.newLibrary(library))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("Id library cannot be empty or only blank space");
+		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
 	}
 	
 	@Test
 	public void testNewLibraryWhenIdAreOnlyBlankSpaceShouldThrow() {
+		// setup
 		Library library = new Library("  ", "library1");
+		
+		// exercise & verify
 		assertThatThrownBy(() -> libraryController.newLibrary(library))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("Id library cannot be empty or only blank space");
+		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
+	}
+	
+	@Test
+	public void testDeleteLibraryWhenLibraryExist() {
+		// setup
+		Library library = new Library("1", "library1");
+		when(libraryRepository.findLibraryById("1")).thenReturn(library);
+		
+		// exercise
+		libraryController.deleteLibrary(library);
+		
+		// verify
+		InOrder inOrder = inOrder(libraryRepository, libraryView);
+		inOrder.verify(libraryRepository).deleteLibrary("1");
+		inOrder.verify(libraryView).libraryRemoved(library);
+	}
+	
+	@Test
+	public void testDeleteLibraryWhenLibraryDoesntExist() {
+		// setup
+		Library library = new Library("1", "library1");
+		when(libraryRepository.findLibraryById("1")).thenReturn(null);
+		
+		// exercise
+		libraryController.deleteLibrary(library);
+		
+		// verify
+		verify(libraryView).libraryRemoved(library);
+		verify(libraryView).showError("Doesn't exist library with id 1", library);
+		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
 	}
 	
 }

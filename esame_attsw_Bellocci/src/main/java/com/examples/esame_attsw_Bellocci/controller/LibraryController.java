@@ -29,4 +29,15 @@ public class LibraryController {
 		libraryRepository.saveLibrary(new_library);
 		libraryView.libraryAdded(new_library);
 	}
+	
+	public void deleteLibrary(Library library) {
+		Library library_found = libraryRepository.findLibraryById(library.getId());
+		if(library_found == null) {
+			libraryView.libraryRemoved(library);
+			libraryView.showError("Doesn't exist library with id " + library.getId(), library);
+			return;
+		}
+		libraryRepository.deleteLibrary(library.getId());
+		libraryView.libraryRemoved(library_found);
+	}
 }
