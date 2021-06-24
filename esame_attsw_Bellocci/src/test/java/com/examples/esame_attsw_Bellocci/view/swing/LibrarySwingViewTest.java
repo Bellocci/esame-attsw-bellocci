@@ -9,6 +9,7 @@ import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.core.matcher.JLabelMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 
@@ -35,10 +36,10 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		window.textBox("idTextBox").requireEnabled();
 		window.label(JLabelMatcher.withText("name"));
 		window.textBox("nameTextBox").requireEnabled();
-		window.button(JButtonMatcher.withText("Add Library")).requireDisabled();
+		window.button(JButtonMatcher.withText("Add library")).requireDisabled();
 		window.list("libraryList");
-		window.button(JButtonMatcher.withText("Delete Library")).requireDisabled();
-		window.button(JButtonMatcher.withText("Open Library")).requireDisabled();
+		window.button(JButtonMatcher.withText("Delete library")).requireDisabled();
+		window.button(JButtonMatcher.withText("Open library")).requireDisabled();
 		window.label(JLabelMatcher.withText(" "));
 	}
 
@@ -49,6 +50,31 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		window.textBox("nameTextBox").enterText("library1");
 		
 		// exercise & verify
-		window.button(JButtonMatcher.withText("Add Library")).requireEnabled();
+		window.button(JButtonMatcher.withText("Add library")).requireEnabled();
+	}
+	
+	@Test
+	public void testWhenIdIsBlankOrNameIsBlankOrBothAreBlankAddLibraryButtonShouldBeDisabled() {
+		// setup
+		JTextComponentFixture idTxtBox = window.textBox("idTextBox");
+		JTextComponentFixture nameTxtBox = window.textBox("nameTextBox");
+		
+		// exercise
+		idTxtBox.enterText("1");
+		nameTxtBox.enterText(" ");
+		
+		// verify
+		window.button(JButtonMatcher.withText("Add Library")).requireDisabled();
+		
+		// setup
+		idTxtBox.setText("");
+		nameTxtBox.setText("");
+		
+		// exercise
+		idTxtBox.enterText(" ");
+		nameTxtBox.enterText("library");
+		
+		// verify
+		window.button(JButtonMatcher.withText("Add Library")).requireDisabled();
 	}
 }

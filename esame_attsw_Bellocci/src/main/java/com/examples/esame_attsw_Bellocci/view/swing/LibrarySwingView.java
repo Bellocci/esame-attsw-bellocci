@@ -130,7 +130,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		gbc_txtName.gridy = 1;
 		contentPane.add(txtName, gbc_txtName);
 		
-		btnAdd = new JButton("Add Library");
+		btnAdd = new JButton("Add library");
 		btnAdd.setEnabled(false);
 		btnAdd.addKeyListener(btnAddEnabler);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
@@ -155,7 +155,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		listLibraries.setName("libraryList");
 		scrollPane.setViewportView(listLibraries);
 		
-		btnOpen = new JButton("Open Library");
+		btnOpen = new JButton("Open library");
 		btnOpen.setEnabled(false);
 		GridBagConstraints gbc_btnOpen = new GridBagConstraints();
 		gbc_btnOpen.anchor = GridBagConstraints.NORTHEAST;
@@ -164,7 +164,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		gbc_btnOpen.gridy = 4;
 		contentPane.add(btnOpen, gbc_btnOpen);
 		
-		btnDelete = new JButton("Delete Library");
+		btnDelete = new JButton("Delete library");
 		btnDelete.setEnabled(false);
 		GridBagConstraints gbc_btnDelete = new GridBagConstraints();
 		gbc_btnDelete.anchor = GridBagConstraints.NORTHWEST;
