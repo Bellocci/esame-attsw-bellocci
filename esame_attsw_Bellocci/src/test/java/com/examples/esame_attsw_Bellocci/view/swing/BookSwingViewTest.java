@@ -195,11 +195,35 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 	
 	@Test
 	public void testAddBookButtonShouldDelegateToBookControllerNewBook() {
+		// setup
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("book1");
+		
+		// exercise
 		window.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
 		verify(bookController).newBook(library, new Book("1", "book1"));
 	}
 	
-	
+	@Test
+	public void testDeleteBookButtonShouldDelegateToBookControllerDeleteBook() {
+		// setup
+		Book book1 = new Book("1", "book1");
+		Book book2 = new Book("2", "book2");
+		book1.setLibrary(library);
+		book2.setLibrary(library);
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Book> listBooksModel = bookSwingView.getListBooksModel();
+			listBooksModel.addElement(book1);
+			listBooksModel.addElement(book2);
+		});
+		
+		// exercise
+		window.list("bookList").selectItem(1);
+		window.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		verify(bookController).deleteBook(library, book2);
+	}
 }

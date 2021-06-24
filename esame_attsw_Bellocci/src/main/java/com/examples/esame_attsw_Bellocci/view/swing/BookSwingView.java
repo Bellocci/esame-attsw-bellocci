@@ -186,6 +186,7 @@ public class BookSwingView extends JFrame implements BookView {
 		
 		btnDelete = new JButton("Delete book");
 		btnDelete.setEnabled(false);
+		btnDelete.addActionListener(e -> bookController.deleteBook(library, listBooks.getSelectedValue()));
 		GridBagConstraints gbc_btnDelete = new GridBagConstraints();
 		gbc_btnDelete.insets = new Insets(0, 0, 5, 0);
 		gbc_btnDelete.gridx = 2;
