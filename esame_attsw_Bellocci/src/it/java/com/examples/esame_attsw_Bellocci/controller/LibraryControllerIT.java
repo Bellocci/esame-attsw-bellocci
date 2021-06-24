@@ -150,4 +150,17 @@ public class LibraryControllerIT {
 		// verify
 		verify(libraryView).libraryAdded(new_library);
 	}
+	
+	@Test
+	public void testDeleteLibrary() {
+		// setup
+		Library library_to_delete = new Library("1", "library1");
+		libraryRepository.saveLibrary(library_to_delete);
+		
+		// exercise
+		libraryController.deleteLibrary(library_to_delete);
+		
+		// verify
+		verify(libraryView).libraryRemoved(library_to_delete);
+	}
 }
