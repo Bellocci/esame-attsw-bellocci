@@ -43,6 +43,7 @@ public class BookSwingView extends JFrame implements BookView {
 	private BookController bookController;
 	
 	private Library library;
+	private LibrarySwingView librarySwingView;
 	
 	protected DefaultListModel<Book> getListBooksModel() {
 		return listBooksModel;
@@ -62,6 +63,10 @@ public class BookSwingView extends JFrame implements BookView {
 	
 	public void setBookController(BookController bookController) {
 		this.bookController = bookController;
+	}
+	
+	public void setLibrarySwingView(LibrarySwingView librarySwingView) {
+		this.librarySwingView = librarySwingView;
 	}
 
 	/**
@@ -178,6 +183,12 @@ public class BookSwingView extends JFrame implements BookView {
 		scrollPane.setViewportView(listBooks);
 		
 		btnBack = new JButton("Back to libraries");
+		btnBack.addActionListener(e -> {
+			listBooksModel.removeAllElements();
+			clearLblErrorMessage();
+			librarySwingView.setVisible(true);
+			this.setVisible(false);
+		});
 		GridBagConstraints gbc_btnBack = new GridBagConstraints();
 		gbc_btnBack.insets = new Insets(0, 0, 5, 5);
 		gbc_btnBack.gridx = 1;

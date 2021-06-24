@@ -33,6 +33,9 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 	@Mock
 	private BookController bookController;
 	
+	@Mock
+	private LibrarySwingView librarySwingView;
+	
 	private AutoCloseable closeable;
 	
 	private Library library;
@@ -45,6 +48,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 			bookSwingView = new BookSwingView();
 			bookSwingView.setBookController(bookController);
 			bookSwingView.setLibrary(library);
+			bookSwingView.setLibrarySwingView(librarySwingView);
 			return bookSwingView;
 		});
 		window = new FrameFixture(robot(), bookSwingView);
@@ -225,5 +229,18 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		verify(bookController).deleteBook(library, book2);
+	}
+	
+	@Test
+	public void testBackToLibrariesShouldCleanTableAndErrorLabelAndDisableBookViewAndSetVisibleLibraryView() {
+		// exercise
+		window.button(JButtonMatcher.withText("Back to libraries")).click();
+		
+		// verify
+		verify(librarySwingView).setVisible(true);
+		assertThat(bookSwingView.isVisible()).isFalse();
+		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
+		window.show();
+		window.label("errorLabelMessage").requireText(" ");
 	}
 }
