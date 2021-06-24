@@ -3,9 +3,13 @@ apply plugin: 'info.solidsoft.pitest'
 pitest {
 	reportDir = file("$buildDir/reports/pitest")
 	// Which classes need to be mutated
-	targetClasses = ['com.examples.esame_attsw_Bellocci.*']
+	targetClasses = [
+		"com.examples.esame_attsw_Bellocci.controller.*",
+		"com.examples.esame_attsw_Bellocci.repository.mysql.*",
+		"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil.java"
+	]
 	// Which test classes use
-	targetTests = ['com.examples.esame_attsw_Bellocci.*']
+	targetTests = ["com.examples.esame_attsw_Bellocci.*"]
 	// Which methods excludes
 	excludedMethods = [
 		"get*",
@@ -20,8 +24,13 @@ pitest {
 		'DEFAULTS',
 		'NON_VOID_METHOD_CALLS'
 	]
+	
+	avoidCallsTo = [
+		'org.hibernate.Session',
+		'org.hibernate.Transaction',
+		'org.hibernate.SessionFactory'
+	]
+	
 	// Score below which the test fails
-	mutationThreshold = 80
+	mutationThreshold = 60
 }
-
-build.dependsOn pitest

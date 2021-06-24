@@ -35,7 +35,7 @@ jacocoTestCoverageVerification {
       		limit {
         		counter = 'INSTRUCTION' 
         		value = 'MISSEDRATIO'
-        		maximum = 0.2
+        		maximum = 0.4
         	}
       	} 
     	rule {
@@ -46,7 +46,7 @@ jacocoTestCoverageVerification {
     		limit {
     			counter = 'LINE'
     			value = 'COVEREDRATIO'
-    			minimum = 0.8
+    			minimum = 0.6
     		}
     	}
     	
@@ -73,7 +73,10 @@ jacocoTestReport {
 	afterEvaluate {
     	getClassDirectories().setFrom(
     		files(classDirectories.files.collect {
-        		fileTree(dir: it)
+        		fileTree(dir: it, exclude: [
+        			"**/Library.class",
+        			"**/Book.class"
+        		])
         	})
         )
     }
