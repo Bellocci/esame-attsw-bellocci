@@ -2,6 +2,8 @@ name: Java CI with Gradle and Docker in Linux
 
 on:
    push:
+     branches:
+       - master
    pull_request:
   
 jobs:
