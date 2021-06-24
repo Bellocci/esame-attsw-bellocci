@@ -29,7 +29,7 @@ public class Library {
 	 */
 	
 	@OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Book> list_books = new ArrayList<>();
+	private List<Book> listBooks = new ArrayList<>();
 	
 	public Library() { }
 	
@@ -56,11 +56,11 @@ public class Library {
 	}
 	
 	public List<Book> getListBooks() {
-		return this.list_books;
+		return this.listBooks;
 	}
 	
 	public void setListBooks(List<Book> list_books) {
-		this.list_books = list_books;
+		this.listBooks = list_books;
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class Library {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((list_books == null) ? 0 : list_books.hashCode());
+		result = prime * result + ((listBooks == null) ? 0 : listBooks.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -91,10 +91,10 @@ public class Library {
 			return false;
 		if(!name.equals(library.name))
 			return false;
-		if(list_books.size() != library.list_books.size())
+		if(listBooks.size() != library.listBooks.size())
 			return false;
-		for(int i = 0; i < list_books.size(); i++) {
-			if(!list_books.get(i).equals(library.list_books.get(i)))
+		for(int i = 0; i < listBooks.size(); i++) {
+			if(!listBooks.get(i).equals(library.listBooks.get(i)))
 				return false;
 		}
 		return true;
