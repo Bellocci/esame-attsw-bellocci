@@ -2,6 +2,7 @@ package com.examples.esame_attsw_Bellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -176,5 +177,45 @@ public class BookMySQLRepositoryTestcontainersIT {
 		assertThat(book_found.getName()).isEqualTo("book2");
 	}
 	
+	@Test
+	public void testSaveBookOfLibrary() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		
+		Book book = new Book("1", "book1");
+		addBookOfLibraryToDatabase(book, library);
+		
+		Book new_book = new Book("2", "new_book");
+		
+		// exercise
+		bookRepository.saveBookInTheLibrary(library, new_book);
+		
+		// verify
+		List<Book> books = getAllBooksFromDatabase();
+		assertThat(books).hasSize(2);
+		assertThat(books).anyMatch(e -> e.getId().equals("2"));
+	}
 	
+	private List<Book> getAllBooksFromDatabase() {
+		List<Book> books = null;
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			books = session.createQuery("FROM Book", Book.class).list();
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null)
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null)
+				session.close();
+		}
+		return books;
+	}
+	
+
 }
