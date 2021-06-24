@@ -1,6 +1,5 @@
 package com.examples.esame_attsw_Bellocci.controller;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static java.util.Arrays.asList;
 
@@ -126,6 +125,58 @@ public class BookControllerTest {
 		
 		// exercise
 		bookController.newBook(library, new_book);
+		
+		// verify
+		verify(bookView).closeViewError("Doesnt exist library with id 1 ", library);
+		verifyNoMoreInteractions(ignoreStubs(libraryRepository, libraryController));
+	}
+	
+	@Test
+	public void testDeleteBookWhenBookExists() {
+		// setup
+		Library library = new Library("1", "library1");
+		Book book_to_delete = new Book("1", "book1");
+		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
+		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
+		when(bookRepository.findBookById(book_to_delete.getId())).thenReturn(book_to_delete);
+		
+		// exercise
+		bookController.deleteBook(library, book_to_delete);
+		
+		// verify
+		InOrder inOrder = inOrder(bookRepository, bookView);
+		inOrder.verify(bookRepository).deleteBookFromLibrary(library.getId(), book_to_delete.getId());
+		inOrder.verify(bookView).bookRemoved(book_to_delete);
+	}
+	
+	@Test
+	public void testDeleteBookWhenBookDoesntExist() {
+		// setup
+		Library library = new Library("1", "library1");
+		Book book_no_found = new Book("1", "book1");
+		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
+		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
+		when(bookRepository.findBookById(book_no_found.getId())).thenReturn(null);
+		
+		// exercise
+		bookController.deleteBook(library, book_no_found);
+		
+		// verify
+		verify(bookView).bookRemoved(book_no_found);
+		verify(bookView).showError("No existing book with id 1", book_no_found);
+		verifyNoMoreInteractions(ignoreStubs(bookRepository, libraryRepository, libraryController));
+	}
+	
+	@Test
+	public void testDeleteBookWhenLibraryDoesntExistIntoDatabase() {
+		// setup
+		Library library = new Library("1", "library1");
+		Book new_book = new Book("1", "book1");
+		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
+		when(libraryRepository.findLibraryById(library.getId())).thenReturn(null);
+		
+		// exercise
+		bookController.deleteBook(library, new_book);
 		
 		// verify
 		verify(bookView).closeViewError("Doesnt exist library with id 1 ", library);

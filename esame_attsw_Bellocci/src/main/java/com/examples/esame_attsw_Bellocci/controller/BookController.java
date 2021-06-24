@@ -38,4 +38,18 @@ public class BookController {
 		bookRepository.saveBookInTheLibrary(library, book);
 		bookView.bookAdded(book);
 	}
+	
+	public void deleteBook(Library library, Book book) {
+		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
+			bookView.closeViewError("Doesnt exist library with id " + library.getId() + " ", library);
+			return;
+		}
+		if(bookRepository.findBookById(book.getId()) == null) {
+			bookView.bookRemoved(book);
+			bookView.showError("No existing book with id " + book.getId(), book);
+			return;
+		}
+		bookRepository.deleteBookFromLibrary(library.getId(), book.getId());
+		bookView.bookRemoved(book);
+	}
 }
