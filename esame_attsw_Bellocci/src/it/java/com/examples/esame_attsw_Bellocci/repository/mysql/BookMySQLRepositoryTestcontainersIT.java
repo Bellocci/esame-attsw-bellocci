@@ -178,7 +178,7 @@ public class BookMySQLRepositoryTestcontainersIT {
 	}
 	
 	@Test
-	public void testSaveBookOfLibrary() {
+	public void testSaveBookInTheLibrary() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibraryToDatabase(library);
@@ -217,5 +217,25 @@ public class BookMySQLRepositoryTestcontainersIT {
 		return books;
 	}
 	
-
+	@Test
+	public void testDeleteBookFromLibrary() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		
+		Book book1 = new Book("1", "book1");
+		Book book_delete = new Book("2", "book2");
+		addBookOfLibraryToDatabase(book1, library);
+		addBookOfLibraryToDatabase(book_delete, library);
+		
+		assertThat(getAllBooksFromDatabase()).hasSize(2);
+		
+		// exercise
+		bookRepository.deleteBookFromLibrary("1", "2");
+		
+		// verify
+		List<Book> books = getAllBooksFromDatabase();
+		assertThat(books).hasSize(1);
+		assertThat(books).noneMatch(e -> e.getId().equals("2"));
+	}
 }
