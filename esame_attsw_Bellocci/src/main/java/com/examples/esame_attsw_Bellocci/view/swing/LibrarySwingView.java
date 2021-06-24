@@ -188,6 +188,9 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		
 		btnDelete = new JButton("Delete library");
 		btnDelete.setEnabled(false);
+		btnDelete.addActionListener(
+				e -> libraryController.deleteLibrary(listLibraries.getSelectedValue())
+		);
 		GridBagConstraints gbc_btnDelete = new GridBagConstraints();
 		gbc_btnDelete.anchor = GridBagConstraints.NORTHWEST;
 		gbc_btnDelete.insets = new Insets(0, 0, 5, 0);

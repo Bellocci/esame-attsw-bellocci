@@ -209,11 +209,33 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 	
 	@Test
 	public void testAddLibraryButtonShouldDelegateToTheLibraryControllerNewLibrary() {
+		// setup
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("library1");
+		
+		// exercise
 		window.button(JButtonMatcher.withText("Add library")).click();
+		
+		// verify
 		verify(libraryController).newLibrary(new Library("1", "library1"));
 	}
 	
-	
+	@Test
+	public void testDeleteLibraryButtonShouldDelegateToTheLibraryControllerDeleteLibrary() {
+		// setup
+		Library library1 = new Library("1", "test1");
+		Library library2 = new Library("2", "test2");
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Library> listLibraryModel = librarySwingView.getListLibraryModel();
+			listLibraryModel.addElement(library1);
+			listLibraryModel.addElement(library2);
+		});
+		window.list("libraryList").selectItem(1);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Delete library")).click();
+		
+		// verify
+		verify(libraryController).deleteLibrary(library2);
+	}
 }
