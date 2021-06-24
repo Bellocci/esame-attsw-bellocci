@@ -39,6 +39,10 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	private JButton btnOpen;
 	private JList<Library> listLibraries;
 	private DefaultListModel<Library> listLibraryModel;
+	
+	protected DefaultListModel<Library> getListLibraryModel() {
+		return listLibraryModel;
+	}
 
 	/**
 	 * Launch the application.
@@ -151,6 +155,9 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		
 		listLibraryModel = new DefaultListModel<>();
 		listLibraries = new JList<>(listLibraryModel);
+		listLibraries.addListSelectionListener(e ->  {
+			btnDelete.setEnabled(listLibraries.getSelectedIndex() != -1);
+		});
 		listLibraries.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listLibraries.setName("libraryList");
 		scrollPane.setViewportView(listLibraries);
