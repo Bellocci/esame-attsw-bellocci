@@ -7,13 +7,13 @@ apply plugin: 'jacoco'
 apply plugin: 'info.solidsoft.pitest'
 
 jacocoTestReport {
-	apply from: 'profile-jacoco.gradle'
+	apply from: 'profiles/profile-jacoco.gradle'
 	
 	finalyzedBy coveralls
 }
 
 pitest {
-	apply from: 'profile-pitest.gradle'
+	apply from: 'profiles/profile-pitest.gradle'
 }
 
 coveralls {
