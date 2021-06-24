@@ -1,12 +1,18 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 
+import javax.swing.DefaultListModel;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import com.examples.esame_attsw_Bellocci.controller.LibraryController;
 import com.examples.esame_attsw_Bellocci.model.Library;
 
 import org.assertj.swing.annotation.GUITest;
@@ -25,15 +31,27 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 	private FrameFixture window;
 	
 	private LibrarySwingView librarySwingView;
+	
+	@Mock
+	private LibraryController libraryController;
+	
+	private AutoCloseable closeable;
 
 	@Override
 	protected void onSetUp() throws Exception {
+		closeable = MockitoAnnotations.openMocks(this);
 		GuiActionRunner.execute(() -> {
 			librarySwingView = new LibrarySwingView();
+			librarySwingView.setLibraryController(libraryController);
 			return librarySwingView;
 		});
 		window = new FrameFixture(robot(), librarySwingView);
 		window.show(); // shows the frame to test
+	}
+	
+	@Override
+	protected void onTearDown() throws Exception {
+		closeable.close();
 	}
 	
 	@Test @GUITest
@@ -163,4 +181,39 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		assertThat(listLibraries).containsExactly("1 - library1");
 		window.label("errorLabelMessage").requireText(" ");
 	}
+	
+	@Test
+	public void testLibraryRemovedShouldRemoveTheLibraryFromTheListAndClearErrorLabel() {
+		// setup
+		Library library1 = new Library("1", "library1");
+		Library library2 = new Library("2", "library2");
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Library> listLibraryModel = librarySwingView.getListLibraryModel();
+			listLibraryModel.addElement(library1);
+			listLibraryModel.addElement(library2);
+			librarySwingView.getLblErrorMessage().setText("Error");
+		});
+		
+		// exercise
+		GuiActionRunner.execute(() -> {
+			librarySwingView.libraryRemoved(library2);
+		});
+		
+		// verify
+		String[] listLibraries = window.list().contents();
+		assertThat(listLibraries).containsExactly(library1.toString());
+		window.label("errorLabelMessage").requireText(" ");
+	}
+	
+	// TEST WITH MOCK
+	
+	@Test
+	public void testAddLibraryButtonShouldDelegateToTheLibraryControllerNewLibrary() {
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("library1");
+		window.button(JButtonMatcher.withText("Add library")).click();
+		verify(libraryController).newLibrary(new Library("1", "library1"));
+	}
+	
+	
 }

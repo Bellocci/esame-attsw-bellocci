@@ -22,6 +22,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import com.examples.esame_attsw_Bellocci.controller.LibraryController;
 import com.examples.esame_attsw_Bellocci.model.Library;
 import com.examples.esame_attsw_Bellocci.view.LibraryView;
 
@@ -40,12 +41,18 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	private JList<Library> listLibraries;
 	private DefaultListModel<Library> listLibraryModel;
 	
+	private LibraryController libraryController;
+	
 	protected DefaultListModel<Library> getListLibraryModel() {
 		return listLibraryModel;
 	}
 	
 	protected JLabel getLblErrorMessage() {
 		return lblErrorMessage;
+	}
+	
+	public void setLibraryController(LibraryController libraryController) {
+		this.libraryController = libraryController;
 	}
 
 	/**
@@ -141,6 +148,9 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		btnAdd = new JButton("Add library");
 		btnAdd.setEnabled(false);
 		btnAdd.addKeyListener(btnAddEnabler);
+		btnAdd.addActionListener(
+				e -> libraryController.newLibrary(new Library(txtId.getText(), txtName.getText()))
+		);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.anchor = GridBagConstraints.NORTH;
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 5);
@@ -211,8 +221,8 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	@Override
 	public void libraryRemoved(Library library) {
-		// TODO Auto-generated method stub
-		
+		listLibraryModel.removeElement(library);
+		clearErrorMessage();
 	}
 
 	@Override
