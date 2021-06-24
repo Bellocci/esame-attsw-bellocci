@@ -72,7 +72,22 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public void saveLibrary(Library library) {
-		// TODO Auto-generated method stub
+		session = null;
+		transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.save(library);
+			transaction.commit();
+		} catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
 	}
 
 	@Override

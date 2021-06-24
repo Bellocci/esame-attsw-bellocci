@@ -2,6 +2,7 @@ package com.examples.esame_attsw_Bellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,7 +18,6 @@ import org.junit.Test;
 import com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil;
 import com.examples.esame_attsw_Bellocci.model.Book;
 import com.examples.esame_attsw_Bellocci.model.Library;
-import com.examples.esame_attsw_Bellocci.repository.LibraryRepository;
 
 public class LibraryMySQLRepositoryTest {
 	
@@ -149,6 +149,81 @@ public class LibraryMySQLRepositoryTest {
 		Library library_found = libraryRepository.findLibraryById("1");
 		// verify
 		assertThat(library_found).isNull();
+		assertThat(libraryRepository.getSession().isOpen()).isFalse();
+	}
+	
+	@Test
+	public void testSaveLibraryWhenDatabaseDoesntContainNewLibraryShouldAddToDatabase() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibrariesToDatabase(library);
+		List<Library> listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(1);
+		Library new_library = new Library("2", "new_library");
+		// exercise
+		libraryRepository.saveLibrary(new_library);
+		// verify
+		listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(2);
+		Library library_found = searchLibraryInTheDatabase(new_library);
+		assertThat(library_found.getId()).isEqualTo("2");
+		assertThat(library_found.getName()).isEqualTo("new_library");
+		assertThat(libraryRepository.getSession().isOpen()).isFalse();
+	}
+	
+	private Library searchLibraryInTheDatabase(Library library) {
+		Library library_found = null;
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        library_found = session.get(Library.class, library.getId());
+	        transaction.commit();
+		} catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
+        return library_found;
+	}
+	
+	private List<Library> getAllLibrariesFromDatabase() {
+		List<Library> libraries = new ArrayList<>();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        libraries = session.createQuery("FROM Library", Library.class).list();
+		} catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
+        return libraries;
+	}
+	
+	@Test
+	public void testSaveLibraryWhenDatabaseAlreadyContainLibraryShouldNotAddToDatabase() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibrariesToDatabase(library);
+		List<Library> listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(1);
+		// exercise
+		libraryRepository.saveLibrary(library);
+		// verify
+		listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(1);
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 }
