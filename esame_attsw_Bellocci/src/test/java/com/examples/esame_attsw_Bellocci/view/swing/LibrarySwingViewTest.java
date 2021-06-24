@@ -238,4 +238,20 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		// verify
 		verify(libraryController).deleteLibrary(library2);
 	}
+	
+	@Test
+	public void testOpenLibraryButtonShouldDelegateToTheLibraryControllerFindLibrary() {
+		// setup
+		Library library = new Library("1", "library1");
+		GuiActionRunner.execute(() ->
+			librarySwingView.getListLibraryModel().addElement(library));
+		window.list("libraryList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Open library")).click();
+		
+		// verify
+		verify(libraryController).findLibrary(library);
+		
+	}
 }
