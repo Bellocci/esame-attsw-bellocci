@@ -34,7 +34,6 @@ public class LibraryControllerTest {
 	@Before
 	public void setup() {
 		closeable = MockitoAnnotations.openMocks(this);
-		libraryController = new LibraryController(libraryView, libraryRepository);
 	}
 	
 	@After

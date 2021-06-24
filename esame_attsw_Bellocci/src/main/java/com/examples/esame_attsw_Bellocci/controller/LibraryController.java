@@ -13,6 +13,10 @@ public class LibraryController {
 		this.libraryRepository = libraryRepository;
 		this.libraryView = libraryView;
 	}
+	
+	protected LibraryRepository getLibraryRepository() {
+		return this.getLibraryRepository();
+	}
 
 	public void getAllLibraries() {
 		libraryView.showAllLibraries(libraryRepository.getAllLibraries());
