@@ -158,4 +158,20 @@ public class BookControllerIT {
 		}
 	}
 
+	@Test
+	public void testNewBook() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		Book new_book = new Book("1", "book1");
+		new_book.setLibrary(library);
+		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
+		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
+		
+		// exercise
+		bookController.newBook(library, new_book);
+		
+		// verify
+		verify(bookView).bookAdded(new_book);
+	}
 }
