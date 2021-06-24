@@ -2,6 +2,7 @@ package com.examples.esame_attsw_Bellocci.hibernate.util;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.function.IntPredicate;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -49,11 +50,21 @@ public class HibernateUtil {
 		settings = properties;
 	}
 	
+	public static void resetSessionFactory() {
+		if(sessionFactory != null)
+			sessionFactory.close();
+		sessionFactory = null;
+	}
+	
 	protected static void setSessionFactory(SessionFactory setSessionFactory) {
 		sessionFactory = setSessionFactory;
 	}
 
 	protected static void setPathConfigurationFile(String path) {
 		configuration_path = path;
+	}
+
+	protected static SessionFactory getValueSessionFactory() {
+		return sessionFactory;
 	}
 }
