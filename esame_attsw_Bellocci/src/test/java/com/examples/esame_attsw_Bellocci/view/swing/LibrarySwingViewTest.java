@@ -97,4 +97,16 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		window.list("libraryList").clearSelection();
 		deleteButton.requireDisabled();
 	}
+	
+	@Test
+	public void testWhenLibraryIsSelectedFromListOpenLibraryButtonShouldBeEnabled() {
+		GuiActionRunner.execute(() -> 
+			librarySwingView.getListLibraryModel().addElement(new Library("1", "library1")));
+		window.list("libraryList").selectItem(0);
+	
+		JButtonFixture openButton = window.button(JButtonMatcher.withText("Open library"));
+		openButton.requireEnabled();
+		window.list("libraryList").clearSelection();
+		openButton.requireDisabled();
+	}
 }

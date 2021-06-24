@@ -157,6 +157,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		listLibraries = new JList<>(listLibraryModel);
 		listLibraries.addListSelectionListener(e ->  {
 			btnDelete.setEnabled(listLibraries.getSelectedIndex() != -1);
+			btnOpen.setEnabled(listLibraries.getSelectedIndex() != -1);
 		});
 		listLibraries.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listLibraries.setName("libraryList");
