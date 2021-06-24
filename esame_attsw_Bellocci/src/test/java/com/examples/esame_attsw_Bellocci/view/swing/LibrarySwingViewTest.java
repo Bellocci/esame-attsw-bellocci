@@ -102,10 +102,14 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 	
 	@Test
 	public void testWhenLibraryIsSelectedFromListOpenLibraryButtonShouldBeEnabled() {
+		// setup
 		GuiActionRunner.execute(() -> 
 			librarySwingView.getListLibraryModel().addElement(new Library("1", "library1")));
+		
+		// exercise
 		window.list("libraryList").selectItem(0);
 	
+		// verify
 		JButtonFixture openButton = window.button(JButtonMatcher.withText("Open library"));
 		openButton.requireEnabled();
 		window.list("libraryList").clearSelection();
@@ -114,13 +118,49 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 	
 	@Test
 	public void testShowAllLibrariesShouldAddLibrariesToTheList() {
+		// setup
 		Library library1 = new Library("1", "library1");
 		Library library2 = new Library("2", "library2");
+		
+		// exercise
 		GuiActionRunner.execute(() -> {
 			librarySwingView.showAllLibraries(Arrays.asList(library1, library2));
 		});
+		
+		// verify
 		String[] listLibraries = window.list().contents();
 		assertThat(listLibraries)
 			.containsExactly(library1.toString(), library2.toString());
+	}
+	
+	@Test
+	public void testShowErrorShouldShowTheMessageInTheErrorLabel() {
+		// setup
+		Library library = new Library("1", "library1");
+		
+		// exercise
+		GuiActionRunner.execute(() ->
+			librarySwingView.showError("Error ", library)
+		);
+		
+		// verify
+		window.label("errorLabelMessage").requireText("Error : " + library);
+	}
+	
+	@Test
+	public void testLibraryAddedShouldAddLibraryToTheListAndClearErrorLabel() {
+		// setup
+		Library library = new Library("1", "library1");
+		GuiActionRunner.execute(() -> {
+			librarySwingView.getLblErrorMessage().setText("Error");
+		});
+		
+		// exercise
+		GuiActionRunner.execute(() -> librarySwingView.libraryAdded(library));
+		
+		// verify
+		String[] listLibraries = window.list().contents();
+		assertThat(listLibraries).containsExactly("1 - library1");
+		window.label("errorLabelMessage").requireText(" ");
 	}
 }

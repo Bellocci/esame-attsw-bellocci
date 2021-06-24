@@ -43,6 +43,10 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	protected DefaultListModel<Library> getListLibraryModel() {
 		return listLibraryModel;
 	}
+	
+	protected JLabel getLblErrorMessage() {
+		return lblErrorMessage;
+	}
 
 	/**
 	 * Launch the application.
@@ -201,8 +205,8 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	@Override
 	public void libraryAdded(Library library) {
-		// TODO Auto-generated method stub
-		
+		listLibraryModel.addElement(library);
+		clearErrorMessage();
 	}
 
 	@Override
@@ -213,8 +217,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	@Override
 	public void showError(String error_message, Library library) {
-		// TODO Auto-generated method stub
-		
+		lblErrorMessage.setText(error_message + ": " + library);
 	}
 
 	@Override
@@ -223,4 +226,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		
 	}
 
+	private void clearErrorMessage() {
+		lblErrorMessage.setText(" ");
+	}
 }
