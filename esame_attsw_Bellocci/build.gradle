@@ -4,6 +4,23 @@ plugins {
     id 'eclipse'
 }
 
+group = 'com.examples'
+version = '0.0.1-SNAPSHOT'
+
+/*
+ * Setup JDK 11
+ */
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+/*
+ * Set source encoding: UTF-8
+ */
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
 repositories {
     mavenCentral()
 }
@@ -11,6 +28,9 @@ repositories {
 dependencies {
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13'
+    
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-gradle-plugin
+	implementation group: 'org.hibernate', name: 'hibernate-gradle-plugin', version: '5.5.2.Final'
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     api 'org.apache.commons:commons-math3:3.6.1'
