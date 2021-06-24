@@ -127,4 +127,20 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 			session.close();
 		}
 	}
+	
+	@Test
+	public void testFoundLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnIt() {
+		// setup
+		Library library = new Library("1", "library1");
+		Library library2 = new Library("2", "library2");
+		addLibrariesToDatabase(library);
+		addLibrariesToDatabase(library2);
+		
+		// exercise
+		Library library_found = libraryRepository.findLibraryById("2");
+		
+		// verify
+		assertThat(library_found.getId()).isEqualTo("2");
+		assertThat(library_found.getName()).isEqualTo("library2");
+	}
 }
