@@ -174,4 +174,22 @@ public class BookControllerIT {
 		// verify
 		verify(bookView).bookAdded(new_book);
 	}
+	
+	@Test
+	public void testDeleteBook() {
+		// setup
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		Book book_to_delete = new Book("1", "book1");
+		book_to_delete.setLibrary(library);
+		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
+		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
+		bookRepository.saveBookInTheLibrary(library, book_to_delete);
+		
+		// exercise
+		bookController.deleteBook(library, book_to_delete);
+		
+		// verify
+		verify(bookView).bookRemoved(book_to_delete);
+	}
 }
