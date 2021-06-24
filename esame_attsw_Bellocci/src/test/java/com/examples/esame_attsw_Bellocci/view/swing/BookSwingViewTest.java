@@ -1,6 +1,7 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 
@@ -15,8 +16,12 @@ import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import com.examples.esame_attsw_Bellocci.controller.BookController;
 import com.examples.esame_attsw_Bellocci.model.Book;
+import com.examples.esame_attsw_Bellocci.model.Library;
 
 @RunWith(GUITestRunner.class)
 public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
@@ -24,15 +29,31 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 	private FrameFixture window;
 	
 	private BookSwingView bookSwingView;
+	
+	@Mock
+	private BookController bookController;
+	
+	private AutoCloseable closeable;
+	
+	private Library library;
 
 	@Override
 	protected void onSetUp() throws Exception {
+		library = new Library("1", "library1");
+		closeable = MockitoAnnotations.openMocks(this);
 		GuiActionRunner.execute(() -> {
 			bookSwingView = new BookSwingView();
+			bookSwingView.setBookController(bookController);
+			bookSwingView.setLibrary(library);
 			return bookSwingView;
 		});
 		window = new FrameFixture(robot(), bookSwingView);
 		window.show(); // shows the frame to test
+	}
+	
+	@Override
+	protected void onTearDown() throws Exception {
+		closeable.close();
 	}
 
 	@Test @GUITest
@@ -155,4 +176,30 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		assertThat(listContents).containsExactly(new Book("1", "book1").toString());
 		window.label("errorLabelMessage").requireText(" ");
 	}
+	
+	@Test
+	public void testShowErrorShouldShowTheMessageInTheErrorLabel() {
+		// setup
+		Book book = new Book("1", "book1");
+		
+		// exercise
+		GuiActionRunner.execute(
+				() -> bookSwingView.showError("Error message ", book)
+		);
+		
+		// verify
+		window.label("errorLabelMessage").requireText("Error message " + book);
+	}
+	
+	//Mocks
+	
+	@Test
+	public void testAddBookButtonShouldDelegateToBookControllerNewBook() {
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("book1");
+		window.button(JButtonMatcher.withText("Add book")).click();
+		verify(bookController).newBook(library, new Book("1", "book1"));
+	}
+	
+	
 }

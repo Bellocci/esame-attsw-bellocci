@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -56,6 +58,10 @@ public class BookSwingView extends JFrame implements BookView {
 	
 	public void setLibrary(Library library) {
 		this.library = library;
+	}
+	
+	public void setBookController(BookController bookController) {
+		this.bookController = bookController;
 	}
 
 	/**
@@ -142,6 +148,11 @@ public class BookSwingView extends JFrame implements BookView {
 		btnAdd = new JButton("Add book");
 		btnAdd.setEnabled(false);
 		btnAdd.addKeyListener(btnAddEnabler);
+		btnAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				bookController.newBook(library, new Book(txtId.getText(), txtName.getText()));
+			}
+		});
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.gridwidth = 2;
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 0);
@@ -210,8 +221,7 @@ public class BookSwingView extends JFrame implements BookView {
 
 	@Override
 	public void showError(String message, Book book) {
-		// TODO Auto-generated method stub
-		
+		lblErrorMessage.setText(message + book);
 	}
 
 	@Override
