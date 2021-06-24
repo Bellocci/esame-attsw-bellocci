@@ -127,6 +127,19 @@ public class LibraryControllerIT {
 	}
 	
 	@Test
+	public void testFindLibrary() {
+		// setup
+		Library library = new Library("1", "library1");
+		libraryRepository.saveLibrary(library);
+		
+		// exercise
+		libraryController.findLibrary(library);
+		
+		// verify
+		verify(libraryView).showAllBooksOfLibrary(library);
+	}
+	
+	@Test
 	public void testNewLibrary() {
 		// setup
 		Library new_library = new Library("1", "library1");
