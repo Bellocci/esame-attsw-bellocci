@@ -8,8 +8,6 @@ apply plugin: 'info.solidsoft.pitest'
 
 jacocoTestReport {
 	apply from: 'profiles/profile-jacoco.gradle'
-	
-	finalyzedBy coveralls
 }
 
 pitest {
@@ -17,6 +15,5 @@ pitest {
 }
 
 coveralls {
-	dependsOn jacocoTestReport
 	jacocoReportPath 'build/reports/jacoco/test/jacocoTestReport.xml'
 }
