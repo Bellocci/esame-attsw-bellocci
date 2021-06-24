@@ -238,8 +238,11 @@ public class BookSwingView extends JFrame implements BookView {
 
 	@Override
 	public void closeViewError(String message, Library library) {
-		// TODO Auto-generated method stub
-		
+		listBooksModel.removeAllElements();
+		this.setVisible(false);
+		librarySwingView.setVisible(true);
+		librarySwingView.libraryRemoved(library);
+		librarySwingView.showError(message, library);
 	}
 
 	private void clearLblErrorMessage() {

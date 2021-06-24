@@ -232,7 +232,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void testBackToLibrariesShouldCleanTableAndErrorLabelAndDisableBookViewAndSetVisibleLibraryView() {
+	public void testBackToLibrariesButtonShouldCleanTableAndErrorLabelAndDisableBookViewAndSetVisibleLibraryView() {
 		// exercise
 		window.button(JButtonMatcher.withText("Back to libraries")).click();
 		
@@ -242,5 +242,27 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		window.show();
 		window.label("errorLabelMessage").requireText(" ");
+	}
+	
+	@Test
+	public void testCloseViewErrorShouldCleanTableAndDisableBookViewAndDelegateLibrarySwingViewShowError() {
+		// setup
+		Book book = new Book("1", "book1");
+		book.setLibrary(library);
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Book> listBooksModel = bookSwingView.getListBooksModel();
+			listBooksModel.addElement(book);
+		});
+		assertThat(bookSwingView.getListBooksModel().toArray()).hasSize(1);
+		
+		// exercise
+		GuiActionRunner.execute(() -> bookSwingView.closeViewError("Doesnt exist library with id 1 ", library));
+		
+		// verify
+		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
+		assertThat(bookSwingView.isVisible()).isFalse();
+		verify(librarySwingView).setVisible(true);
+		verify(librarySwingView).libraryRemoved(library);
+		verify(librarySwingView).showError("Doesnt exist library with id 1 ", library);
 	}
 }
