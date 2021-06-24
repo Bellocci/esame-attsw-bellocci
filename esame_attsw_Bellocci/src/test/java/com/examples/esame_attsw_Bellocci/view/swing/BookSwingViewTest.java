@@ -41,4 +41,35 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Delete book")).requireDisabled();
 		window.label(JLabelMatcher.withText(" "));
 	}
+	
+	@Test
+	public void testWhenIdAndNameAreNotEmptyAddBookButtonShouldBeEnabled() {
+		// exercise
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("book1");
+		
+		// verify
+		window.button(JButtonMatcher.withText("Add book")).requireEnabled();
+	}
+	
+	@Test
+	public void testWhenIdIsEmptyOrNameIsEmptyOrBothAreEmptyAddBookButtonShouldBeDisabled() {
+		// exercise
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText(" ");
+		
+		// verify
+		window.button(JButtonMatcher.withText("Add book")).requireDisabled();
+		
+		// setup
+		window.textBox("idTextBox").setText("");
+		window.textBox("nameTextBox").setText("");
+		
+		// exercise
+		window.textBox("idTextBox").enterText(" ");
+		window.textBox("nameTextBox").enterText("test");
+		
+		// verify
+		window.button(JButtonMatcher.withText("Add book")).requireDisabled();
+	}
 }

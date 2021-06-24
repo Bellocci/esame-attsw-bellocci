@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -86,8 +88,19 @@ public class BookSwingView extends JFrame {
 		gbc_lblId.gridy = 0;
 		contentPane.add(lblId, gbc_lblId);
 		
+		KeyAdapter btnAddEnabler = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnAdd.setEnabled(
+						!txtId.getText().trim().isEmpty() &&
+						!txtName.getText().trim().isEmpty()
+				);
+			}
+		};
+		
 		txtId = new JTextField();
 		txtId.setName("idTextBox");
+		txtId.addKeyListener(btnAddEnabler);
 		GridBagConstraints gbc_txtId = new GridBagConstraints();
 		gbc_txtId.gridwidth = 2;
 		gbc_txtId.insets = new Insets(0, 0, 5, 0);
@@ -106,6 +119,7 @@ public class BookSwingView extends JFrame {
 		
 		txtName = new JTextField();
 		txtName.setName("nameTextBox");
+		txtName.addKeyListener(btnAddEnabler);
 		GridBagConstraints gbc_txtName = new GridBagConstraints();
 		gbc_txtName.gridwidth = 2;
 		gbc_txtName.insets = new Insets(0, 0, 5, 0);
@@ -117,6 +131,7 @@ public class BookSwingView extends JFrame {
 		
 		btnAdd = new JButton("Add book");
 		btnAdd.setEnabled(false);
+		btnAdd.addKeyListener(btnAddEnabler);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.gridwidth = 2;
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 0);
