@@ -12,6 +12,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,6 +46,12 @@ public class HibernateUtilTest {
 		HibernateUtil.setSessionFactory(null);
 	}
 	
+	@After
+	public void closeSessionFactory() {
+		if(HibernateUtil.getValueSessionFactory() != null && !HibernateUtil.getValueSessionFactory().isClosed())
+			HibernateUtil.getValueSessionFactory().close();
+	}
+	
 	@Test
 	public void testGetSessionFactoryWhenSettingsIsNotEmptyAndSessionFactoryIsNullShouldInitializeUsingSettings() {
 		// setup
@@ -76,12 +83,12 @@ public class HibernateUtilTest {
 	}
 	 
 	@Test
-	public void testResetSessionFactoryWhenSessionFactoryIsNotNullShouldCloseSessionFractoryAndIstanciateItToNull() {
+	public void testResetSessionFactoryWhenSessionFactoryIsNotNullAndOpenShouldCloseItAndIstanciateToNull() {
 		// setup
 		HibernateUtil.setProperties(null);
 		SessionFactory sessionFactory = createSessionFactory();
 		HibernateUtil.setSessionFactory(sessionFactory);
-		assertThat(HibernateUtil.getSessionFactory()).isNotNull();
+		assertThat(HibernateUtil.getValueSessionFactory()).isNotNull();
 		// exercise
 		HibernateUtil.resetSessionFactory();
 		//verify
@@ -109,6 +116,19 @@ public class HibernateUtilTest {
 		// exercise
 		HibernateUtil.resetSessionFactory();
 		//verify
+		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+	}
+	
+	@Test
+	public void testResetSessionFactoryWhenSessionFactoryIsClosedButNotNullShouldSetItNull() {
+		// setup
+		SessionFactory sessionFactory = createSessionFactory();
+		HibernateUtil.setSessionFactory(sessionFactory);
+		HibernateUtil.getValueSessionFactory().close();
+		assertThat(HibernateUtil.getSessionFactory()).isNotNull();
+		// exercise
+		HibernateUtil.resetSessionFactory();
+		// verify
 		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
 	}
 }
