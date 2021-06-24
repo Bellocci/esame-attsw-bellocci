@@ -1,0 +1,22 @@
+/*
+ * COVERALLS profile
+ */
+
+apply plugin: "com.github.kt3k.coveralls"
+apply plugin: 'jacoco'
+apply plugin: 'info.solidsoft.pitest'
+
+jacocoTestReport {
+	apply from: 'profile-jacoco.gradle'
+	
+	finalyzedBy coveralls
+}
+
+pitest {
+	apply from: 'profile-pitest.gradle'
+}
+
+coveralls {
+	dependsOn jacocoTestReport
+	jacocoReportPath 'build/reports/jacoco/test/jacocoTestReport.xml'
+}
