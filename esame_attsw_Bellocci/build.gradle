@@ -26,6 +26,9 @@ repositories {
 }
 
 dependencies {
+	// https://mvnrepository.com/artifact/org.assertj/assertj-core
+	testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
+
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13'
     
@@ -37,4 +40,7 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:29.0-jre'
+    
+    // https://mvnrepository.com/artifact/com.h2database/h2
+	implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
 }
