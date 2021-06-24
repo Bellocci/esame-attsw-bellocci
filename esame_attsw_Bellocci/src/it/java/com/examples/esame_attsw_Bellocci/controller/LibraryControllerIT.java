@@ -125,4 +125,16 @@ public class LibraryControllerIT {
 		// verify
 		verify(libraryView).showAllLibraries(asList(library));
 	}
+	
+	@Test
+	public void testNewLibrary() {
+		// setup
+		Library new_library = new Library("1", "library1");
+		
+		// exercise
+		libraryController.newLibrary(new_library);
+		
+		// verify
+		verify(libraryView).libraryAdded(new_library);
+	}
 }
