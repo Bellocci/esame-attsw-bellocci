@@ -1,0 +1,27 @@
+apply plugin: 'info.solidsoft.pitest'
+
+pitest {
+	reportDir = file("$buildDir/reports/pitest")
+	// Which classes need to be mutated
+	targetClasses = ['com.examples.esame_attsw_Bellocci.*']
+	// Which test classes use
+	targetTests = ['com.examples.esame_attsw_Bellocci.*']
+	// Which methods excludes
+	excludedMethods = [
+		"get*",
+		"set*",
+		"toString",
+		"hashCode",
+		"equals"
+	]
+	outputFormats = ['XML', 'HTML']
+	// List of operations of mutations
+	mutators = [
+		'DEFAULTS',
+		'NON_VOID_METHOD_CALLS'
+	]
+	// Score below which the test fails
+	mutationThreshold = 80
+}
+
+build.dependsOn pitest

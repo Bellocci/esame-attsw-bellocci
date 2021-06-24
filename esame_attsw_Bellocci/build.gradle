@@ -1,3 +1,15 @@
+buildscript {
+	repositories {
+		maven {
+      		url "https://plugins.gradle.org/m2/"
+    	}
+	}
+	dependencies {
+		// plugin pitest
+    	classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.6.0'
+	}
+}
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
@@ -46,6 +58,6 @@ dependencies {
 }
 
 // Allows you to define the profile to be used
-// Run gradle -buildProfile=name_profile to apply it
+// Run gradle -PbuildProfile=name_profile to apply it
 if (!hasProperty('buildProfile')) ext.buildProfile = 'default'  
 apply from: "profiles/profile-${buildProfile}.gradle"
