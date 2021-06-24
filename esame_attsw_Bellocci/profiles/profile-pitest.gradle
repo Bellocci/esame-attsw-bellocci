@@ -23,5 +23,3 @@ pitest {
 	// Score below which the test fails
 	mutationThreshold = 80
 }
-
-build.dependsOn pitest
