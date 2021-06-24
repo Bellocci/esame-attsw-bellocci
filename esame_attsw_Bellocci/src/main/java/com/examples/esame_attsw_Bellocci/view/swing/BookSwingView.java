@@ -204,8 +204,8 @@ public class BookSwingView extends JFrame implements BookView {
 
 	@Override
 	public void bookRemoved(Book book) {
-		// TODO Auto-generated method stub
-		
+		listBooksModel.removeElement(book);
+		clearLblErrorMessage();
 	}
 
 	@Override
