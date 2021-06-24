@@ -92,7 +92,23 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public void deleteLibrary(String id_library) {
-		// TODO Auto-generated method stub
+		session = null;
+		transaction = null;
+		Library library_found = findLibraryById(id_library);
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.delete(library_found);
+			transaction.commit();
+		} catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
 	}
 
 }

@@ -213,14 +213,116 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testSaveLibraryWhenDatabaseAlreadyContainLibraryShouldNotAddToDatabase() {
+	public void testSaveLibraryWhenDatabaseAlreadyContainLibraryWithSameIdShouldNotAddToDatabase() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibrariesToDatabase(library);
 		List<Library> listLibraries = getAllLibrariesFromDatabase();
 		assertThat(listLibraries).hasSize(1);
+		Library library_exist = new Library("1", "exist");
 		// exercise
-		libraryRepository.saveLibrary(library);
+		libraryRepository.saveLibrary(library_exist);
+		// verify
+		listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(1);
+		assertThat(listLibraries).noneMatch(e -> e.getName().equals("exist"));
+		assertThat(libraryRepository.getSession().isOpen()).isFalse();
+	}
+	
+	@Test
+	public void testDeleteLibraryWhenDatabaseContainLibraryWithoutBooksShouldRemoveLibraryFromDatabase() {
+		// setup
+		Library library1 = new Library("1", "library");
+		Library library2 = new Library("2", "library2");
+		addLibrariesToDatabase(library1);
+		addLibrariesToDatabase(library2);
+		List<Library> listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(2);
+		// exercise
+		libraryRepository.deleteLibrary("2");
+		// verify
+		Library library_found = searchLibraryInTheDatabase(library2);
+		assertThat(library_found).isNull();
+		listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(1);
+		assertThat(listLibraries).noneMatch(e -> e.getId().equals("2"));
+		assertThat(libraryRepository.getSession().isOpen()).isFalse();
+	}
+	
+	@Test
+	public void testDeleteLibraryWhenDatabaseContainLibraryWithBooksShouldRemoveItAndAllItsBooksFromDatabase() {
+		// setup
+		Library library1 = new Library("1", "library");
+		Library library2 = new Library("2", "library2");
+		addLibrariesToDatabase(library1);
+		addLibrariesToDatabase(library2);
+		List<Library> listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(2);
+		addBookOfLibraryToDatabase(library1, "1", "book1");
+		addBookOfLibraryToDatabase(library2, "2", "book2");
+		List<Book> listBooks = getAllBooksFromDatabase();
+		assertThat(listBooks).hasSize(2);
+		// exercise
+		libraryRepository.deleteLibrary("1");
+		// verify
+		Library library_found = searchLibraryInTheDatabase(library1);
+		assertThat(library_found).isNull();
+		listBooks = getAllBooksFromDatabase();
+		assertThat(listBooks).hasSize(1);
+		assertThat(listBooks).noneMatch(e -> e.getId().equals("1"));
+		assertThat(libraryRepository.getSession().isOpen()).isFalse();
+	}
+	
+	private List<Book> getAllBooksFromDatabase() {
+		List<Book> listBooks = new ArrayList<>();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        listBooks = session.createQuery("FROM Book", Book.class).list();
+		} catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
+        return listBooks;
+	}
+	
+	private void addBookOfLibraryToDatabase(Library library, String id_book, String name_book) {
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			Book book = new Book(id_book, name_book);
+			book.setLibrary(library);
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        session.save(book);
+	        transaction.commit();
+		} catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+        	if(session != null)
+        		session.close();
+        }
+	}
+	
+	@Test
+	public void testDeleteLibraryWhenDatabaseDoesntContainLibraryShouldNotChangeDatabase() {
+		// setup
+		Library library1 = new Library("1", "library");
+		addLibrariesToDatabase(library1);
+		List<Library> listLibraries = getAllLibrariesFromDatabase();
+		assertThat(listLibraries).hasSize(1);
+		// exercise
+		libraryRepository.deleteLibrary("2");
 		// verify
 		listLibraries = getAllLibrariesFromDatabase();
 		assertThat(listLibraries).hasSize(1);
