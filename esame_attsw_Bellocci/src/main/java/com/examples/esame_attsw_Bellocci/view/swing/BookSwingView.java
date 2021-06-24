@@ -50,6 +50,10 @@ public class BookSwingView extends JFrame implements BookView {
 		return bookController;
 	}
 	
+	protected JLabel getLblErrorMessage() {
+		return lblErrorMessage;
+	}
+	
 	public void setLibrary(Library library) {
 		this.library = library;
 	}
@@ -194,8 +198,8 @@ public class BookSwingView extends JFrame implements BookView {
 
 	@Override
 	public void bookAdded(Book book) {
-		// TODO Auto-generated method stub
-		
+		listBooksModel.addElement(book);
+		clearLblErrorMessage();
 	}
 
 	@Override
@@ -216,4 +220,7 @@ public class BookSwingView extends JFrame implements BookView {
 		
 	}
 
+	private void clearLblErrorMessage() {
+		lblErrorMessage.setText(" ");
+	}
 }

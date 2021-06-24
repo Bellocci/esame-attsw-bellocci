@@ -115,4 +115,21 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 				new Book("2", "book2").toString()
 		);
 	}
+	
+	@Test
+	public void testBookAddedShouldAddBookToTheListAndClearTheErrorLabel() {
+		// setup
+		Book book = new Book("1", "book1");
+		GuiActionRunner.execute(() -> {
+			bookSwingView.getLblErrorMessage().setText("Error");
+		});
+		
+		// exercise
+		GuiActionRunner.execute(() -> bookSwingView.bookAdded(book));
+		
+		// verify
+		String[] listContents = window.list("bookList").contents();
+		assertThat(listContents).containsExactly(new Book("1", "book1").toString());
+		window.label("errorLabelMessage").requireText(" ");
+	}
 }
