@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.assertj.swing.annotation.GUITest;
+import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
@@ -118,5 +119,28 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 					new Library("1", "library1").toString(),
 					new Library("2", "library2").toString()
 			);
+	}
+	
+	@Test @GUITest
+	public void testAddLibraryButtonSuccess() {
+		// setup
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("test");
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Add library")).click();
+		
+		// verify
+		assertThat(window.list("libraryList").contents()).anyMatch(e -> e.contains("1"));
+	}
+	
+	@Test @GUITest
+	public void testAddLibraryButtonError() {
+		libraryRepository.saveLibrary(new Library("1", "library1"));		
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("test");
+		window.button(JButtonMatcher.withText("Add library")).click();
+		assertThat(window.list().contents()).isEmpty();
+		window.label("errorLabelMessage").requireText("Already existing library with id 1: 1 - library1");
 	}
 }
