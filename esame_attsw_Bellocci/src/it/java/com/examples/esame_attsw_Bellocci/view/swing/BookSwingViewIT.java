@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.assertj.swing.annotation.GUITest;
+import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
@@ -151,4 +152,52 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
 		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
 	}
+	
+	@Test @GUITest
+	public void testAddBookButtonSuccess() {
+		// setup
+		window.textBox("idTextBox").enterText("10");
+		window.textBox("nameTextBox").enterText("new_book");
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
+		assertThat(window.list("bookList").contents()).contains(new Book("10", "new_book").toString());
+	}
+	
+	@Test @GUITest
+	public void testAddBookButtonError() {
+		// setup
+		Book book1 = new Book("1", "existing");
+		book1.setLibrary(library);
+		bookRepository.saveBookInTheLibrary(library, book1);
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("book1");
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
+		window.label("errorLabelMessage").requireText("Already existing book with id 1Id: 1 Name: existing");
+	}
+	
+	@Test @GUITest
+	public void testAddBookButtonErrorWhenLibraryDoesntExist() {
+		// setup
+		libraryRepository.deleteLibrary(library.getId());
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("book1");
+		GuiActionRunner.execute(() -> bookSwingView.getLblErrorMessage().setText("Error"));
+		// exercise
+		window.button(JButtonMatcher.withText("Add book")).click();
+
+		// verify
+		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
+		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
+		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
+		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(library.getId()));
+	}
+	
+	
 }

@@ -252,6 +252,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Book> listBooksModel = bookSwingView.getListBooksModel();
 			listBooksModel.addElement(book);
+			bookSwingView.getLblErrorMessage().setText("Error");
 		});
 		assertThat(bookSwingView.getListBooksModel().toArray()).hasSize(1);
 		
@@ -259,6 +260,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> bookSwingView.closeViewError("Doesnt exist library with id 1 ", library));
 		
 		// verify
+		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
 		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		assertThat(bookSwingView.isVisible()).isFalse();
 		verify(librarySwingView).setVisible(true);
