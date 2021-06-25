@@ -373,4 +373,26 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		assertThat(window_book.list("bookList").contents()).isEmpty();
 		window_book.label("errorLabelMessage").requireText(" ");
 	}
+	
+	@Test @GUITest
+	public void testBackToLibrariesButton() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		window_book.textBox("idTextBox").enterText(BOOK_FIXTURE_1_ID);
+		window_book.textBox("nameTextBox").enterText("existing_book");
+		window_book.button(JButtonMatcher.withText("Add book")).click();
+		assertThat(window_book.list("bookList").contents()).hasSize(2);
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Back to libraries")).click();
+		
+		// verify
+		window_book.requireNotVisible();
+		window_library.requireVisible();
+		window_book.show();
+		assertThat(window_book.list("bookList").contents()).isEmpty();
+		window_book.label("errorLabelMessage").requireText(" ");
+	}
 }
