@@ -6,8 +6,6 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -137,11 +135,9 @@ public class BookSwingView extends JFrame implements BookView {
 		btnAdd = new JButton("Add book");
 		btnAdd.setEnabled(false);
 		btnAdd.addKeyListener(btnAddEnabler);
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				bookController.newBook(library, new Book(txtId.getText(), txtName.getText()));
-			}
-		});
+		btnAdd.addActionListener(
+				e -> bookController.newBook(library, new Book(txtId.getText(), txtName.getText()))
+		);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.gridwidth = 2;
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 0);

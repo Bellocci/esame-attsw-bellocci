@@ -122,8 +122,8 @@ public class BookMySQLRepository implements BookRepository {
 	@SuppressWarnings("rawtypes")
 	private Book findBookOfLibraryById(String id_library, String id_book) {
 		Book book = new Book();
-		Session session = null;
-		Transaction transaction = null;
+		session = null;
+		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
