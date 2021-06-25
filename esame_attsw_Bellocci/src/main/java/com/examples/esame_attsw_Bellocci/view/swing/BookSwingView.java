@@ -40,9 +40,9 @@ public class BookSwingView extends JFrame implements BookView {
 	private JButton btnDelete;
 	private JLabel lblErrorMessage;
 	
-	private BookController bookController;
+	private transient BookController bookController;
 	
-	private Library library;
+	private transient Library library;
 	private LibrarySwingView librarySwingView;
 	
 	protected DefaultListModel<Book> getListBooksModel() {
