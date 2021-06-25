@@ -17,6 +17,8 @@ public class HibernateUtil {
 	private static SessionFactory sessionFactory;
 	private static Properties settings;
 	private static String configuration_path = "src/main/resources/";
+	
+	private HibernateUtil() { }
 
 	public static SessionFactory getSessionFactory() {
 		if(sessionFactory == null) {
