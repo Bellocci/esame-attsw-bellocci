@@ -1,6 +1,5 @@
 package com.examples.esame_attsw_Bellocci.repository.mysql;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,7 +28,6 @@ public class BookMySQLRepository implements BookRepository {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Book> getAllBooksOfLibrary(String id_library) {
-		List<Book> books = new ArrayList<>();
 		session = null;
 		transaction = null;
 		session = HibernateUtil.getSessionFactory().openSession();
@@ -37,7 +35,7 @@ public class BookMySQLRepository implements BookRepository {
         String hql = "FROM Book WHERE id_library = :library";
         Query query = session.createQuery(hql);
         query.setParameter("library", id_library);
-        books = query.getResultList();
+        List<Book> books = query.getResultList();
         transaction.commit();
         session.close();
 		return books;
@@ -45,12 +43,11 @@ public class BookMySQLRepository implements BookRepository {
 
 	@Override
 	public Book findBookById(String id_book) {
-		Book book = new Book();
 		session = null;
 		transaction = null;
 		session = HibernateUtil.getSessionFactory().openSession();
         transaction = session.beginTransaction();
-        book = session.get(Book.class, id_book);
+        Book book = session.get(Book.class, id_book);
         transaction.commit();
         session.close();
 		return book;
@@ -82,7 +79,6 @@ public class BookMySQLRepository implements BookRepository {
 
 	@SuppressWarnings("rawtypes")
 	private Book findBookOfLibraryById(String id_library, String id_book) {
-		Book book = new Book();
 		session = null;
 		transaction = null;
 		session = HibernateUtil.getSessionFactory().openSession();
@@ -91,7 +87,7 @@ public class BookMySQLRepository implements BookRepository {
         Query query = session.createQuery(hql);
         query.setParameter("idBook", id_book);
         query.setParameter("idLibrary", id_library);
-        book = (Book) query.uniqueResult();
+        Book book = (Book) query.uniqueResult();
         transaction.commit();
     	session.close();   
 		return book;
