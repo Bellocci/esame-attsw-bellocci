@@ -43,7 +43,7 @@ sonarqube {
     property "sonar.issue.ignore.multicriteria.e17.ruleKey","java:S117"
     property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*.java"
     
-    property "sonar.issue.ignore.multicriteria.e18.ruleKey""java:S3008"
+    property "sonar.issue.ignore.multicriteria.e18.ruleKey", "java:S3008"
     property "sonar.issue.ignore.multicriteria.e18.resourceKey", "**/*.java"
     
     // Ignore rule for define variable as var
