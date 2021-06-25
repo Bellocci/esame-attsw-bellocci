@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
@@ -192,5 +193,31 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		// verify
 		assertThat(window_library.label("errorLabelMessage").text()).contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
 		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains("existing_library"));
+	}
+	
+	@Test @GUITest
+	public void testDeleteLibraryButtonSuccess() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		
+		// exercise
+		window_library.button(JButtonMatcher.withText("Delete library")).click();
+		
+		// verify
+		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_NAME));
+	}
+	
+	@Test @GUITest
+	public void testDeleteLibraryButtonError() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID);
+		
+		// exercise
+		window_library.button(JButtonMatcher.withText("Delete library")).click();
+		
+		// verify
+		assertThat(window_library.label("errorLabelMessage").text()).contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
+		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
 	}
 }
