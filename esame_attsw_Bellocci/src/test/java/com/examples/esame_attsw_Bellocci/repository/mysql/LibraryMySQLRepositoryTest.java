@@ -102,11 +102,7 @@ public class LibraryMySQLRepositoryTest {
 		// verify
 		assertThat(libraries)
 			.anyMatch(e -> e.getId().equals("1"))
-			.anyMatch(e -> e.getName().equals("library1"));
-		
-		assertThat(libraries)
-			.anyMatch(e -> e.getId().equals("2"))
-			.anyMatch(e -> e.getName().equals("library2"));
+			.anyMatch(e -> e.getId().equals("2"));
 		
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
@@ -234,8 +230,9 @@ public class LibraryMySQLRepositoryTest {
 		Library library_found = searchLibraryInTheDatabase(library2);
 		assertThat(library_found).isNull();
 		listLibraries = getAllLibrariesFromDatabase();
-		assertThat(listLibraries).hasSize(1);
-		assertThat(listLibraries).noneMatch(e -> e.getId().equals("2"));
+		assertThat(listLibraries)
+			.hasSize(1)
+			.noneMatch(e -> e.getId().equals("2"));
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
@@ -260,8 +257,9 @@ public class LibraryMySQLRepositoryTest {
 		Library library_found = searchLibraryInTheDatabase(library1);
 		assertThat(library_found).isNull();
 		listBooks = getAllBooksFromDatabase();
-		assertThat(listBooks).hasSize(1);
-		assertThat(listBooks).noneMatch(e -> e.getId().equals("1"));
+		assertThat(listBooks)
+			.hasSize(1)
+			.noneMatch(e -> e.getId().equals("1"));
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
