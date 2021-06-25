@@ -1,8 +1,6 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,6 +26,12 @@ import com.examples.esame_attsw_Bellocci.view.BookView;
 
 public class BookSwingView extends JFrame implements BookView {
 
+	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * 
+	 */
+	
 	private JPanel contentPane;
 	private JTextField txtId;
 	private JTextField txtName;

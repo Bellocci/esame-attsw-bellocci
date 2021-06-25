@@ -2,14 +2,12 @@ package com.examples.esame_attsw_Bellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

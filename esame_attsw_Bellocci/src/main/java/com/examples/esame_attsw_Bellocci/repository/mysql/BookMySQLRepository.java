@@ -31,7 +31,7 @@ public class BookMySQLRepository implements BookRepository {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Book> getAllBooksOfLibrary(String id_library) {
-		List<Book> books = new ArrayList<Book>();
+		List<Book> books = new ArrayList<>();
 		session = null;
 		transaction = null;
 		try {

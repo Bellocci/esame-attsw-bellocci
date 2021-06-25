@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

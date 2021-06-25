@@ -13,19 +13,16 @@ import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Environment;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.MySQLContainer;
 
-import com.examples.esame_attsw_Bellocci.controller.BookController;
 import com.examples.esame_attsw_Bellocci.controller.LibraryController;
 import com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil;
 import com.examples.esame_attsw_Bellocci.model.Book;
 import com.examples.esame_attsw_Bellocci.model.Library;
-import com.examples.esame_attsw_Bellocci.repository.BookRepository;
 import com.examples.esame_attsw_Bellocci.repository.LibraryRepository;
 import com.examples.esame_attsw_Bellocci.repository.mysql.LibraryMySQLRepository;
 

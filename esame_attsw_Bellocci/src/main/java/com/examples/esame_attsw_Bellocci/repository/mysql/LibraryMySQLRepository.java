@@ -28,7 +28,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public List<Library> getAllLibraries() {
-		List<Library> libraries = new ArrayList<Library>();
+		List<Library> libraries = new ArrayList<>();
 		session = null;
 		transaction = null;
 		try {
