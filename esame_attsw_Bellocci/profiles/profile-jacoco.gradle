@@ -21,7 +21,8 @@ jacocoTestCoverageVerification {
     		element = 'CLASS'
     		excludes = [
     			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.view.*"
+    			"com.examples.esame_attsw_Bellocci.view.*",
+    			"com.examples.esame_attsw_Bellocci.app.*"
     		]    
       		limit {
         		minimum = 0.1
@@ -32,7 +33,8 @@ jacocoTestCoverageVerification {
     		element = 'CLASS'
     		excludes = [
     			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.view.*"
+    			"com.examples.esame_attsw_Bellocci.view.*",
+    			"com.examples.esame_attsw_Bellocci.app.*"
     		] 
       		limit {
         		counter = 'INSTRUCTION' 
@@ -44,7 +46,8 @@ jacocoTestCoverageVerification {
     		element = 'CLASS'
     		excludes = [
     			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.view.*"
+    			"com.examples.esame_attsw_Bellocci.view.*",
+    			"com.examples.esame_attsw_Bellocci.app.*"
     		]
     		limit {
     			counter = 'LINE'
@@ -79,6 +82,7 @@ jacocoTestReport {
         		fileTree(dir: it, exclude: [
         			"**/Library.class",
         			"**/Book.class",
+        			"**/LibrarySwingApp.class"
         		])
         	})
         )
