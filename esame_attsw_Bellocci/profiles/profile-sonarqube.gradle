@@ -1,0 +1,8 @@
+apply plugin: "org.sonarqube"
+apply plugin: 'jacoco'
+
+jacocoTestReport {
+	apply from: 'profiles/profile-jacoco.gradle'
+}
+
+project.tasks["sonarqube"].dependsOn "jacocoTestReport"
