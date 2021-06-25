@@ -250,4 +250,26 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
 		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(library.getId()));
 	}
+	
+	@Test @GUITest
+	public void testBackToLibrariesButton() {
+		// setup
+		Book book = new Book("1", "book1");
+		book.setLibrary(library);
+		GuiActionRunner.execute(() -> {
+			bookController.newBook(library, book);
+			librarySwingView.getListLibraryModel().addElement(library);
+		});
+		assertThat(bookSwingView.getListBooksModel().toArray()).hasSize(1);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Back to libraries")).click();
+		
+		// verify
+		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
+		assertThat(bookSwingView.isVisible()).isFalse();
+		assertThat(librarySwingView.isVisible()).isTrue();
+		window.show();
+		window.label("errorLabelMessage").requireText(" ");
+	}
 }
