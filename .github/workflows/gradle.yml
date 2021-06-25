@@ -29,10 +29,9 @@ jobs:
      - name: Download mysql image
        run: docker pull mysql:8
      - name: Build with Gradle
-       run: xvfb-run gradle -PbuildProfile=sonarqube jacocoTestReport sonarqube
-       #run: >
-          #xvfb-run gradle -PbuildProfile=all 
-          #build jacocoTestReport coveralls sonarqube jar
+       run: >
+          xvfb-run gradle -PbuildProfile=all 
+          build jacocoTestReport pitest coveralls sonarqube jar
        working-directory: esame_attsw_Bellocci
        env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
