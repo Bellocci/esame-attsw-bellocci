@@ -233,8 +233,8 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		// verify
 		createFrameFixtureWindowBook();
 		assertThat(window_book.list("bookList").contents())
-			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME))
-			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_2_ID, BOOK_FIXTURE_2_NAME));
+			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_1_ID + " - " + BOOK_FIXTURE_1_NAME))
+			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_2_ID + " - " + BOOK_FIXTURE_2_NAME));
 		window_library.show();
 		window_library.label("errorLabelMessage").requireText(" ");
 	}
@@ -258,9 +258,10 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		window_library.button(JButtonMatcher.withText("Open library")).click();
 		
 		// verify
-		window_library.label("errorLabelMessage").requireText("Doesn't exist library with id " + LIBRARY_FIXTURE_1_ID
-				+ ": " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
-		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
+		window_library.label("errorLabelMessage")
+			.requireText("Doesn't exist library with id 1 : 1 - library1");
+		assertThat(window_library.list("libraryList").contents())
+			.noneMatch(e -> e.contains("1 - library1"));
 	}
 	
 	@Test @GUITest
@@ -313,8 +314,8 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		// verify
 		window_book.requireNotVisible();
 		window_library.requireVisible();
-		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id " + LIBRARY_FIXTURE_1_ID
-				+ " : " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
+		window_library.label("errorLabelMessage")
+			.requireText("Doesnt exist library with id 1 : 1 - library1");
 		window_book.show();
 		assertThat(window_book.list("bookList").contents()).isEmpty();
 		window_book.label("errorLabelMessage").requireText(" ");
@@ -367,8 +368,8 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		// verify
 		window_book.requireNotVisible();
 		window_library.requireVisible();
-		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id " + LIBRARY_FIXTURE_1_ID
-				+ " : " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
+		window_library.label("errorLabelMessage")
+			.requireText("Doesnt exist library with id 1 : 1 - library1");
 		window_book.show();
 		assertThat(window_book.list("bookList").contents()).isEmpty();
 		window_book.label("errorLabelMessage").requireText(" ");

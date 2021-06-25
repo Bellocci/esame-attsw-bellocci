@@ -52,10 +52,6 @@ public class Book {
 	public void setLibrary(Library library) {
 		this.library = library;
 	}
-	
-	public String toString() {
-		return "Id: " + id + " Name: " + name;
-	}
 
 	@Override
 	public int hashCode() {

@@ -1,6 +1,7 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -8,6 +9,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -164,6 +166,18 @@ public class BookSwingView extends JFrame implements BookView {
 		listBooks.setName("bookList");
 		listBooks.addListSelectionListener(e -> btnDelete.setEnabled(listBooks.getSelectedIndex() != -1));
 		listBooks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listBooks.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				Book book = (Book) value;
+				return super.getListCellRendererComponent(list,
+						getDisplayString(book),
+						index, isSelected, cellHasFocus);
+			}
+		});
 		scrollPane.setViewportView(listBooks);
 		
 		btnBack = new JButton("Back to libraries");
@@ -217,7 +231,7 @@ public class BookSwingView extends JFrame implements BookView {
 
 	@Override
 	public void showError(String message, Book book) {
-		lblErrorMessage.setText(message + book);
+		lblErrorMessage.setText(message + " : " + getDisplayString(book));
 	}
 
 	@Override
@@ -232,5 +246,9 @@ public class BookSwingView extends JFrame implements BookView {
 
 	private void clearLblErrorMessage() {
 		lblErrorMessage.setText(" ");
+	}
+	
+	private String getDisplayString(Book book) {
+		return book.getId() + " - " + book.getName();
 	}
 }

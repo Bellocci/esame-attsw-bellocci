@@ -119,10 +119,8 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		assertThat(window.list("libraryList").contents())
-			.containsExactly(
-					new Library("1", "library1").toString(),
-					new Library("2", "library2").toString()
-			);
+			.anyMatch(e -> e.contains("1 - library1"))
+			.anyMatch(e -> e.contains("2 - library2"));
 	}
 	
 	@Test @GUITest
@@ -150,7 +148,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		assertThat(window.list().contents()).isEmpty();
-		window.label("errorLabelMessage").requireText("Already existing library with id 1: 1 - library1");
+		window.label("errorLabelMessage").requireText("Already existing library with id 1 : 1 - library1");
 	}
 	
 	@Test @GUITest
@@ -178,7 +176,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		assertThat(window.list("libraryList").contents()).noneMatch(e -> e.contains("1"));
-		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1: 1 - library1");
+		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1 : 1 - library1");
 	}
 	
 	@Test @GUITest
@@ -233,7 +231,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Open library")).click();
 		
 		// verify
-		assertThat(window.list("libraryList").contents()).noneMatch(e -> e.contains("library1"));
-		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1: " + library.toString());
+		assertThat(window.list("libraryList").contents()).noneMatch(e -> e.contains("1 - library1"));
+		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1 : 1 - library1");
 	}
 }

@@ -61,11 +61,6 @@ public class Library {
 	public void setListBooks(List<Book> list_books) {
 		this.listBooks = list_books;
 	}
-	
-	@Override
-	public String toString() {
-		return id + " - " + name;
-	}
 
 	@Override
 	public int hashCode() {

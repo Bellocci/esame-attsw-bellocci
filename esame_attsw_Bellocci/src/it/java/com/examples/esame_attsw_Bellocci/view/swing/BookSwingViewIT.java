@@ -136,7 +136,8 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		assertThat(window.list("bookList").contents())
-			.containsExactly(book1.toString(), book2.toString());
+			.anyMatch(e -> e.contains("1 - book1"))
+			.anyMatch(e -> e.contains("2 - book2"));
 	}
 	
 	@Test @GUITest
@@ -150,7 +151,8 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		// verify
 		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
-		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
+		window_library.label("errorLabelMessage")
+			.requireText("Doesnt exist library with id 1 : " + library.getId() + " - " + library.getName());
 	}
 	
 	@Test @GUITest
@@ -163,7 +165,8 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Add book")).click();
 		
 		// verify
-		assertThat(window.list("bookList").contents()).contains(new Book("10", "new_book").toString());
+		assertThat(window.list("bookList").contents())
+			.anyMatch(e -> e.contains("10 - new_book"));
 	}
 	
 	@Test @GUITest
@@ -179,7 +182,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Add book")).click();
 		
 		// verify
-		window.label("errorLabelMessage").requireText("Already existing book with id 1Id: 1 Name: existing");
+		window.label("errorLabelMessage").requireText("Already existing book with id 1 : 1 - existing");
 	}
 	
 	@Test @GUITest
@@ -197,8 +200,10 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
 		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
-		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
-		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(library.getId()));
+		window_library.label("errorLabelMessage")
+			.requireText("Doesnt exist library with id 1 : " + library.getId() + " - " + library.getName());
+		assertThat(window_library.list("libraryList").contents())
+			.noneMatch(e -> e.contains(library.getId() + " - " + library.getName()));
 	}
 	
 	@Test @GUITest
@@ -227,8 +232,8 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Delete book")).click();
 		
 		// verify
-		assertThat(window.list("bookList").contents()).noneMatch(e -> e.contains("1"));
-		window.label("errorLabelMessage").requireText("No existing book with id 1Id: 1 Name: book1");
+		assertThat(window.list("bookList").contents()).noneMatch(e -> e.contains("1 - book1"));
+		window.label("errorLabelMessage").requireText("No existing book with id 1 : 1 - book1");
 	}
 	
 	@Test @GUITest
@@ -248,8 +253,10 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
 		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
-		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
-		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(library.getId()));
+		window_library.label("errorLabelMessage")
+			.requireText("Doesnt exist library with id 1 : " + library.getId() + " - " + library.getName());
+		assertThat(window_library.list("libraryList").contents())
+			.noneMatch(e -> e.contains(library.getId() + " - " + library.getName()));
 	}
 	
 	@Test @GUITest

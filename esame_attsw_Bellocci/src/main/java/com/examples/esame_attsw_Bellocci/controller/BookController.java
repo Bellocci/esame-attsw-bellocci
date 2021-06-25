@@ -21,7 +21,7 @@ public class BookController {
 	
 	public void allBooks(Library library) {
 		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId() + " ", library);
+			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
 			return;
 		}
 		bookView.showAllBooks(bookRepository.getAllBooksOfLibrary(library.getId()));
@@ -29,7 +29,7 @@ public class BookController {
 	
 	public void newBook(Library library, Book book) {
 		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId() + " ", library);
+			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
 			return;
 		}
 		Book book_found = bookRepository.findBookById(book.getId());
@@ -43,7 +43,7 @@ public class BookController {
 	
 	public void deleteBook(Library library, Book book) {
 		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId() + " ", library);
+			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
 			return;
 		}
 		if(bookRepository.findBookById(book.getId()) == null) {

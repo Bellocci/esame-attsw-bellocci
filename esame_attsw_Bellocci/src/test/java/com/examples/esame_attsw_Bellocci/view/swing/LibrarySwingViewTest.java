@@ -159,7 +159,8 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		// verify
 		String[] listLibraries = window.list().contents();
 		assertThat(listLibraries)
-			.containsExactly(library1.toString(), library2.toString());
+			.anyMatch(e -> e.contains("1 - library1"))
+			.anyMatch(e -> e.contains("2 - library2"));
 	}
 	
 	@Test
@@ -169,11 +170,11 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// exercise
 		GuiActionRunner.execute(() ->
-			librarySwingView.showError("Error ", library)
+			librarySwingView.showError("Error", library)
 		);
 		
 		// verify
-		window.label("errorLabelMessage").requireText("Error : " + library);
+		window.label("errorLabelMessage").requireText("Error : 1 - library1");
 	}
 	
 	@Test
@@ -189,7 +190,7 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		String[] listLibraries = window.list().contents();
-		assertThat(listLibraries).containsExactly("1 - library1");
+		assertThat(listLibraries).anyMatch(e -> e.contains("1"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -212,7 +213,7 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		String[] listLibraries = window.list().contents();
-		assertThat(listLibraries).containsExactly(library1.toString());
+		assertThat(listLibraries).noneMatch(e -> e.contains("2 - library2"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	

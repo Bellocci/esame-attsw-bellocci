@@ -135,10 +135,9 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		String[] listContents = window.list("bookList").contents();
-		assertThat(listContents).containsExactly(
-				new Book("1", "book1").toString(), 
-				new Book("2", "book2").toString()
-		);
+		assertThat(listContents)
+			.anyMatch(e -> e.contains("1 - book1"))
+			.anyMatch(e -> e.contains("2 - book2"));
 	}
 	
 	@Test
@@ -154,7 +153,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		String[] listContents = window.list("bookList").contents();
-		assertThat(listContents).containsExactly(new Book("1", "book1").toString());
+		assertThat(listContents).anyMatch(e -> e.contains("1 - book1"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -177,7 +176,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		String[] listContents = window.list("bookList").contents();
-		assertThat(listContents).containsExactly(new Book("1", "book1").toString());
+		assertThat(listContents).noneMatch(e -> e.contains("2 - book2"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -188,11 +187,11 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// exercise
 		GuiActionRunner.execute(
-				() -> bookSwingView.showError("Error message ", book)
+				() -> bookSwingView.showError("Error message", book)
 		);
 		
 		// verify
-		window.label("errorLabelMessage").requireText("Error message " + book);
+		window.label("errorLabelMessage").requireText("Error message : 1 - book1");
 	}
 	
 	//Mocks

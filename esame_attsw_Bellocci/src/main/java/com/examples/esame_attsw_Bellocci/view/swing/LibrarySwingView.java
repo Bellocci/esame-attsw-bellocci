@@ -1,6 +1,7 @@
 package com.examples.esame_attsw_Bellocci.view.swing;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -8,6 +9,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -166,6 +168,18 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		});
 		listLibraries.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listLibraries.setName("libraryList");
+		listLibraries.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				Library library = (Library) value;
+				return super.getListCellRendererComponent(list,
+						getDisplayString(library),
+						index, isSelected, cellHasFocus);
+			}
+		});
 		scrollPane.setViewportView(listLibraries);
 		
 		btnOpen = new JButton("Open library");
@@ -224,7 +238,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	@Override
 	public void showError(String error_message, Library library) {
-		lblErrorMessage.setText(error_message + ": " + library);
+		lblErrorMessage.setText(error_message + " : " + getDisplayString(library));
 	}
 
 	@Override
@@ -238,5 +252,9 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 
 	private void clearErrorMessage() {
 		lblErrorMessage.setText(" ");
+	}
+	
+	private String getDisplayString(Library library) {
+		return library.getId() + " - " + library.getName();
 	}
 }
