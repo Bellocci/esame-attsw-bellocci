@@ -262,4 +262,61 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 				+ ": " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
 		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
 	}
+	
+	@Test @GUITest
+	public void testAddBookButtonSuccess() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		window_book.textBox("idTextBox").enterText("10");
+		window_book.textBox("nameTextBox").enterText("new_book");
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
+		assertThat(window_book.list("bookList").contents())
+			.anyMatch(e -> e.contains("10"));
+	}
+	
+	@Test @GUITest
+	public void testAddBookButtonError() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		window_book.textBox("idTextBox").enterText(BOOK_FIXTURE_1_ID);
+		window_book.textBox("nameTextBox").enterText("existing_book");
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
+		assertThat(window_book.label("errorLabelMessage").text()).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME);
+		assertThat(window_book.list("bookList").contents()).noneMatch(e -> e.contains("existing_book"));
+	}
+	
+	@Test @GUITest
+	public void testAddBookButtonErrorWhenLibraryDoesntExistIntoDatabase() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		GuiActionRunner.execute(() -> libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID));
+		window_book.textBox("idTextBox").enterText("10");
+		window_book.textBox("nameTextBox").enterText("new_book");
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
+		window_book.requireNotVisible();
+		window_library.requireVisible();
+		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id " + LIBRARY_FIXTURE_1_ID
+				+ " : " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
+		window_book.show();
+		assertThat(window_book.list("bookList").contents()).isEmpty();
+		window_book.label("errorLabelMessage").requireText(" ");
+	}
 }
