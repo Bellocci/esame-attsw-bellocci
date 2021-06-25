@@ -26,7 +26,6 @@ sonarqube {
     
     property "sonar.issue.ignore.multicriteria.e12.ruleKey", "java:S2699"
     property "sonar.issue.ignore.multicriteria.e12.resourceKey", "**/LibrarySwingViewTest.java"
-    
   }
 }
 

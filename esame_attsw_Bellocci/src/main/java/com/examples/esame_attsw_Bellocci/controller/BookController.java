@@ -11,6 +11,8 @@ public class BookController {
 	private BookView bookView;
 	private LibraryController libraryController;
 	
+	private static final String CLOSE_VIEW_ERROR_MESSAGE = "Doesnt exist library with id ";
+	
 	public BookController(BookRepository bookRepository, BookView bookView, LibraryController libraryController) {
 		this.bookRepository = bookRepository;
 		this.bookView = bookView;
@@ -19,7 +21,7 @@ public class BookController {
 	
 	public void allBooks(Library library) {
 		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError("Doesnt exist library with id " + library.getId() + " ", library);
+			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId() + " ", library);
 			return;
 		}
 		bookView.showAllBooks(bookRepository.getAllBooksOfLibrary(library.getId()));
@@ -27,7 +29,7 @@ public class BookController {
 	
 	public void newBook(Library library, Book book) {
 		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError("Doesnt exist library with id " + library.getId() + " ", library);
+			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId() + " ", library);
 			return;
 		}
 		Book book_found = bookRepository.findBookById(book.getId());
@@ -41,7 +43,7 @@ public class BookController {
 	
 	public void deleteBook(Library library, Book book) {
 		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError("Doesnt exist library with id " + library.getId() + " ", library);
+			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId() + " ", library);
 			return;
 		}
 		if(bookRepository.findBookById(book.getId()) == null) {
