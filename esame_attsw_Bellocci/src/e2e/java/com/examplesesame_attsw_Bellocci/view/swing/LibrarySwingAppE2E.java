@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.GenericTypeMatcher;
+import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
@@ -160,8 +161,36 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	
 	@Test @GUITest
 	public void testOnStartAllDatabaseElementsAreShown() {
+		// verify
 		assertThat(window_library.list("libraryList").contents())
 			.anyMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID))
 			.anyMatch(e -> e.contains(LIBRARY_FIXTURE_2_ID));
+	}
+	
+	@Test @GUITest
+	public void testAddLibraryButtonSuccess() {
+		// setup
+		window_library.textBox("idTextBox").enterText("5");
+		window_library.textBox("nameTextBox").enterText("new_library");
+		
+		// exercise
+		window_library.button(JButtonMatcher.withText("Add library")).click();
+		
+		// verify
+		assertThat(window_library.list("libraryList").contents()).anyMatch(e -> e.contains("5"));
+	}
+	
+	@Test @GUITest
+	public void testAddLibraryButtonError() {
+		// setup
+		window_library.textBox("idTextBox").enterText(LIBRARY_FIXTURE_1_ID);
+		window_library.textBox("nameTextBox").enterText("existing_library");
+		
+		// exercise
+		window_library.button(JButtonMatcher.withText("Add library")).click();
+		
+		// verify
+		assertThat(window_library.label("errorLabelMessage").text()).contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
+		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains("existing_library"));
 	}
 }
