@@ -26,24 +26,22 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public List<Library> getAllLibraries() {
-		List<Library> libraries = new ArrayList<>();
 		session = null;
 		transaction = null;
 		session = HibernateUtil.getSessionFactory().openSession();
         transaction = session.beginTransaction();
-        libraries = session.createQuery("FROM Library", Library.class).list();
+        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
         session.close();
 		return libraries;
 	}
 
 	@Override
 	public Library findLibraryById(String id_library) {
-		Library library = new Library();
 		transaction = null;
 		session = null;
 		session = HibernateUtil.getSessionFactory().openSession();
         transaction = session.beginTransaction();
-        library = session.get(Library.class, id_library);
+        Library library = session.get(Library.class, id_library);
         transaction.commit();
     	session.close();
 		return library;
