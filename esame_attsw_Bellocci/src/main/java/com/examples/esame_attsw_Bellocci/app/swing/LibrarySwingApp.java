@@ -52,7 +52,7 @@ public class LibrarySwingApp implements Callable<Void> {
 			try {
 				LibraryMySQLRepository libraryRepository;
 				BookMySQLRepository bookRepository;
-				if(useHibernateCfgXML != true) {
+				if(!useHibernateCfgXML) {
 					Properties settings = new Properties();
 					
 					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
