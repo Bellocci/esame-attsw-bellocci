@@ -52,9 +52,6 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		return lblErrorMessage;
 	}
 	
-	protected BookSwingView getBookSwingView() {
-		return bookSwingView;
-	}
 	
 	public void setLibraryController(LibraryController libraryController) {
 		this.libraryController = libraryController;

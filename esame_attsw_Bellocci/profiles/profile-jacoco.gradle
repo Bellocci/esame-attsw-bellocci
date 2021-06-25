@@ -12,7 +12,7 @@ jacoco {
 }
 
 jacocoTestCoverageVerification {
-	dependsOn test
+	dependsOn test, integrationTest, e2eTest
 	finalizedBy jacocoTestReport
 	
   	violationRules {
@@ -66,6 +66,8 @@ test {
 
 jacocoTestReport {
 	dependsOn jacocoTestCoverageVerification
+	
+	executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
 	
     reports {
     	xml.enabled = true // coveralls plugin depends on xml format report
