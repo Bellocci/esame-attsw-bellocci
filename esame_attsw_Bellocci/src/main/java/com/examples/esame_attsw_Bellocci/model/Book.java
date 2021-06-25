@@ -67,6 +67,8 @@ public class Book {
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;
+		if (this.getClass() != obj.getClass())
+		    return false;
 		Book book = (Book) obj;
 		if (id == null) {
 			if (book.id != null)
