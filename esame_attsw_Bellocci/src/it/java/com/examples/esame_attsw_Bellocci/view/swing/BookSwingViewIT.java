@@ -194,10 +194,60 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 
 		// verify
 		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
+		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
 		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
 		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(library.getId()));
 	}
 	
+	@Test @GUITest
+	public void testDeleteBookButtonSuccess() {
+		// setup
+		Book book1 = new Book("1", "book1");
+		book1.setLibrary(library);
+		GuiActionRunner.execute(() -> bookController.newBook(library, book1));
+		window.list("bookList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		assertThat(window.list("bookList").contents()).isEmpty();
+	}
+
+	@Test @GUITest
+	public void testDeleteBookButtonError() {
+		// setup
+		Book book1 = new Book("1", "book1");
+		GuiActionRunner.execute(() -> bookSwingView.bookAdded(book1));
+		window.list("bookList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		assertThat(window.list("bookList").contents()).noneMatch(e -> e.contains("1"));
+		window.label("errorLabelMessage").requireText("No existing book with id 1Id: 1 Name: book1");
+	}
 	
+	@Test @GUITest
+	public void testDeleteBookButtonErrorWhenLibraryDoesntExistIntoDatabase() {
+		// setup
+		Book book1 = new Book("1", "book1");
+		GuiActionRunner.execute(() -> {
+			bookSwingView.bookAdded(book1);
+			libraryRepository.deleteLibrary(library.getId());
+		});
+		window.list("bookList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
+		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
+		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
+		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id 1 : " + library);
+		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(library.getId()));
+	}
 }
