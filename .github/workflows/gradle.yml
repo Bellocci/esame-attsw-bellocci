@@ -26,7 +26,7 @@ jobs:
              ~/.sonar/cache
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
           restore-keys: ${{ runner.os }}-m2-
-     - name: Download mysql image
+#     - name: Download mysql image
 #       run: docker pull mysql:8
 #     - name: Build with Gradle
 #       run: xvfb-run gradle build jar
