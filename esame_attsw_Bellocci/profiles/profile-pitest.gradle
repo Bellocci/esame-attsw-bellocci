@@ -4,24 +4,24 @@ pitest {
 	reportDir = file("$buildDir/reports/pitest")
 	// Which classes need to be mutated
 	targetClasses = [
-		"com.examples.esame_attsw_Bellocci.*"
+		"com.examples.esame_attsw_Bellocci.controller.*",
+		"com.examples.esame_attsw_Bellocci.repository.*"
 	]
 	// Which test classes use
 	targetTests = [
 		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.mysql.*",
-		"com.examples.esame_attsw_Bellocci.hibernate.*"
+		"com.examples.esame_attsw_Bellocci.repository.*"
 	]
 	
 	excludedClasses = [
-		"com.examples.esame_attsw_Bellocci.model.*",
 		"com.examples.esame_attsw_Bellocci.view.*",
-		"com.examples.esame_attsw_Bellocci.app.*",
 	]
+	
+	excludedTestClasses = ['com.examples.**.*IT']
 	
 	excludedMethods = [
 		"get*",
-		"set*"
+		"set*",
 	]
 	
 	verbose = true
@@ -40,5 +40,5 @@ pitest {
 	]
 	
 	// Score below which the test fails
-	mutationThreshold = 60
+	mutationThreshold = 80
 }

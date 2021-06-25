@@ -1,6 +1,5 @@
 package com.examples.esame_attsw_Bellocci.repository.mysql;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
