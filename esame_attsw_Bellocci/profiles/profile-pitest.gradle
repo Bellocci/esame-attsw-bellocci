@@ -14,14 +14,6 @@ pitest {
 		"com.examples.esame_attsw_Bellocci.repository.*",
 		"com.examples.esame_attsw_Bellocci.hibernate.*"
 	]
-	// Which methods excludes
-	//excludedMethods = [
-	//	"get*",
-	//	"set*",
-	//	"toString",
-	//	"hashCode",
-	//	"equals"
-	//]
 	
 	outputFormats = ['XML', 'HTML']
 	// List of operations of mutations
