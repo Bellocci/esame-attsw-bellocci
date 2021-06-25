@@ -74,7 +74,7 @@ public class BookSwingView extends JFrame implements BookView {
 	 */
 	public BookSwingView() {
 		setTitle("Book View");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setBounds(100, 100, 618, 424);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
