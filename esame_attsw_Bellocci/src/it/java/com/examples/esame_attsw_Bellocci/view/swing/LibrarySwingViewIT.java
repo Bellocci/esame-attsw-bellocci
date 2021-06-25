@@ -136,11 +136,44 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	
 	@Test @GUITest
 	public void testAddLibraryButtonError() {
+		// setup
 		libraryRepository.saveLibrary(new Library("1", "library1"));		
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("test");
+		
+		// exercise
 		window.button(JButtonMatcher.withText("Add library")).click();
+		
+		// verify
 		assertThat(window.list().contents()).isEmpty();
 		window.label("errorLabelMessage").requireText("Already existing library with id 1: 1 - library1");
+	}
+	
+	@Test @GUITest
+	public void testDeleteLibraryButtonSuccess() {
+		// setup
+		GuiActionRunner.execute(() -> libraryController.newLibrary(new Library("1", "test")));
+		window.list("libraryList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Delete library")).click();
+		
+		// verify
+		assertThat(window.list("libraryList").contents()).isEmpty();
+	}
+	
+	@Test @GUITest
+	public void testDeleteLibraryButtonError() {
+		// setup
+		Library library = new Library("1", "library1");
+		GuiActionRunner.execute(() -> librarySwingView.libraryAdded(library));
+		window.list("libraryList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Delete library")).click();
+		
+		// verify
+		assertThat(window.list("libraryList").contents()).noneMatch(e -> e.contains("1"));
+		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1: 1 - library1");
 	}
 }
