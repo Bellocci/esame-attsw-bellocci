@@ -56,6 +56,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 			session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
             library = session.get(Library.class, id_library);
+            transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();

@@ -48,7 +48,7 @@ public class LibraryMySQLRepositoryTest {
 	}
 
 	@Before
-	public void setupDatabase() {
+	public void setupDatabase() {        	
 		libraryRepository = new LibraryMySQLRepository(settings);
 	}
 	
