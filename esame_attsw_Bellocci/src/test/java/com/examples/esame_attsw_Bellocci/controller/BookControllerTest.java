@@ -75,7 +75,7 @@ public class BookControllerTest {
 		bookController.allBooks(library);
 		
 		// verify
-		verify(bookView).closeViewError("Doesnt exist library with id 1 ", library);
+		verify(bookView).closeViewError("Doesnt exist library with id 1", library);
 		verifyNoMoreInteractions(ignoreStubs(libraryRepository, libraryController));
 	}
 	
@@ -127,7 +127,7 @@ public class BookControllerTest {
 		bookController.newBook(library, new_book);
 		
 		// verify
-		verify(bookView).closeViewError("Doesnt exist library with id 1 ", library);
+		verify(bookView).closeViewError("Doesnt exist library with id 1", library);
 		verifyNoMoreInteractions(ignoreStubs(libraryRepository, libraryController));
 	}
 	
@@ -179,7 +179,7 @@ public class BookControllerTest {
 		bookController.deleteBook(library, new_book);
 		
 		// verify
-		verify(bookView).closeViewError("Doesnt exist library with id 1 ", library);
+		verify(bookView).closeViewError("Doesnt exist library with id 1", library);
 		verifyNoMoreInteractions(ignoreStubs(libraryRepository, libraryController));
 	}
 }
