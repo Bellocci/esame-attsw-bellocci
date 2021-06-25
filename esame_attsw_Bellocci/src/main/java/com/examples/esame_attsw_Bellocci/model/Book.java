@@ -65,6 +65,8 @@ public class Book {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		Book book = (Book) obj;
 		if (id == null) {
 			if (book.id != null)
