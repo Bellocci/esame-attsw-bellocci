@@ -319,4 +319,58 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		assertThat(window_book.list("bookList").contents()).isEmpty();
 		window_book.label("errorLabelMessage").requireText(" ");
 	}
+	
+	@Test @GUITest
+	public void testDeleteBookButtonSuccess() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		window_book.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		assertThat(window_book.list("bookList").contents()).noneMatch(e -> e.contains(BOOK_FIXTURE_1_NAME));
+	}
+	
+	@Test @GUITest
+	public void testDeleteBookButtonError() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		window_book.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
+		bookRepository.deleteBookFromLibrary(LIBRARY_FIXTURE_1_ID, BOOK_FIXTURE_1_ID);
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		assertThat(window_book.list("bookList").contents()).noneMatch(e -> e.contains(BOOK_FIXTURE_1_NAME));
+		assertThat(window_book.label("errorLabelMessage").text()).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME);
+	}
+	
+	@Test @GUITest
+	public void testDeleteBookButtonErrorWhenLibraryDoesntExistIntoDatabase() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		createFrameFixtureWindowBook();
+		GuiActionRunner.execute(() -> libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID));
+		window_book.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
+		
+		// exercise
+		window_book.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
+		window_book.requireNotVisible();
+		window_library.requireVisible();
+		window_library.label("errorLabelMessage").requireText("Doesnt exist library with id " + LIBRARY_FIXTURE_1_ID
+				+ " : " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
+		window_book.show();
+		assertThat(window_book.list("bookList").contents()).isEmpty();
+		window_book.label("errorLabelMessage").requireText(" ");
+	}
 }
