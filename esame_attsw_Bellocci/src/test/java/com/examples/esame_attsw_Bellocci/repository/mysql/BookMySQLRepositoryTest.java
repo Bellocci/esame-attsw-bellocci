@@ -106,8 +106,8 @@ public class BookMySQLRepositoryTest {
 		List<Book> books = bookRepository.getAllBooksOfLibrary("1");
 		
 		// verify
-		assertThat(books).hasSize(2);
 		assertThat(books)
+			.hasSize(2)
 			.anyMatch(e -> e.getId().equals("1"))
 			.anyMatch(e -> e.getId().equals("2"))
 			.anyMatch(e -> e.getLibrary().getId().equals("1"))
@@ -197,8 +197,9 @@ public class BookMySQLRepositoryTest {
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
-		assertThat(books).hasSize(2);
-		assertThat(books).anyMatch(e -> e.getId().equals("2"));
+		assertThat(books)
+			.hasSize(2)
+			.anyMatch(e -> e.getId().equals("2"));
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
@@ -240,8 +241,9 @@ public class BookMySQLRepositoryTest {
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
-		assertThat(books).hasSize(1);
-		assertThat(books).noneMatch(e -> e.getId().equals("2"));
+		assertThat(books)
+			.hasSize(1)
+			.noneMatch(e -> e.getId().equals("2"));
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 

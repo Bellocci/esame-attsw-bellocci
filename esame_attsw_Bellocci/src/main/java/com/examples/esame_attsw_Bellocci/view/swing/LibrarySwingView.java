@@ -170,9 +170,9 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 		
 		btnOpen = new JButton("Open library");
 		btnOpen.setEnabled(false);
-		btnOpen.addActionListener(e -> {
-			libraryController.findLibrary(listLibraries.getSelectedValue());
-		});
+		btnOpen.addActionListener(
+			e -> libraryController.findLibrary(listLibraries.getSelectedValue())
+		);
 		GridBagConstraints gbc_btnOpen = new GridBagConstraints();
 		gbc_btnOpen.anchor = GridBagConstraints.NORTHEAST;
 		gbc_btnOpen.insets = new Insets(0, 0, 5, 5);
