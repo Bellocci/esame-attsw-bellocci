@@ -75,8 +75,8 @@ public class LibrarySwingApp implements Callable<Void> {
 					bookRepository = new BookMySQLRepository(settings);
 				}
 				else {
-					libraryRepository = new LibraryMySQLRepository();
-					bookRepository = new BookMySQLRepository();
+					libraryRepository = new LibraryMySQLRepository(null);
+					bookRepository = new BookMySQLRepository(null);
 				}
 				LibrarySwingView libraryView = new LibrarySwingView();
 				LibraryController libraryController = new LibraryController(libraryView, libraryRepository);

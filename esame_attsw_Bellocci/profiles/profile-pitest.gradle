@@ -17,8 +17,11 @@ pitest {
 		"com.examples.esame_attsw_Bellocci.model.*",
 		"com.examples.esame_attsw_Bellocci.view.*",
 		"com.examples.esame_attsw_Bellocci.app.*",
-		"com.examples.esame_attsw_Bellocci.repository.BookRepository",
-		"com.examples.esame_attsw_Bellocci.repository.LibraryRepository"
+	]
+	
+	excludedMethods = [
+		"get*",
+		"set*"
 	]
 	
 	verbose = true

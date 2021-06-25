@@ -15,8 +15,6 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	
 	private Session session;
 	private Transaction transaction;
-
-	public LibraryMySQLRepository() { }
 	
 	public LibraryMySQLRepository(Properties settings) {
 		HibernateUtil.setProperties(settings);
@@ -31,19 +29,10 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		List<Library> libraries = new ArrayList<>();
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            libraries = session.createQuery("FROM Library", Library.class).list();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        libraries = session.createQuery("FROM Library", Library.class).list();
+        session.close();
 		return libraries;
 	}
 
@@ -52,43 +41,23 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		Library library = new Library();
 		transaction = null;
 		session = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            library = session.get(Library.class, id_library);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        library = session.get(Library.class, id_library);
+        transaction.commit();
+    	session.close();
 		return library;
-	}
-	
-	
+	}	
 
 	@Override
 	public void saveLibrary(Library library) {
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			session.save(library);
-			transaction.commit();
-		} catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+		transaction = session.beginTransaction();
+		session.save(library);
+		transaction.commit();
+    	session.close();  
 	}
 
 	@Override
@@ -96,20 +65,11 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		session = null;
 		transaction = null;
 		Library library_found = findLibraryById(id_library);
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			session.delete(library_found);
-			transaction.commit();
-		} catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+		transaction = session.beginTransaction();
+		session.delete(library_found);
+		transaction.commit();
+        session.close();
 	}
 
 }

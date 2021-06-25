@@ -96,27 +96,17 @@ public class BookControllerIT {
 	}
 	
 	private void cleanDatabaseTables() {
-		Session session = null;
 		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
-	        transaction = session.beginTransaction();
-	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	        for(Library library: libraries)
-	        	session.delete(library);
-	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	        for(Book book: books)
-	        	session.delete(book);
-	        //transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null)
-				transaction.rollback();
-			e.printStackTrace();
-		} finally {
-			if(session != null)
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    transaction = session.beginTransaction();
+	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+	    for(Library library: libraries)
+	     	session.delete(library);
+	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
+	    for(Book book: books)
+	       	session.delete(book);
+	    transaction.commit();
+		session.close();
 	}
 	
 	@Test
@@ -140,19 +130,11 @@ public class BookControllerIT {
 	private void addLibraryToDatabase(Library library) {
 		Session session = null;
 		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        session.save(library);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null)
-				transaction.rollback();
-			e.printStackTrace();
-		} finally {
-			if(session != null)
-				session.close();
-		}
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        session.save(library);
+        transaction.commit();
+        session.close();
 	}
 
 	@Test

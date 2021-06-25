@@ -47,10 +47,6 @@ public class HibernateUtil {
 		}
 		return sessionFactory;
 	}
-
-	public static void setProperties(Properties properties) {
-		settings = properties;
-	}
 	
 	public static void resetSessionFactory() {
 		if(sessionFactory != null) {
@@ -58,10 +54,19 @@ public class HibernateUtil {
 				sessionFactory.close();
 			} catch(HibernateException e) {
 				e.printStackTrace();
+			} finally {
+				if(sessionFactory.isClosed())
+					sessionFactory = null;
 			}
-			if(sessionFactory.isClosed())
-				sessionFactory = null;
 		}
+	}
+	
+	public static void setProperties(Properties properties) {
+		settings = properties;
+	}
+	
+	public static Properties getProperties() {
+		return settings;
 	}
 	
 	protected static void setSessionFactory(SessionFactory setSessionFactory) {

@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;

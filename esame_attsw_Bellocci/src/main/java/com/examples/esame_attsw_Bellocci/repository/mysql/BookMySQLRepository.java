@@ -17,8 +17,6 @@ public class BookMySQLRepository implements BookRepository {
 	
 	private Session session;
 	private Transaction transaction;
-	
-	public BookMySQLRepository() { }
 
 	public BookMySQLRepository(Properties settings) {
 		HibernateUtil.setProperties(settings);
@@ -34,24 +32,14 @@ public class BookMySQLRepository implements BookRepository {
 		List<Book> books = new ArrayList<>();
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            String hql = "FROM Book WHERE id_library = :library";
-            Query query = session.createQuery(hql);
-            query.setParameter("library", id_library);
-            books = query.getResultList();
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
-        
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        String hql = "FROM Book WHERE id_library = :library";
+        Query query = session.createQuery(hql);
+        query.setParameter("library", id_library);
+        books = query.getResultList();
+        transaction.commit();
+        session.close();
 		return books;
 	}
 
@@ -60,20 +48,11 @@ public class BookMySQLRepository implements BookRepository {
 		Book book = new Book();
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            book = session.get(Book.class, id_book);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        book = session.get(Book.class, id_book);
+        transaction.commit();
+        session.close();
 		return book;
 	}
 
@@ -81,21 +60,12 @@ public class BookMySQLRepository implements BookRepository {
 	public void saveBookInTheLibrary(Library library, Book new_book) {
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            new_book.setLibrary(library);
-            session.save(new_book);
-            transaction.commit();            
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        new_book.setLibrary(library);
+        session.save(new_book);
+        transaction.commit();            
+    	session.close();
 	}
 
 	@Override
@@ -103,20 +73,11 @@ public class BookMySQLRepository implements BookRepository {
 		Book book_found = findBookOfLibraryById(id_library, id_book);
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            session.delete(book_found);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        session.delete(book_found);
+        transaction.commit();
+        session.close();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -124,25 +85,15 @@ public class BookMySQLRepository implements BookRepository {
 		Book book = new Book();
 		session = null;
 		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-            transaction = session.beginTransaction();
-            String hql = "FROM Book WHERE id = :idBook AND id_library = :idLibrary";
-            Query query = session.createQuery(hql);
-            query.setParameter("idBook", id_book);
-            query.setParameter("idLibrary", id_library);
-            book = (Book) query.uniqueResult();
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        } finally {
-        	if(session != null)
-        		session.close();
-        }
-        
+		session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        String hql = "FROM Book WHERE id = :idBook AND id_library = :idLibrary";
+        Query query = session.createQuery(hql);
+        query.setParameter("idBook", id_book);
+        query.setParameter("idLibrary", id_library);
+        book = (Book) query.uniqueResult();
+        transaction.commit();
+    	session.close();   
 		return book;
 	}
 }
