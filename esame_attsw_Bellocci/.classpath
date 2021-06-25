@@ -3,13 +3,13 @@
 	<classpathentry kind="src" output="bin/main" path="src/main/java">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
-			<attribute name="gradle_used_by_scope" value="main,test,integrationTest"/>
+			<attribute name="gradle_used_by_scope" value="main,test,e2eTest,integrationTest"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="bin/main" path="src/main/resources">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
-			<attribute name="gradle_used_by_scope" value="main,test,integrationTest"/>
+			<attribute name="gradle_used_by_scope" value="main,test,e2eTest,integrationTest"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="bin/test" path="src/test/java">
@@ -37,6 +37,20 @@
 		<attributes>
 			<attribute name="gradle_scope" value="integrationTest"/>
 			<attribute name="gradle_used_by_scope" value="integrationTest"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin/e2eTest" path="src/e2e/java">
+		<attributes>
+			<attribute name="gradle_scope" value="e2eTest"/>
+			<attribute name="gradle_used_by_scope" value="e2eTest"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin/e2eTest" path="src/e2e/resources">
+		<attributes>
+			<attribute name="gradle_scope" value="e2eTest"/>
+			<attribute name="gradle_used_by_scope" value="e2eTest"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
