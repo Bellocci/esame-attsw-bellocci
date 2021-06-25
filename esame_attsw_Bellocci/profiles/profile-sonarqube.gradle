@@ -18,7 +18,7 @@ sonarqube {
 	property 'sonar.coverage.jacoco.xmlReportPaths', "$project.projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
     
     // Ignore rules
-    property "sonar.issue.ignore.multicriteria", "e11, e12, e13, e14, e15, e16"
+    property "sonar.issue.ignore.multicriteria", "e11, e12, e13, e14, e15, e16, e17"
     
     // Removed rule because some test cannot have assertion
     property "sonar.issue.ignore.multicriteria.e11.ruleKey", "java:S2699"
@@ -39,6 +39,10 @@ sonarqube {
     
     property "sonar.issue.ignore.multicriteria.e16.ruleKey", "java:S120"
     property "sonar.issue.ignore.multicriteria.e16.resourceKey", "**/*.java"
+    
+    // Ignore rule for define variable as var
+    property "sonar.issue.ignore.multicriteria.e17.ruleKey","java:S6212"
+    property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*.java"
   }
 }
 
