@@ -238,6 +238,7 @@ public class BookSwingView extends JFrame implements BookView {
 
 	@Override
 	public void closeViewError(String message, Library library) {
+		clearLblErrorMessage();
 		listBooksModel.removeAllElements();
 		this.setVisible(false);
 		librarySwingView.setVisible(true);
