@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.core.matcher.JButtonMatcher;
+import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
@@ -218,6 +219,47 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		// verify
 		assertThat(window_library.label("errorLabelMessage").text()).contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
+		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
+	}
+	
+	@Test @GUITest
+	public void testOpenLibraryButtonSuccess() {
+		// setup
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		
+		// exercise
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		
+		// verify
+		createFrameFixtureWindowBook();
+		assertThat(window_book.list("bookList").contents())
+			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME))
+			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_2_ID, BOOK_FIXTURE_2_NAME));
+		window_library.show();
+		window_library.label("errorLabelMessage").requireText(" ");
+	}
+	
+	private void createFrameFixtureWindowBook() {
+		window_book = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
+			@Override
+			protected boolean isMatching(JFrame frame) {
+				return "Book View".equals(frame.getTitle()) && frame.isShowing();
+			}
+		}).using(robot());
+	}
+	
+	@Test @GUITest
+	public void testOpenLibraryButtonError() {
+		// setup
+		GuiActionRunner.execute(() -> libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID));
+		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		
+		// exercise
+		window_library.button(JButtonMatcher.withText("Open library")).click();
+		
+		// verify
+		window_library.label("errorLabelMessage").requireText("Doesn't exist library with id " + LIBRARY_FIXTURE_1_ID
+				+ ": " + LIBRARY_FIXTURE_1_ID + " - " + LIBRARY_FIXTURE_1_NAME);
 		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
 	}
 }
