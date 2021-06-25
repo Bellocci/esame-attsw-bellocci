@@ -22,8 +22,7 @@ sonarqube {
     
     // Removed rule because some test cannot have assertion
     property "sonar.issue.ignore.multicriteria.e11.ruleKey", "java:S2699"
-    property "sonar.issue.ignore.multicriteria.e11.resourceKey", "**/BookSwingViewTest.java"
-	property "sonar.issue.ignore.multicriteria.e11.resourceKey", "**/LibrarySwingViewTest.java"
+    property "sonar.issue.ignore.multicriteria.e11.resourceKey", "**/BookSwingViewTest.java, **/LibrarySwingViewTest.java"
     
   }
 }
