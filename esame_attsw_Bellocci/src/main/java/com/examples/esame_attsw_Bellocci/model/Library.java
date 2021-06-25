@@ -36,7 +36,6 @@ public class Library {
 	public Library(String id, String name) {
 		this.id = id;
 		this.name = name;
-		//this.list_books = new ArrayList<Book>();
 	}
 
 	public String getId() {
