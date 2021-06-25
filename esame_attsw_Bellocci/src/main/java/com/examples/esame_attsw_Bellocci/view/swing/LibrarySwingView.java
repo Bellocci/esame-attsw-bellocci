@@ -41,7 +41,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	private JList<Library> listLibraries;
 	private DefaultListModel<Library> listLibraryModel;
 	
-	private LibraryController libraryController;
+	private transient LibraryController libraryController;
 	private BookSwingView bookSwingView = new BookSwingView();
 	
 	protected DefaultListModel<Library> getListLibraryModel() {
