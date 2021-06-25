@@ -34,7 +34,7 @@ jobs:
           build jacocoTestReport coveralls pitest sonarqube jar
           -Dsonar.organization=belloccifrancesco-github
           -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.projectKey=Bellocci_sonarqube-gradle-repository
+          -Dsonar.projectKey=Bellocci_esame-attsw-bellocci
        working-directory: esame_attsw_Bellocci
        env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
