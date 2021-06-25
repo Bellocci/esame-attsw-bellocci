@@ -143,7 +143,6 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
 	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
 	        for(Library library: libraries)
@@ -151,13 +150,14 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
 	        for(Book book: books)
 	        	session.delete(book);
-	        //transaction.commit();
+	        transaction.commit();
 		} catch(Exception e) {
 			if(transaction != null)
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 	

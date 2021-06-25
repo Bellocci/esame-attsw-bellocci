@@ -234,7 +234,8 @@ public class BookMySQLRepositoryTestcontainersIT {
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
-		assertThat(books).hasSize(1);
-		assertThat(books).noneMatch(e -> e.getId().equals("2"));
+		assertThat(books)
+			.hasSize(1)
+			.noneMatch(e -> e.getId().equals("2"));
 	}
 }

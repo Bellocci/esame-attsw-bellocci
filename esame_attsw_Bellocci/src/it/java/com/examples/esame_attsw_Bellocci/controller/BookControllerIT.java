@@ -59,7 +59,6 @@ public class BookControllerIT {
 				.withPassword("password");
 		mySQLContainer.start();
 		
-		//Map<String, String> settings = new HashMap<>();
 		settings = new Properties();
 		
 		settings.put(AvailableSettings.DRIVER, mySQLContainer.getDriverClassName());
@@ -143,9 +142,7 @@ public class BookControllerIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
-	        // save the student objects
 	        session.save(library);
 	        transaction.commit();
 		} catch(Exception e) {

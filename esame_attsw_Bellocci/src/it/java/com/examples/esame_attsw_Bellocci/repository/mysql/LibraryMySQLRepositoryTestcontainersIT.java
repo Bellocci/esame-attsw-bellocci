@@ -88,7 +88,8 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 
@@ -114,9 +115,7 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
-	        // save the student objects
 	        session.save(library);
 	        transaction.commit();
 		} catch(Exception e) {
@@ -124,7 +123,8 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 	
@@ -166,9 +166,7 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
-	        // save the student objects
 	        library_found = session.get(Library.class, library.getId());
 	        transaction.commit();
 		} catch(Exception e) {
@@ -176,7 +174,8 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
         return library_found;
 	}
@@ -208,17 +207,16 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
-	        // save the student objects
 	        books = session.createQuery("FROM Book", Book.class).list();
-	        //transaction.commit();
+	        transaction.commit();
 		} catch(Exception e) {
 			if(transaction != null)
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
         return books;
 	}
@@ -230,9 +228,7 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
-	        // save the student objects
 	        session.save(book);
 	        transaction.commit();
 		} catch(Exception e) {
@@ -240,7 +236,8 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 				transaction.rollback();
 			e.printStackTrace();
 		} finally {
-			session.close();
+			if(session != null)
+				session.close();
 		}
 	}
 }

@@ -189,6 +189,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("book1");
 		GuiActionRunner.execute(() -> bookSwingView.getLblErrorMessage().setText("Error"));
+		
 		// exercise
 		window.button(JButtonMatcher.withText("Add book")).click();
 

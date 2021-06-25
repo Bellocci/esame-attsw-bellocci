@@ -51,7 +51,6 @@ public class LibraryControllerIT {
 				.withPassword("password");
 		mySQLContainer.start();
 		
-		//Map<String, String> settings = new HashMap<>();
 		settings = new Properties();
 		
 		settings.put(AvailableSettings.DRIVER, mySQLContainer.getDriverClassName());
@@ -94,7 +93,6 @@ public class LibraryControllerIT {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
 	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
 	        for(Library library: libraries)
@@ -102,7 +100,7 @@ public class LibraryControllerIT {
 	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
 	        for(Book book: books)
 	        	session.delete(book);
-	        //transaction.commit();
+	        transaction.commit();
 		} catch(Exception e) {
 			if(transaction != null)
 				transaction.rollback();

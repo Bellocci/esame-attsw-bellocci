@@ -72,7 +72,7 @@ jacocoTestReport {
         html.enabled = true
     }
     
-    // Remove Book and Library class from JaCoCo report
+    // Remove Book, Library and LibrarySwingView classes from JaCoCo report
 	afterEvaluate {
     	getClassDirectories().setFrom(
     		files(classDirectories.files.collect {

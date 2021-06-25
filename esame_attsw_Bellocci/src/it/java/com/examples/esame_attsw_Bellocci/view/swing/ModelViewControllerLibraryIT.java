@@ -49,7 +49,6 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 				.withPassword("password");
 		mySQLContainer.start();
 		
-		//Map<String, String> settings = new HashMap<>();
 		settings = new Properties();
 		
 		settings.put(AvailableSettings.DRIVER, mySQLContainer.getDriverClassName());

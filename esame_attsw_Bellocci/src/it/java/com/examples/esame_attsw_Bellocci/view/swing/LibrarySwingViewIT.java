@@ -90,7 +90,6 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		Transaction transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			// start a transaction
 	        transaction = session.beginTransaction();
 	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
 	        for(Library library: libraries)
