@@ -24,7 +24,7 @@ jacocoTestCoverageVerification {
     			"com.examples.esame_attsw_Bellocci.app.*"
     		]    
       		limit {
-        		minimum = 1
+        		minimum = 0.2
       		}
     	}
     	
