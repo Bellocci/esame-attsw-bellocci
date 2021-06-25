@@ -19,11 +19,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.examples.esame_attsw_Bellocci.controller.BookController;
 import com.examples.esame_attsw_Bellocci.controller.LibraryController;
 import com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil;
 import com.examples.esame_attsw_Bellocci.model.Book;
 import com.examples.esame_attsw_Bellocci.model.Library;
+import com.examples.esame_attsw_Bellocci.repository.BookRepository;
 import com.examples.esame_attsw_Bellocci.repository.LibraryRepository;
+import com.examples.esame_attsw_Bellocci.repository.mysql.BookMySQLRepository;
 import com.examples.esame_attsw_Bellocci.repository.mysql.LibraryMySQLRepository;
 
 @RunWith(GUITestRunner.class)
@@ -32,10 +35,12 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	private FrameFixture window;
 	
 	private LibrarySwingView librarySwingView;
-	
 	private LibraryController libraryController;
-	
 	private LibraryRepository libraryRepository;
+	
+	private BookSwingView bookSwingView;
+	private BookController bookController;
+	private BookRepository bookRepository;
 	
 	private static Properties settings;
 	
@@ -175,5 +180,61 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		// verify
 		assertThat(window.list("libraryList").contents()).noneMatch(e -> e.contains("1"));
 		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1: 1 - library1");
+	}
+	
+	@Test @GUITest
+	public void testOpenLibraryButtonSucess() {
+		// setup
+		initBookMVC();
+		Library library = new Library("1", "library1");
+		Book book1 = new Book("1", "book1");
+		book1.setLibrary(library);
+		Book book2 = new Book("2", "book2");
+		book2.setLibrary(library);
+		GuiActionRunner.execute(() -> {
+			libraryController.newLibrary(library);
+			bookRepository.saveBookInTheLibrary(library, book1);
+			bookRepository.saveBookInTheLibrary(library, book2);
+			librarySwingView.getLblErrorMessage().setText("Error");
+		});
+		window.list("libraryList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Open library")).click();
+		
+		// verify
+		assertThat(bookSwingView.isVisible()).isTrue();
+		assertThat(bookSwingView.getListBooksModel().toArray())
+			.containsExactly(book1, book2);
+		assertThat(librarySwingView.isVisible()).isFalse();
+		assertThat(librarySwingView.getLblErrorMessage().getText()).isEqualTo(" ");
+	}
+	
+	private void initBookMVC() {
+		GuiActionRunner.execute(() -> {
+			bookSwingView = new BookSwingView();
+			bookRepository = new BookMySQLRepository(settings);
+			bookController = new BookController(bookRepository, bookSwingView, libraryController);
+			bookSwingView.setBookController(bookController);
+			bookSwingView.setLibrarySwingView(librarySwingView);
+			librarySwingView.setBookSwingView(bookSwingView);
+		});
+	}
+	
+	@Test @GUITest
+	public void testOpenLibraryButtonError() {
+		// setup
+		Library library = new Library("1", "library1");
+		GuiActionRunner.execute(() -> {
+			librarySwingView.libraryAdded(library);
+		});
+		window.list("libraryList").selectItem(0);
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Open library")).click();
+		
+		// verify
+		assertThat(window.list("libraryList").contents()).noneMatch(e -> e.contains("library1"));
+		window.label("errorLabelMessage").requireText("Doesn't exist library with id 1: " + library.toString());
 	}
 }

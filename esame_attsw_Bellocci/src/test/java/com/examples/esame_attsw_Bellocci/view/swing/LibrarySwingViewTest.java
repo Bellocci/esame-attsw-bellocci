@@ -267,13 +267,14 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void testShowAllBooksShouldSetLibraryViewNoVisibleAndInitBookViewAndSetVisible() {
+	public void testShowAllBooksShouldSetLibraryViewNoVisibleClearErrorLabelAndInitBookViewAndSetItVisible() {
 		// setup
 		Library library = new Library("1", "library1");
 		when(bookSwingView.getBookController()).thenReturn(bookController);
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Library> listLibraryModel = librarySwingView.getListLibraryModel();
 			listLibraryModel.addElement(library);
+			librarySwingView.getLblErrorMessage().setText("Error");
 		});
 		
 		// exercise
@@ -288,5 +289,6 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		inOrder.verify(bookSwingView).getBookController();
 		inOrder.verify(bookController).allBooks(library);
 		assertThat(librarySwingView.isVisible()).isFalse();
+		assertThat(librarySwingView.getLblErrorMessage().getText()).isEqualTo(" ");
 	}
 }

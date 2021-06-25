@@ -15,7 +15,7 @@ public class LibraryController {
 	}
 	
 	protected LibraryRepository getLibraryRepository() {
-		return this.getLibraryRepository();
+		return this.libraryRepository;
 	}
 
 	public void getAllLibraries() {
