@@ -4,7 +4,7 @@ import java.awt.EventQueue;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.AvailableSettings;
 
 import com.examples.esame_attsw_Bellocci.controller.BookController;
 import com.examples.esame_attsw_Bellocci.controller.LibraryController;
@@ -55,19 +55,20 @@ public class LibrarySwingApp implements Callable<Void> {
 				if(useHibernateCfgXML != true) {
 					Properties settings = new Properties();
 					
-					settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-					settings.put(Environment.URL, "jdbc:mysql://"+mysqlHost+":"+mysqlPort+"/"+databaseName+"?useSSL=false");
-					settings.put(Environment.USER, username);
-					settings.put(Environment.PASS, password);
-					settings.put(Environment.POOL_SIZE, "1");
-					settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-					settings.put(Environment.SHOW_SQL, "true");
-					settings.put(Environment.FORMAT_SQL, "true");
-					settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-					settings.put(Environment.HBM2DDL_AUTO, "update");
-					settings.put(Environment.HBM2DDL_HALT_ON_ERROR, "true");
-					settings.put(Environment.HBM2DDL_CREATE_SCHEMAS, "true");
-					settings.put(Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
+					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
+					settings.put(AvailableSettings.URL, "jdbc:mysql://"+mysqlHost+":"+mysqlPort+"/"+databaseName+"?useSSL=false");
+					settings.put(AvailableSettings.USER, username);
+					settings.put(AvailableSettings.PASS, password);
+					settings.put(AvailableSettings.POOL_SIZE, "1");
+					settings.put(AvailableSettings.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+					settings.put(AvailableSettings.SHOW_SQL, "true");
+					settings.put(AvailableSettings.FORMAT_SQL, "true");
+					settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+					settings.put(AvailableSettings.HBM2DDL_AUTO, "update");
+					settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
+					settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
+					settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 					
 					
 					libraryRepository = new LibraryMySQLRepository(settings);

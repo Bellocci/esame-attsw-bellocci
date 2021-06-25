@@ -19,6 +19,7 @@ import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Environment;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -73,20 +74,20 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		settings = new Properties();
 		
-		settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-		settings.put(Environment.URL, "jdbc:mysql://"+mySQLContainer.getHost()+":"+
+		settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
+		settings.put(AvailableSettings.URL, "jdbc:mysql://"+mySQLContainer.getHost()+":"+
 				mySQLContainer.getFirstMappedPort()+"/"+DB_NAME+"?useSSL=false");
-		settings.put(Environment.USER, DB_USER);
-		settings.put(Environment.PASS, DB_PASSWORD);
-		settings.put(Environment.POOL_SIZE, "1");
-		settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-		settings.put(Environment.SHOW_SQL, "true");
-		settings.put(Environment.FORMAT_SQL, "true");
-		settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-		settings.put(Environment.HBM2DDL_AUTO, "create-drop");
-		settings.put(Environment.HBM2DDL_HALT_ON_ERROR, "true");
-		settings.put(Environment.HBM2DDL_CREATE_SCHEMAS, "true");
-		settings.put(Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+		settings.put(AvailableSettings.USER, DB_USER);
+		settings.put(AvailableSettings.PASS, DB_PASSWORD);
+		settings.put(AvailableSettings.POOL_SIZE, "1");
+		settings.put(AvailableSettings.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+		settings.put(AvailableSettings.SHOW_SQL, "true");
+		settings.put(AvailableSettings.FORMAT_SQL, "true");
+		settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+		settings.put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
+		settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
+		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
+		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		
 		libraryRepository = new LibraryMySQLRepository(settings);
 		bookRepository = new BookMySQLRepository(settings);

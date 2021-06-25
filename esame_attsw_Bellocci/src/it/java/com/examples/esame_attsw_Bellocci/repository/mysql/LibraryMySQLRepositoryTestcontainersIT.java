@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -40,18 +41,18 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		
 		settings = new Properties();
 		
-		settings.put(Environment.DRIVER, mySQLContainer.getDriverClassName());
-		settings.put(Environment.URL, mySQLContainer.getJdbcUrl());
-		settings.put(Environment.USER, mySQLContainer.getUsername());
-		settings.put(Environment.PASS, mySQLContainer.getPassword());
-		settings.put(Environment.POOL_SIZE, "1");
-		settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-		settings.put(Environment.SHOW_SQL, "true");
-		settings.put(Environment.FORMAT_SQL, "true");
-		settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-		settings.put(Environment.HBM2DDL_AUTO, "create-drop");
-		settings.put(Environment.HBM2DDL_HALT_ON_ERROR, "true");
-		settings.put(Environment.HBM2DDL_CREATE_SCHEMAS, "true");
+		settings.put(AvailableSettings.DRIVER, mySQLContainer.getDriverClassName());
+		settings.put(AvailableSettings.URL, mySQLContainer.getJdbcUrl());
+		settings.put(AvailableSettings.USER, mySQLContainer.getUsername());
+		settings.put(AvailableSettings.PASS, mySQLContainer.getPassword());
+		settings.put(AvailableSettings.POOL_SIZE, "1");
+		settings.put(AvailableSettings.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+		settings.put(AvailableSettings.SHOW_SQL, "true");
+		settings.put(AvailableSettings.FORMAT_SQL, "true");
+		settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+		settings.put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
+		settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
+		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 	}
 	
 	@AfterClass
