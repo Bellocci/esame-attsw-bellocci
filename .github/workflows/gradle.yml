@@ -37,11 +37,11 @@ jobs:
 #     - name: Pitest
 #       run: xvfb-run gradle -PbuildProfile=pitest pitest
 #       working-directory: esame_attsw_Bellocci
-#     - name: Coveralls
-#       run: xvfb-run gradle -PbuildProfile=coveralls coveralls
-#       working-directory: esame_attsw_Bellocci
-#       env:
-#          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+     - name: Coveralls
+       run: xvfb-run gradle -PbuildProfile=coveralls coveralls
+       working-directory: esame_attsw_Bellocci
+       env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
      - name: Sonarqube
        run: xvfb-run gradle -PbuildProfile=sonarqube sonarqube
        working-directory: esame_attsw_Bellocci
