@@ -43,10 +43,15 @@ compileTestJava.options.encoding = "UTF-8"
 
 testSets {
 	integrationTest { dirName = 'it' }
+	e2eTest { dirName = 'e2e' }
 }
 
 // We require the integrationTests to always be run, even when the inputs and outputs are the same
 project.integrationTest {
+    outputs.upToDateWhen { false }
+}
+
+project.e2eTest {
     outputs.upToDateWhen { false }
 }
 
@@ -84,6 +89,9 @@ dependencies {
 	
 	// https://mvnrepository.com/artifact/org.assertj/assertj-swing-junit
 	testImplementation group: 'org.assertj', name: 'assertj-swing-junit', version: '3.17.1'
+	
+	// https://mvnrepository.com/artifact/info.picocli/picocli
+	implementation group: 'info.picocli', name: 'picocli', version: '4.6.1'
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     api 'org.apache.commons:commons-math3:3.6.1'
@@ -100,8 +108,30 @@ apply from: "profiles/profile-${buildProfile}.gradle"
 
 // TEST TASK
 
-check.dependsOn integrationTest
+check.dependsOn integrationTest, e2eTest
 
 integrationTest {
 	shouldRunAfter test
+}
+
+e2eTest {
+	shouldRunAfter integrationTest
+}
+
+// FAT JAR
+
+task fatJAR(type: Jar) {
+
+	manifest {
+		attributes 'Main-class': 'com.examples.esame_attsw_Bellocci.app.swing.LibrarySwingApp'
+	}
+	
+	archiveBaseName = project.name + '-all-dependencies'
+	archiveClassifier = "all"
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	configurations.implementation.canBeResolved = true
+  	from {
+    	configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
 }
