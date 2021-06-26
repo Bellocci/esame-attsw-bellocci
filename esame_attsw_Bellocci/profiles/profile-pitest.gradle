@@ -5,12 +5,14 @@ pitest {
 	// Which classes need to be mutated
 	targetClasses = [
 		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.*"
+		"com.examples.esame_attsw_Bellocci.repository.*",
+		"com.examples.esame_attsw_Bellocci.hibernate.*"
 	]
 	// Which test classes use
 	targetTests = [
 		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.*"
+		"com.examples.esame_attsw_Bellocci.repository.*",
+		"com.examples.esame_attsw_Bellocci.hibernate.*"
 	]
 	
 	excludedClasses = [
@@ -34,9 +36,14 @@ pitest {
 	]
 	
 	avoidCallsTo = [
-		'org.hibernate.Session',
-		'org.hibernate.Transaction',
-		'org.hibernate.SessionFactory'
+		"org.hibernate.HibernateException",
+		"org.hibernate.SessionFactory",
+		"org.hibernate.boot.registry.StandardServiceRegistryBuilder",
+		"org.hibernate.Configuration",
+		"org.hibernate.ServiceRegistry",
+		"org.hibernate.Session",
+		"org.hibernate.Transaction",
+		"org.hibernate.query.Query"
 	]
 	
 	// Score below which the test fails

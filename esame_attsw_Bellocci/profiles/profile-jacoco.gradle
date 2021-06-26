@@ -12,7 +12,8 @@ jacoco {
 }
 
 jacocoTestCoverageVerification {
-	dependsOn test, integrationTest, e2eTest
+	//dependsOn test, integrationTest, e2eTest
+	dependsOn test
 	finalizedBy jacocoTestReport
 	
   	violationRules {
@@ -21,7 +22,8 @@ jacocoTestCoverageVerification {
     		element = 'CLASS'
     		excludes = [
     			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*"
+    			"com.examples.esame_attsw_Bellocci.app.*",
+    			"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil"
     		]    
       		limit {
         		minimum = 0.2
@@ -32,7 +34,8 @@ jacocoTestCoverageVerification {
     		element = 'CLASS'
     		excludes = [
     			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*"
+    			"com.examples.esame_attsw_Bellocci.app.*",
+    			"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil"
     		] 
       		limit {
         		counter = 'INSTRUCTION' 
@@ -44,7 +47,8 @@ jacocoTestCoverageVerification {
     		element = 'CLASS'
     		excludes = [
     			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*"
+    			"com.examples.esame_attsw_Bellocci.app.*",
+    			"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil"
     		]
     		limit {
     			counter = 'LINE'
@@ -67,7 +71,8 @@ test {
 jacocoTestReport {
 	dependsOn jacocoTestCoverageVerification
 	
-	executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+	//  Allow to insert integrationTest and e2eTest also
+	//executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
 	
     reports {
     	xml.enabled = true // coveralls plugin depends on xml format report
@@ -81,7 +86,8 @@ jacocoTestReport {
         		fileTree(dir: it, exclude: [
         			"**/Library.class",
         			"**/Book.class",
-        			"**/LibrarySwingApp.class"
+        			"**/LibrarySwingApp.class",
+        			"**/HibernateUtil.class",
         		])
         	})
         )
