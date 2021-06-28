@@ -21,9 +21,9 @@ jacocoTestCoverageVerification {
 	   	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*",
-    			"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil"
+    			"com.examples.esameAttswBellocci.model.*",
+    			"com.examples.esameAttswBellocci.app.*",
+    			"com.examples.esameAttswBellocci.hibernate.util.HibernateUtil"
     		]    
       		limit {
         		minimum = 0.2
@@ -33,9 +33,9 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*",
-    			"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil"
+    			"com.examples.esameAttswBellocci.model.*",
+    			"com.examples.esameAttswBellocci.app.*",
+    			"com.examples.esameAttswBellocci.hibernate.util.HibernateUtil"
     		] 
       		limit {
         		counter = 'INSTRUCTION' 
@@ -46,9 +46,9 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*",
-    			"com.examples.esame_attsw_Bellocci.hibernate.util.HibernateUtil"
+    			"com.examples.esameAttswBellocci.model.*",
+    			"com.examples.esameAttswBellocci.app.*",
+    			"com.examples.esameAttswBellocci.hibernate.util.HibernateUtil"
     		]
     		limit {
     			counter = 'LINE'

@@ -4,19 +4,19 @@ pitest {
 	reportDir = file("$buildDir/reports/pitest")
 	// Which classes need to be mutated
 	targetClasses = [
-		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.*",
-		"com.examples.esame_attsw_Bellocci.hibernate.*"
+		"com.examples.esameAttswBellocci.controller.*",
+		"com.examples.esameAttswBellocci.repository.*",
+		"com.examples.esameAttswBellocci.hibernate.*"
 	]
 	// Which test classes use
 	targetTests = [
-		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.*",
-		"com.examples.esame_attsw_Bellocci.hibernate.*"
+		"com.examples.esameAttswBellocci.controller.*",
+		"com.examples.esameAttswBellocci.repository.*",
+		"com.examples.esameAttswBellocci.hibernate.*"
 	]
 	
 	excludedClasses = [
-		"com.examples.esame_attsw_Bellocci.view.*",
+		"com.examples.esameAttswBellocci.view.*",
 	]
 	
 	excludedTestClasses = ['com.examples.**.*IT']

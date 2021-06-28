@@ -23,7 +23,7 @@
 		<property name="hibernate.c3p0.max_size">20</property>
 		<property name="hibernate.c3p0.timeout">300</property>
         
-        <mapping class="com.examples.esame_attsw_Bellocci.model.Book" />
-        <mapping class="com.examples.esame_attsw_Bellocci.model.Library" />
+        <mapping class="com.examples.esameAttswBellocci.model.Book" />
+        <mapping class="com.examples.esameAttswBellocci.model.Library" />
     </session-factory>
 </hibernate-configuration>
