@@ -79,6 +79,28 @@ public class LibraryMySQLRepositoryTest {
 				session.close();
 		}
 	}
+	
+	@Test
+	public void testConstructorWhenSettingsNotNullSetPropertiesOfHibernateUtilWithTheir() {
+		// setup
+		Properties settings = new Properties();
+		
+		// exercise
+		libraryRepository = new LibraryMySQLRepository(settings);
+		
+		// verify
+		assertThat(HibernateUtil.getProperties()).isNotNull();
+		assertThat(HibernateUtil.getProperties()).isEqualTo(settings);
+	}
+	
+	@Test
+	public void testConstructorWhenSettingsIsNullSetPropertiesOfHibernateUtilNull() {
+		// exercise
+		libraryRepository = new LibraryMySQLRepository(null);
+		
+		// verify
+		assertThat(HibernateUtil.getProperties()).isNull();
+	}
 
 	@Test
 	public void testGetAllLibrariesWhenListIsEmptyShouldReturnAnEmptyList() {
