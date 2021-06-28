@@ -20,7 +20,7 @@ sonarqube {
 	property 'sonar.coverage.jacoco.xmlReportPaths', "$project.projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
     
     // Ignore rules
-    property "sonar.issue.ignore.multicriteria", "e11, e12, e13, e14, e15, e16, e17, e18, e19"
+    property "sonar.issue.ignore.multicriteria", "e11, e12, e15, e16, e17, e18, e19"
     
     // Removed rule because some test cannot have assertion
     property "sonar.issue.ignore.multicriteria.e11.ruleKey", "java:S2699"
@@ -29,26 +29,20 @@ sonarqube {
     property "sonar.issue.ignore.multicriteria.e12.ruleKey", "java:S2699"
     property "sonar.issue.ignore.multicriteria.e12.resourceKey", "**/LibrarySwingViewTest.java"
     
-    property "sonar.issue.ignore.multicriteria.e13.ruleKey","common-java:DuplicatedBlocks"
-    property "sonar.issue.ignore.multicriteria.e13.resourceKey", "**/Book.java"
-    
-    property "sonar.issue.ignore.multicriteria.e14.ruleKey","common-java:DuplicatedBlocks"
-    property "sonar.issue.ignore.multicriteria.e14.resourceKey", "**/Library.java"
-    
     // Ignore rule for name of variable
-    property "sonar.issue.ignore.multicriteria.e15.ruleKey", "java:S1125"
-    property "sonar.issue.ignore.multicriteria.e15.resourceKey", "**/*.java"
+    //property "sonar.issue.ignore.multicriteria.e15.ruleKey", "java:S1125"
+    //property "sonar.issue.ignore.multicriteria.e15.resourceKey", "**/*.java"
     
-    property "sonar.issue.ignore.multicriteria.e16.ruleKey", "java:S120"
-    property "sonar.issue.ignore.multicriteria.e16.resourceKey", "**/*.java"
+    //property "sonar.issue.ignore.multicriteria.e16.ruleKey", "java:S120"
+    //property "sonar.issue.ignore.multicriteria.e16.resourceKey", "**/*.java"
     
-    property "sonar.issue.ignore.multicriteria.e17.ruleKey","java:S117"
-    property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*.java"
+    //property "sonar.issue.ignore.multicriteria.e17.ruleKey","java:S117"
+    //property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*.java"
     
-    property "sonar.issue.ignore.multicriteria.e18.ruleKey", "java:S3008"
-    property "sonar.issue.ignore.multicriteria.e18.resourceKey", "**/*.java"
+    //property "sonar.issue.ignore.multicriteria.e18.ruleKey", "java:S3008"
+    //property "sonar.issue.ignore.multicriteria.e18.resourceKey", "**/*.java"
     
-    // Ignore rule for define variable as var
+    // Ignore rule for define variable as var had to JAVA 11
     property "sonar.issue.ignore.multicriteria.e19.ruleKey","java:S6212"
     property "sonar.issue.ignore.multicriteria.e19.resourceKey", "**/*.java"
   }

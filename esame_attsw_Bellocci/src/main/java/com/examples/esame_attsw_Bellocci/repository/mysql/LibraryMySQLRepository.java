@@ -1,5 +1,6 @@
 package com.examples.esame_attsw_Bellocci.repository.mysql;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,24 +26,42 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public List<Library> getAllLibraries() {
+		List<Library> libraries = new ArrayList<>();
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-        session.close();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        libraries = session.createQuery("FROM Library", Library.class).list();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 		return libraries;
 	}
 
 	@Override
-	public Library findLibraryById(String id_library) {
-		transaction = null;
+	public Library findLibraryById(String idLibrary) {
+		Library library = null;
 		session = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        Library library = session.get(Library.class, id_library);
-        transaction.commit();
-    	session.close();
+		transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        library = session.get(Library.class, idLibrary);
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 		return library;
 	}	
 
@@ -50,23 +69,39 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	public void saveLibrary(Library library) {
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-		transaction = session.beginTransaction();
-		session.save(library);
-		transaction.commit();
-    	session.close();  
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.save(library);
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}  
 	}
 
 	@Override
-	public void deleteLibrary(String id_library) {
+	public void deleteLibrary(String idLibrary) {
 		session = null;
 		transaction = null;
-		Library library_found = findLibraryById(id_library);
-		session = HibernateUtil.getSessionFactory().openSession();
-		transaction = session.beginTransaction();
-		session.delete(library_found);
-		transaction.commit();
-        session.close();
+		Library libraryFound = findLibraryById(idLibrary);
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.delete(libraryFound);
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 
 }

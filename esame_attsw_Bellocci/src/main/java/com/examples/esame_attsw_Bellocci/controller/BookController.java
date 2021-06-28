@@ -32,9 +32,9 @@ public class BookController {
 			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
 			return;
 		}
-		Book book_found = bookRepository.findBookById(book.getId());
-		if(book_found != null) {
-			bookView.showError("Already existing book with id " + book_found.getId(), book_found);
+		Book bookFound = bookRepository.findBookById(book.getId());
+		if(bookFound != null) {
+			bookView.showError("Already existing book with id " + bookFound.getId(), bookFound);
 			return;
 		}
 		bookRepository.saveBookInTheLibrary(library, book);

@@ -22,36 +22,36 @@ public class LibraryController {
 		libraryView.showAllLibraries(libraryRepository.getAllLibraries());
 	}
 
-	public void newLibrary(Library new_library) {
-		if(new_library.getId().trim().isEmpty())
+	public void newLibrary(Library newLibrary) {
+		if(newLibrary.getId().trim().isEmpty())
 			throw new IllegalArgumentException("Id library cannot be empty or only blank space");
-		Library library_found = libraryRepository.findLibraryById(new_library.getId());
-		if(library_found != null) {
-			libraryView.showError("Already existing library with id " + library_found.getId(), library_found);
+		Library libraryFound = libraryRepository.findLibraryById(newLibrary.getId());
+		if(libraryFound != null) {
+			libraryView.showError("Already existing library with id " + libraryFound.getId(), libraryFound);
 			return;
 		}
-		libraryRepository.saveLibrary(new_library);
-		libraryView.libraryAdded(new_library);
+		libraryRepository.saveLibrary(newLibrary);
+		libraryView.libraryAdded(newLibrary);
 	}
 	
 	public void deleteLibrary(Library library) {
-		Library library_found = libraryRepository.findLibraryById(library.getId());
-		if(library_found == null) {
+		Library libraryFound = libraryRepository.findLibraryById(library.getId());
+		if(libraryFound == null) {
 			libraryView.libraryRemoved(library);
 			libraryView.showError("Doesn't exist library with id " + library.getId(), library);
 			return;
 		}
 		libraryRepository.deleteLibrary(library.getId());
-		libraryView.libraryRemoved(library_found);
+		libraryView.libraryRemoved(libraryFound);
 	}
 	
 	public void findLibrary(Library library) {
-		Library library_found = libraryRepository.findLibraryById(library.getId());
-		if(library_found == null) {
+		Library libraryFound = libraryRepository.findLibraryById(library.getId());
+		if(libraryFound == null) {
 			libraryView.libraryRemoved(library);
 			libraryView.showError("Doesn't exist library with id " + library.getId(), library);
 			return;
 		}
-		libraryView.showAllBooksOfLibrary(library_found);
+		libraryView.showAllBooksOfLibrary(libraryFound);
 	}
 }

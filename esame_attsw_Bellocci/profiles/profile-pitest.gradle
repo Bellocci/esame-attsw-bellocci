@@ -43,9 +43,10 @@ pitest {
 		"org.hibernate.ServiceRegistry",
 		"org.hibernate.Session",
 		"org.hibernate.Transaction",
-		"org.hibernate.query.Query"
+		"org.hibernate.query.Query",
+		"java.lang.Exception"
 	]
 	
 	// Score below which the test fails
-	mutationThreshold = 80
+	mutationThreshold = 50
 }

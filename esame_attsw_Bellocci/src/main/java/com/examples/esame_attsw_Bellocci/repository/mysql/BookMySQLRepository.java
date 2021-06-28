@@ -25,71 +25,113 @@ public class BookMySQLRepository implements BookRepository {
 		return this.session;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public List<Book> getAllBooksOfLibrary(String id_library) {
+	public List<Book> getAllBooksOfLibrary(String idLibrary) {
+		List<Book> books = null;
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        String hql = "FROM Book WHERE id_library = :library";
-        Query query = session.createQuery(hql);
-        query.setParameter("library", id_library);
-        List<Book> books = query.getResultList();
-        transaction.commit();
-        session.close();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        String hql = "FROM Book WHERE id_library = :library";
+	        Query<Book> query = session.createQuery(hql, Book.class);
+	        query.setParameter("library", idLibrary);
+	        books = query.getResultList();
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 		return books;
 	}
 
 	@Override
-	public Book findBookById(String id_book) {
+	public Book findBookById(String idBook) {
+		Book book = null;
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        Book book = session.get(Book.class, id_book);
-        transaction.commit();
-        session.close();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        book = session.get(Book.class, idBook);
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 		return book;
 	}
 
 	@Override
-	public void saveBookInTheLibrary(Library library, Book new_book) {
+	public void saveBookInTheLibrary(Library library, Book newBook) {
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        new_book.setLibrary(library);
-        session.save(new_book);
-        transaction.commit();            
-    	session.close();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        newBook.setLibrary(library);
+	        session.save(newBook);
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 
 	@Override
-	public void deleteBookFromLibrary(String id_library, String id_book) {
-		Book book_found = findBookOfLibraryById(id_library, id_book);
+	public void deleteBookFromLibrary(String idLibrary, String idBook) {
+		Book bookFound = findBookOfLibraryById(idLibrary, idBook);
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        session.delete(book_found);
-        transaction.commit();
-        session.close();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        session.delete(bookFound);
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 
-	@SuppressWarnings("rawtypes")
-	private Book findBookOfLibraryById(String id_library, String id_book) {
+
+	private Book findBookOfLibraryById(String idLibrary, String idBook) {
+		Book book = null;
 		session = null;
 		transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        String hql = "FROM Book WHERE id = :idBook AND id_library = :idLibrary";
-        Query query = session.createQuery(hql);
-        query.setParameter("idBook", id_book);
-        query.setParameter("idLibrary", id_library);
-        Book book = (Book) query.uniqueResult();
-        transaction.commit();
-    	session.close();   
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        String hql = "FROM Book WHERE id = :idBook AND id_library = :idLibrary";
+	        Query<Book> query = session.createQuery(hql, Book.class);
+	        query.setParameter("idBook", idBook);
+	        query.setParameter("idLibrary", idLibrary);
+	        book = (Book) query.uniqueResult();
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null && transaction.isActive())
+				transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 		return book;
 	}
 }

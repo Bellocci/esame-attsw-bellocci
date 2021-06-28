@@ -16,7 +16,7 @@ public class HibernateUtil {
 	
 	private static SessionFactory sessionFactory;
 	private static Properties settings;
-	private static String configuration_path = "src/main/resources/";
+	private static String configurationPath = "src/main/resources/";
 	
 	private HibernateUtil() { }
 
@@ -38,7 +38,7 @@ public class HibernateUtil {
 				}
 				else {
 	    			sessionFactory = new Configuration()
-	                   		.configure(new File(configuration_path +"hibernate.cfg.xml"))
+	                   		.configure(new File(configurationPath +"hibernate.cfg.xml"))
 	                   		.buildSessionFactory();
 				}
 			} catch(Exception e) {
@@ -74,7 +74,7 @@ public class HibernateUtil {
 	}
 
 	protected static void setPathConfigurationFile(String path) {
-		configuration_path = path;
+		configurationPath = path;
 	}
 
 	protected static SessionFactory getValueSessionFactory() {

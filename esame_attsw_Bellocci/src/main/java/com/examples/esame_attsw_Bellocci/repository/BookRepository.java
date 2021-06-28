@@ -7,8 +7,8 @@ import com.examples.esame_attsw_Bellocci.model.Library;
 
 public interface BookRepository {
 
-	public List<Book> getAllBooksOfLibrary(String id_library);
-	public Book findBookById(String id_book);
-	public void saveBookInTheLibrary(Library library, Book new_book);
-	public void deleteBookFromLibrary(String id_library, String id_book);
+	public List<Book> getAllBooksOfLibrary(String idLibrary);
+	public Book findBookById(String idBook);
+	public void saveBookInTheLibrary(Library library, Book newBook);
+	public void deleteBookFromLibrary(String idLibrary, String idBook);
 }

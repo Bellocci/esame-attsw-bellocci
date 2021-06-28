@@ -152,8 +152,8 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> bookSwingView.bookAdded(book));
 		
 		// verify
-		String[] listContents = window.list("bookList").contents();
-		assertThat(listContents).anyMatch(e -> e.contains("1 - book1"));
+		assertThat(window.list("bookList").contents())
+			.anyMatch(e -> e.contains("1 - book1"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -170,13 +170,11 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		});
 		
 		// exercise
-		GuiActionRunner.execute(
-				() -> bookSwingView.bookRemoved(book2)
-		);
+		GuiActionRunner.execute(() -> bookSwingView.bookRemoved(book2));
 		
 		// verify
-		String[] listContents = window.list("bookList").contents();
-		assertThat(listContents).noneMatch(e -> e.contains("2 - book2"));
+		assertThat(window.list("bookList").contents())
+			.noneMatch(e -> e.contains("2 - book2"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -186,9 +184,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		Book book = new Book("1", "book1");
 		
 		// exercise
-		GuiActionRunner.execute(
-				() -> bookSwingView.showError("Error message", book)
-		);
+		GuiActionRunner.execute(() -> bookSwingView.showError("Error message", book));
 		
 		// verify
 		window.label("errorLabelMessage").requireText("Error message : 1 - book1");
@@ -238,8 +234,8 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		// verify
 		verify(librarySwingView).setVisible(true);
 		assertThat(bookSwingView.isVisible()).isFalse();
-		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
 		window.show();
+		assertThat(window.list("bookList").contents()).isEmpty();
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -253,17 +249,18 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 			listBooksModel.addElement(book);
 			bookSwingView.getLblErrorMessage().setText("Error");
 		});
-		assertThat(bookSwingView.getListBooksModel().toArray()).hasSize(1);
+		assertThat(window.list("bookList").contents()).hasSize(1);
 		
 		// exercise
 		GuiActionRunner.execute(() -> bookSwingView.closeViewError("Doesnt exist library with id 1 ", library));
 		
 		// verify
-		assertThat(bookSwingView.getLblErrorMessage().getText()).isEqualTo(" ");
-		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
-		assertThat(bookSwingView.isVisible()).isFalse();
 		verify(librarySwingView).setVisible(true);
 		verify(librarySwingView).libraryRemoved(library);
 		verify(librarySwingView).showError("Doesnt exist library with id 1 ", library);
+		assertThat(bookSwingView.isVisible()).isFalse();
+		window.show();
+		window.label("errorLabelMessage").requireText(" ");
+		assertThat(window.list("bookList").contents()).isEmpty();
 	}
 }

@@ -51,24 +51,22 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	
 	private static final String DB_PASSWORD = "password";
 	
-	private FrameFixture window_library;
-	private FrameFixture window_book;
+	private FrameFixture windowLibrary;
+	private FrameFixture windowBook;
 	
 	private static Properties settings;
 	
 	private static LibraryMySQLRepository libraryRepository;
 	private static BookMySQLRepository bookRepository;
 
-	@SuppressWarnings("rawtypes")
-	private static MySQLContainer mySQLContainer;
+	private static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8");
 	
-	@SuppressWarnings({ "rawtypes", "resource" })
 	@BeforeClass
 	public static void setupDatabase() {
-		mySQLContainer = new MySQLContainer("mysql:8")
-				.withDatabaseName(DB_NAME)
-				.withUsername(DB_USER)
-				.withPassword(DB_PASSWORD);
+		mySQLContainer
+			.withDatabaseName(DB_NAME)
+			.withUsername(DB_USER)
+			.withPassword(DB_PASSWORD);
 		mySQLContainer.start();
 		
 		settings = new Properties();
@@ -119,7 +117,7 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 					"--db-password=" + DB_PASSWORD
 					)
 			.start();
-		window_library = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
+		windowLibrary = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
 			@Override
 			protected boolean isMatching(JFrame frame) {
 				return "Library View".equals(frame.getTitle()) && frame.isShowing();
@@ -128,25 +126,34 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	}
 	
 	private void cleanDatabaseTables() {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-	    Transaction transaction = session.beginTransaction();
-	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	    for(Library library: libraries)
-	       	session.delete(library);
-	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	    for(Book book: books)
-	       	session.delete(book);
-	    transaction.commit();
-		session.close();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+			for(Library library: libraries)
+				session.delete(library);
+			List<Book> books = session.createQuery("FROM Book", Book.class).list();
+			for(Book book: books)
+				session.delete(book);
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 		
 	private void addTestLibraryToDatabase(String id, String name) {
 		libraryRepository.saveLibrary(new Library(id, name));
 	}
 	
-	private void addTestBookToDatabase(String id_book, String name_book, String id_library, String name_library) {
-		Book book = new Book(id_book, name_book);
-		Library library = new Library(id_library, name_library);
+	private void addTestBookToDatabase(String idBook, String nameBook, String idLibrary, String nameLibrary) {
+		Book book = new Book(idBook, nameBook);
+		Library library = new Library(idLibrary, nameLibrary);
 		book.setLibrary(library);
 		bookRepository.saveBookInTheLibrary(library, book);
 	}
@@ -154,7 +161,7 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	public void testOnStartAllDatabaseElementsAreShown() {
 		// verify
-		assertThat(window_library.list("libraryList").contents())
+		assertThat(windowLibrary.list("libraryList").contents())
 			.anyMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID))
 			.anyMatch(e -> e.contains(LIBRARY_FIXTURE_2_ID));
 	}
@@ -162,75 +169,80 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	public void testAddLibraryButtonSuccess() {
 		// setup
-		window_library.textBox("idTextBox").enterText("5");
-		window_library.textBox("nameTextBox").enterText("new_library");
+		windowLibrary.textBox("idTextBox").enterText("5");
+		windowLibrary.textBox("nameTextBox").enterText("new_library");
 		
 		// exercise
-		window_library.button(JButtonMatcher.withText("Add library")).click();
+		windowLibrary.button(JButtonMatcher.withText("Add library")).click();
 		
 		// verify
-		assertThat(window_library.list("libraryList").contents()).anyMatch(e -> e.contains("5"));
+		assertThat(windowLibrary.list("libraryList").contents()).anyMatch(e -> e.contains("5"));
 	}
 	
 	@Test @GUITest
 	public void testAddLibraryButtonError() {
 		// setup
-		window_library.textBox("idTextBox").enterText(LIBRARY_FIXTURE_1_ID);
-		window_library.textBox("nameTextBox").enterText("existing_library");
+		windowLibrary.textBox("idTextBox").enterText(LIBRARY_FIXTURE_1_ID);
+		windowLibrary.textBox("nameTextBox").enterText("existing_library");
 		
 		// exercise
-		window_library.button(JButtonMatcher.withText("Add library")).click();
+		windowLibrary.button(JButtonMatcher.withText("Add library")).click();
 		
 		// verify
-		assertThat(window_library.label("errorLabelMessage").text()).contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
-		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains("existing_library"));
+		assertThat(windowLibrary.label("errorLabelMessage").text()).
+			contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
+		assertThat(windowLibrary.list("libraryList").contents())
+			.noneMatch(e -> e.contains("existing_library"));
 	}
 	
 	@Test @GUITest
 	public void testDeleteLibraryButtonSuccess() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
 		
 		// exercise
-		window_library.button(JButtonMatcher.withText("Delete library")).click();
+		windowLibrary.button(JButtonMatcher.withText("Delete library")).click();
 		
 		// verify
-		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_NAME));
+		assertThat(windowLibrary.list("libraryList").contents())
+			.noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_NAME));
 	}
 	
 	@Test @GUITest
 	public void testDeleteLibraryButtonError() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
 		libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID);
 		
 		// exercise
-		window_library.button(JButtonMatcher.withText("Delete library")).click();
+		windowLibrary.button(JButtonMatcher.withText("Delete library")).click();
 		
 		// verify
-		assertThat(window_library.label("errorLabelMessage").text()).contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
-		assertThat(window_library.list("libraryList").contents()).noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
+		assertThat(windowLibrary.label("errorLabelMessage").text())
+			.contains(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
+		assertThat(windowLibrary.list("libraryList").contents())
+			.noneMatch(e -> e.contains(LIBRARY_FIXTURE_1_ID));
 	}
 	
 	@Test @GUITest
 	public void testOpenLibraryButtonSuccess() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
 		
 		// exercise
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		
 		// verify
 		createFrameFixtureWindowBook();
-		assertThat(window_book.list("bookList").contents())
+		assertThat(windowBook.list("bookList").contents())
 			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_1_ID + " - " + BOOK_FIXTURE_1_NAME))
 			.anySatisfy(e -> assertThat(e).contains(BOOK_FIXTURE_2_ID + " - " + BOOK_FIXTURE_2_NAME));
-		window_library.show();
-		window_library.label("errorLabelMessage").requireText(" ");
+		windowLibrary.show();
+		windowLibrary.label("errorLabelMessage").requireText(" ");
 	}
 	
 	private void createFrameFixtureWindowBook() {
-		window_book = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
+		windowBook = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
 			@Override
 			protected boolean isMatching(JFrame frame) {
 				return "Book View".equals(frame.getTitle()) && frame.isShowing();
@@ -242,148 +254,148 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	public void testOpenLibraryButtonError() {
 		// setup
 		GuiActionRunner.execute(() -> libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID));
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
 		
 		// exercise
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		
 		// verify
-		window_library.label("errorLabelMessage")
+		windowLibrary.label("errorLabelMessage")
 			.requireText("Doesn't exist library with id 1 : 1 - library1");
-		assertThat(window_library.list("libraryList").contents())
+		assertThat(windowLibrary.list("libraryList").contents())
 			.noneMatch(e -> e.contains("1 - library1"));
 	}
 	
 	@Test @GUITest
 	public void testAddBookButtonSuccess() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
-		window_book.textBox("idTextBox").enterText("10");
-		window_book.textBox("nameTextBox").enterText("new_book");
+		windowBook.textBox("idTextBox").enterText("10");
+		windowBook.textBox("nameTextBox").enterText("new_book");
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Add book")).click();
+		windowBook.button(JButtonMatcher.withText("Add book")).click();
 		
 		// verify
-		assertThat(window_book.list("bookList").contents())
+		assertThat(windowBook.list("bookList").contents())
 			.anyMatch(e -> e.contains("10"));
 	}
 	
 	@Test @GUITest
 	public void testAddBookButtonError() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
-		window_book.textBox("idTextBox").enterText(BOOK_FIXTURE_1_ID);
-		window_book.textBox("nameTextBox").enterText("existing_book");
+		windowBook.textBox("idTextBox").enterText(BOOK_FIXTURE_1_ID);
+		windowBook.textBox("nameTextBox").enterText("existing_book");
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Add book")).click();
+		windowBook.button(JButtonMatcher.withText("Add book")).click();
 		
 		// verify
-		assertThat(window_book.label("errorLabelMessage").text()).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME);
-		assertThat(window_book.list("bookList").contents()).noneMatch(e -> e.contains("existing_book"));
+		assertThat(windowBook.label("errorLabelMessage").text()).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME);
+		assertThat(windowBook.list("bookList").contents()).noneMatch(e -> e.contains("existing_book"));
 	}
 	
 	@Test @GUITest
 	public void testAddBookButtonErrorWhenLibraryDoesntExistIntoDatabase() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
 		GuiActionRunner.execute(() -> libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID));
-		window_book.textBox("idTextBox").enterText("10");
-		window_book.textBox("nameTextBox").enterText("new_book");
+		windowBook.textBox("idTextBox").enterText("10");
+		windowBook.textBox("nameTextBox").enterText("new_book");
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Add book")).click();
+		windowBook.button(JButtonMatcher.withText("Add book")).click();
 		
 		// verify
-		window_book.requireNotVisible();
-		window_library.requireVisible();
-		window_library.label("errorLabelMessage")
+		windowBook.requireNotVisible();
+		windowLibrary.requireVisible();
+		windowLibrary.label("errorLabelMessage")
 			.requireText("Doesnt exist library with id 1 : 1 - library1");
-		window_book.show();
-		assertThat(window_book.list("bookList").contents()).isEmpty();
-		window_book.label("errorLabelMessage").requireText(" ");
+		windowBook.show();
+		assertThat(windowBook.list("bookList").contents()).isEmpty();
+		windowBook.label("errorLabelMessage").requireText(" ");
 	}
 	
 	@Test @GUITest
 	public void testDeleteBookButtonSuccess() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
-		window_book.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
+		windowBook.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Delete book")).click();
+		windowBook.button(JButtonMatcher.withText("Delete book")).click();
 		
 		// verify
-		assertThat(window_book.list("bookList").contents()).noneMatch(e -> e.contains(BOOK_FIXTURE_1_NAME));
+		assertThat(windowBook.list("bookList").contents()).noneMatch(e -> e.contains(BOOK_FIXTURE_1_NAME));
 	}
 	
 	@Test @GUITest
 	public void testDeleteBookButtonError() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
-		window_book.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
+		windowBook.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
 		bookRepository.deleteBookFromLibrary(LIBRARY_FIXTURE_1_ID, BOOK_FIXTURE_1_ID);
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Delete book")).click();
+		windowBook.button(JButtonMatcher.withText("Delete book")).click();
 		
 		// verify
-		assertThat(window_book.list("bookList").contents()).noneMatch(e -> e.contains(BOOK_FIXTURE_1_NAME));
-		assertThat(window_book.label("errorLabelMessage").text()).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME);
+		assertThat(windowBook.list("bookList").contents()).noneMatch(e -> e.contains(BOOK_FIXTURE_1_NAME));
+		assertThat(windowBook.label("errorLabelMessage").text()).contains(BOOK_FIXTURE_1_ID, BOOK_FIXTURE_1_NAME);
 	}
 	
 	@Test @GUITest
 	public void testDeleteBookButtonErrorWhenLibraryDoesntExistIntoDatabase() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
 		GuiActionRunner.execute(() -> libraryRepository.deleteLibrary(LIBRARY_FIXTURE_1_ID));
-		window_book.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
+		windowBook.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Delete book")).click();
+		windowBook.button(JButtonMatcher.withText("Delete book")).click();
 		
 		// verify
-		window_book.requireNotVisible();
-		window_library.requireVisible();
-		window_library.label("errorLabelMessage")
+		windowBook.requireNotVisible();
+		windowLibrary.requireVisible();
+		windowLibrary.label("errorLabelMessage")
 			.requireText("Doesnt exist library with id 1 : 1 - library1");
-		window_book.show();
-		assertThat(window_book.list("bookList").contents()).isEmpty();
-		window_book.label("errorLabelMessage").requireText(" ");
+		windowBook.show();
+		assertThat(windowBook.list("bookList").contents()).isEmpty();
+		windowBook.label("errorLabelMessage").requireText(" ");
 	}
 	
 	@Test @GUITest
 	public void testBackToLibrariesButton() {
 		// setup
-		window_library.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
-		window_library.button(JButtonMatcher.withText("Open library")).click();
+		windowLibrary.list("libraryList").selectItem(Pattern.compile(".*" + LIBRARY_FIXTURE_1_NAME + ".*"));
+		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
-		window_book.textBox("idTextBox").enterText(BOOK_FIXTURE_1_ID);
-		window_book.textBox("nameTextBox").enterText("existing_book");
-		window_book.button(JButtonMatcher.withText("Add book")).click();
-		assertThat(window_book.list("bookList").contents()).hasSize(2);
+		windowBook.textBox("idTextBox").enterText(BOOK_FIXTURE_1_ID);
+		windowBook.textBox("nameTextBox").enterText("existing_book");
+		windowBook.button(JButtonMatcher.withText("Add book")).click();
+		assertThat(windowBook.list("bookList").contents()).hasSize(2);
 		
 		// exercise
-		window_book.button(JButtonMatcher.withText("Back to libraries")).click();
+		windowBook.button(JButtonMatcher.withText("Back to libraries")).click();
 		
 		// verify
-		window_book.requireNotVisible();
-		window_library.requireVisible();
-		window_book.show();
-		assertThat(window_book.list("bookList").contents()).isEmpty();
-		window_book.label("errorLabelMessage").requireText(" ");
+		windowBook.requireNotVisible();
+		windowLibrary.requireVisible();
+		windowBook.show();
+		assertThat(windowBook.list("bookList").contents()).isEmpty();
+		windowBook.label("errorLabelMessage").requireText(" ");
 	}
 }

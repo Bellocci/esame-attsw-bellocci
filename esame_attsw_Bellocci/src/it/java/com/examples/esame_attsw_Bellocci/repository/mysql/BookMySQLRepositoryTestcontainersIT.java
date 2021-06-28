@@ -2,6 +2,7 @@ package com.examples.esame_attsw_Bellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,20 +23,18 @@ import com.examples.esame_attsw_Bellocci.repository.BookRepository;
 
 public class BookMySQLRepositoryTestcontainersIT {
 
-	@SuppressWarnings("rawtypes")
-	private static MySQLContainer mySQLContainer;
+	private static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8");
 	
 	private BookRepository bookRepository;
 	
 	private static Properties settings;
 	
-	@SuppressWarnings({ "rawtypes", "resource" })
 	@BeforeClass
 	public static void setupServerAndHibernate() {
-		mySQLContainer = new MySQLContainer("mysql:8")
-				.withDatabaseName("test")
-				.withUsername("user")
-				.withPassword("password");
+		mySQLContainer
+			.withDatabaseName("test")
+			.withUsername("user")
+			.withPassword("password");
 		mySQLContainer.start();
 		
 		settings = new Properties();
@@ -72,16 +71,25 @@ public class BookMySQLRepositoryTestcontainersIT {
 	}
 
 	private void cleanDatabaseTables() {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-	    Transaction transaction = session.beginTransaction();
-	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	    for(Library library: libraries)
-	       	session.delete(library);
-	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	    for(Book book: books)
-	       	session.delete(book);
-	    transaction.commit();
-		session.close();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+			for(Library library: libraries)
+				session.delete(library);
+			List<Book> books = session.createQuery("FROM Book", Book.class).list();
+			for(Book book: books)
+				session.delete(book);
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 	
 	@Test
@@ -103,27 +111,46 @@ public class BookMySQLRepositoryTestcontainersIT {
 		List<Book> books = bookRepository.getAllBooksOfLibrary("1");
 		
 		// verify
-		assertThat(books).hasSize(2);
 		assertThat(books)
+			.hasSize(2)
 			.anyMatch(e -> e.getId().equals("1"))
 			.anyMatch(e -> e.getId().equals("2"));
 	}
 	
 	private void addLibraryToDatabase(Library library) {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(library);
-        transaction.commit();
-        session.close();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.save(library);
+			transaction.commit();			
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
+        
 	}
 	
 	private void addBookOfLibraryToDatabase(Book book, Library library) {
 		book.setLibrary(library);
-		Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(book);
-        transaction.commit();
-		session.close();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.save(book);
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 
 	@Test
@@ -138,11 +165,11 @@ public class BookMySQLRepositoryTestcontainersIT {
 		addBookOfLibraryToDatabase(book2, library);
 		
 		// exercise
-		Book book_found = bookRepository.findBookById("2");
+		Book bookFound = bookRepository.findBookById("2");
 		
 		// verify
-		assertThat(book_found.getId()).isEqualTo("2");
-		assertThat(book_found.getName()).isEqualTo("book2");
+		assertThat(bookFound.getId()).isEqualTo("2");
+		assertThat(bookFound.getName()).isEqualTo("book2");
 	}
 	
 	@Test
@@ -154,23 +181,34 @@ public class BookMySQLRepositoryTestcontainersIT {
 		Book book = new Book("1", "book1");
 		addBookOfLibraryToDatabase(book, library);
 		
-		Book new_book = new Book("2", "new_book");
+		Book newBook = new Book("2", "new_book");
 		
 		// exercise
-		bookRepository.saveBookInTheLibrary(library, new_book);
+		bookRepository.saveBookInTheLibrary(library, newBook);
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
-		assertThat(books).hasSize(2);
-		assertThat(books).anyMatch(e -> e.getId().equals("2"));
+		assertThat(books)
+			.hasSize(2)
+			.anyMatch(e -> e.getId().equals("2"));
 	}
 	
 	private List<Book> getAllBooksFromDatabase() {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
-		List<Book> books = session.createQuery("FROM Book", Book.class).list();
-		transaction.commit();
-		session.close();
+		List<Book> books = new ArrayList<>();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			books = session.createQuery("FROM Book", Book.class).list();
+			transaction.commit();			
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 		return books;
 	}
 	
@@ -181,9 +219,9 @@ public class BookMySQLRepositoryTestcontainersIT {
 		addLibraryToDatabase(library);
 		
 		Book book1 = new Book("1", "book1");
-		Book book_delete = new Book("2", "book2");
+		Book bookDeleted = new Book("2", "book2");
 		addBookOfLibraryToDatabase(book1, library);
-		addBookOfLibraryToDatabase(book_delete, library);
+		addBookOfLibraryToDatabase(bookDeleted, library);
 		
 		assertThat(getAllBooksFromDatabase()).hasSize(2);
 		

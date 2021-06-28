@@ -234,8 +234,8 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	}
 
 	@Override
-	public void showError(String error_message, Library library) {
-		lblErrorMessage.setText(error_message + " : " + getDisplayString(library));
+	public void showError(String errorMessage, Library library) {
+		lblErrorMessage.setText(errorMessage + " : " + getDisplayString(library));
 	}
 
 	@Override

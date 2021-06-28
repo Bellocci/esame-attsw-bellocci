@@ -57,7 +57,8 @@ public class LibrarySwingApp implements Callable<Void> {
 					
 					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
 					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
-					settings.put(AvailableSettings.URL, "jdbc:mysql://"+mysqlHost+":"+mysqlPort+"/"+databaseName+"?useSSL=false");
+					settings.put(AvailableSettings.URL, "jdbc:mysql://"+mysqlHost+":"+
+															mysqlPort+"/"+databaseName+"?useSSL=false");
 					settings.put(AvailableSettings.USER, username);
 					settings.put(AvailableSettings.PASS, password);
 					settings.put(AvailableSettings.POOL_SIZE, "1");

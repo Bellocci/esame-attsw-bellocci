@@ -44,30 +44,30 @@ public class LibraryControllerTest {
 	@Test
 	public void testGetAllLibrariesShouldRequestTheLibrariesFromDatabaseAndReturnThemToTheView() {
 		// setup
-		List<Library> list_libraries = new ArrayList<Library>();	
-		when(libraryRepository.getAllLibraries()).thenReturn(list_libraries);
+		List<Library> listLibraries = new ArrayList<Library>();	
+		when(libraryRepository.getAllLibraries()).thenReturn(listLibraries);
 		
 		// exercise
 		libraryController.getAllLibraries();
 		
 		// verify
-		verify(libraryView).showAllLibraries(list_libraries);
+		verify(libraryView).showAllLibraries(listLibraries);
 	}
 	
 
 	@Test
 	public void testNewLibraryWhenItDoesntExistShouldAddToDatabaseAndReturnThemToTheView() {
 		// setup
-		Library new_library = new Library("1", "library1");
+		Library newLibrary = new Library("1", "library1");
 		when(libraryRepository.findLibraryById("1")).thenReturn(null);
 		
 		// exercise
-		libraryController.newLibrary(new_library);
+		libraryController.newLibrary(newLibrary);
 		
 		// verify
 		InOrder inOrder = inOrder(libraryRepository, libraryView);
-		inOrder.verify(libraryRepository).saveLibrary(new_library);
-		inOrder.verify(libraryView).libraryAdded(new_library);
+		inOrder.verify(libraryRepository).saveLibrary(newLibrary);
+		inOrder.verify(libraryView).libraryAdded(newLibrary);
 	}
 	
 	@Test

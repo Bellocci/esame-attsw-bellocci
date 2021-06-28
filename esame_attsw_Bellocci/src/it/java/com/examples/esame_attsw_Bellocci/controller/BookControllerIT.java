@@ -44,19 +44,17 @@ public class BookControllerIT {
 	
 	private AutoCloseable closeable;
 	
-	@SuppressWarnings("rawtypes")
-	private static MySQLContainer mySQLContainer;
+	private static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8");
 	
 	private static Properties settings;
 	
-	@SuppressWarnings({ "rawtypes", "resource" })
 	@BeforeClass
 	public static void setupServerAndHibernate() {
+		mySQLContainer
+			.withDatabaseName("test")
+			.withUsername("user")
+			.withPassword("password");
 		
-		mySQLContainer = new MySQLContainer("mysql:8")
-				.withDatabaseName("test")
-				.withUsername("user")
-				.withPassword("password");
 		mySQLContainer.start();
 		
 		settings = new Properties();
@@ -97,16 +95,24 @@ public class BookControllerIT {
 	
 	private void cleanDatabaseTables() {
 		Transaction transaction = null;
-		Session session = HibernateUtil.getSessionFactory().openSession();
-	    transaction = session.beginTransaction();
-	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	    for(Library library: libraries)
-	     	session.delete(library);
-	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	    for(Book book: books)
-	       	session.delete(book);
-	    transaction.commit();
-		session.close();
+		Session session = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+		    transaction = session.beginTransaction();
+		    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+		    for(Library library: libraries)
+		     	session.delete(library);
+		    List<Book> books = session.createQuery("FROM Book", Book.class).list();
+		    for(Book book: books)
+		       	session.delete(book);
+		    transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 	
 	@Test
@@ -130,11 +136,18 @@ public class BookControllerIT {
 	private void addLibraryToDatabase(Library library) {
 		Session session = null;
 		Transaction transaction = null;
-		session = HibernateUtil.getSessionFactory().openSession();
-        transaction = session.beginTransaction();
-        session.save(library);
-        transaction.commit();
-        session.close();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        session.save(library);
+	        transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 
 	@Test
@@ -142,16 +155,16 @@ public class BookControllerIT {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibraryToDatabase(library);
-		Book new_book = new Book("1", "book1");
-		new_book.setLibrary(library);
+		Book newBook = new Book("1", "book1");
+		newBook.setLibrary(library);
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
 		
 		// exercise
-		bookController.newBook(library, new_book);
+		bookController.newBook(library, newBook);
 		
 		// verify
-		verify(bookView).bookAdded(new_book);
+		verify(bookView).bookAdded(newBook);
 	}
 	
 	@Test
@@ -159,16 +172,16 @@ public class BookControllerIT {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibraryToDatabase(library);
-		Book book_to_delete = new Book("1", "book1");
-		book_to_delete.setLibrary(library);
+		Book bookDeleted = new Book("1", "book1");
+		bookDeleted.setLibrary(library);
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
-		bookRepository.saveBookInTheLibrary(library, book_to_delete);
+		bookRepository.saveBookInTheLibrary(library, bookDeleted);
 		
 		// exercise
-		bookController.deleteBook(library, book_to_delete);
+		bookController.deleteBook(library, bookDeleted);
 		
 		// verify
-		verify(bookView).bookRemoved(book_to_delete);
+		verify(bookView).bookRemoved(bookDeleted);
 	}
 }

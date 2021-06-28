@@ -80,11 +80,11 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 
 	@Test
 	public void testWhenIdAndNameAreNotEmptyAddLibraryButtonShouldBeEnabled() {
-		// setup
+		// exercise
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("library1");
 		
-		// exercise & verify
+		// verify
 		window.button(JButtonMatcher.withText("Add library")).requireEnabled();
 	}
 	
@@ -207,13 +207,10 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 		});
 		
 		// exercise
-		GuiActionRunner.execute(() -> {
-			librarySwingView.libraryRemoved(library2);
-		});
+		GuiActionRunner.execute(() -> librarySwingView.libraryRemoved(library2));
 		
 		// verify
-		String[] listLibraries = window.list().contents();
-		assertThat(listLibraries).noneMatch(e -> e.contains("2 - library2"));
+		assertThat(window.list().contents()).noneMatch(e -> e.contains("2 - library2"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	

@@ -27,8 +27,7 @@ import com.examples.esame_attsw_Bellocci.view.LibraryView;
 
 public class LibraryControllerIT {
 
-	@SuppressWarnings("rawtypes")
-	private static MySQLContainer mySQLContainer;
+	private static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8");
 	
 	@Mock
 	private LibraryView libraryView;
@@ -41,14 +40,13 @@ public class LibraryControllerIT {
 	
 	private AutoCloseable closeable;
 	
-	@SuppressWarnings({ "rawtypes", "resource" })
 	@BeforeClass
 	public static void setupServerAndHibernate() {
 		
-		mySQLContainer = new MySQLContainer("mysql:8")
-				.withDatabaseName("test")
-				.withUsername("user")
-				.withPassword("password");
+		mySQLContainer
+			.withDatabaseName("test")
+			.withUsername("user")
+			.withPassword("password");
 		mySQLContainer.start();
 		
 		settings = new Properties();
@@ -89,16 +87,25 @@ public class LibraryControllerIT {
 	}
 
 	private void cleanDatabaseTables() {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-	    Transaction transaction = session.beginTransaction();
-	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	    for(Library library: libraries)
-	       	session.delete(library);
-	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	    for(Book book: books)
-	       	session.delete(book);
-	    transaction.commit();
-		session.close();
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+			for(Library library: libraries)
+				session.delete(library);
+			List<Book> books = session.createQuery("FROM Book", Book.class).list();
+			for(Book book: books)
+				session.delete(book);
+			transaction.commit();
+		} catch(Exception e) {
+			if(transaction != null & transaction.isActive())
+				transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
 	}
 	
 	@Test
@@ -130,25 +137,25 @@ public class LibraryControllerIT {
 	@Test
 	public void testNewLibrary() {
 		// setup
-		Library new_library = new Library("1", "library1");
+		Library newLibrary = new Library("1", "library1");
 		
 		// exercise
-		libraryController.newLibrary(new_library);
+		libraryController.newLibrary(newLibrary);
 		
 		// verify
-		verify(libraryView).libraryAdded(new_library);
+		verify(libraryView).libraryAdded(newLibrary);
 	}
 	
 	@Test
 	public void testDeleteLibrary() {
 		// setup
-		Library library_to_delete = new Library("1", "library1");
-		libraryRepository.saveLibrary(library_to_delete);
+		Library libraryDeleted = new Library("1", "library1");
+		libraryRepository.saveLibrary(libraryDeleted);
 		
 		// exercise
-		libraryController.deleteLibrary(library_to_delete);
+		libraryController.deleteLibrary(libraryDeleted);
 		
 		// verify
-		verify(libraryView).libraryRemoved(library_to_delete);
+		verify(libraryView).libraryRemoved(libraryDeleted);
 	}
 }

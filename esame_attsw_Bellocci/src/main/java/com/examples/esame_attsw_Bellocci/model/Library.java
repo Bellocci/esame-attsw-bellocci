@@ -58,8 +58,8 @@ public class Library {
 		return this.listBooks;
 	}
 	
-	public void setListBooks(List<Book> list_books) {
-		this.listBooks = list_books;
+	public void setListBooks(List<Book> listBooks) {
+		this.listBooks = listBooks;
 	}
 
 	@Override
