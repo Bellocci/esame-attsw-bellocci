@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -12,6 +14,8 @@ import com.examples.esameattswbellocci.model.Library;
 import com.examples.esameattswbellocci.repository.LibraryRepository;
 
 public class LibraryMySQLRepository implements LibraryRepository {
+	
+	private static final Logger LOGGER = LogManager.getLogger(LibraryMySQLRepository.class);
 	
 	private Session session;
 	private Transaction transaction;
@@ -36,7 +40,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -57,7 +61,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -77,7 +81,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -97,7 +101,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();

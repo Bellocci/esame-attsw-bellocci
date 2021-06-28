@@ -3,6 +3,8 @@ package com.examples.esameattswbellocci.repository.mysql;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -13,6 +15,8 @@ import com.examples.esameattswbellocci.model.Library;
 import com.examples.esameattswbellocci.repository.BookRepository;
 
 public class BookMySQLRepository implements BookRepository {
+	
+	private static final Logger LOGGER = LogManager.getLogger(BookMySQLRepository.class);
 	
 	private Session session;
 	private Transaction transaction;
@@ -41,6 +45,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
+			LOGGER.error(e.getMessage(), e);
 			e.printStackTrace();
 		} finally {
 			if(session != null && session.isConnected())
@@ -62,7 +67,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -83,7 +88,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -103,7 +108,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -127,7 +132,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(Exception e) {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();

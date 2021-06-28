@@ -94,7 +94,7 @@ public class LibrarySwingApp implements Callable<Void> {
 				libraryView.setVisible(true);
 				libraryController.getAllLibraries();
 			} catch (Exception e) {
-				LOGGER.error("The app encountered an error", e);
+				LOGGER.error(e.getMessage(), e);
 			}
 		});
 		return null;

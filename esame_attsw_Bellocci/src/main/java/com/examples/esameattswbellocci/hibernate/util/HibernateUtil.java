@@ -3,6 +3,8 @@ package com.examples.esameattswbellocci.hibernate.util;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -13,6 +15,8 @@ import com.examples.esameattswbellocci.model.Book;
 import com.examples.esameattswbellocci.model.Library;
 
 public class HibernateUtil {
+	
+	private static final Logger LOGGER = LogManager.getLogger(HibernateUtil.class);
 	
 	private static SessionFactory sessionFactory;
 	private static Properties settings;
@@ -42,7 +46,7 @@ public class HibernateUtil {
 	                   		.buildSessionFactory();
 				}
 			} catch(Exception e) {
-    			e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 		return sessionFactory;
@@ -53,7 +57,7 @@ public class HibernateUtil {
 			try {
 				sessionFactory.close();
 			} catch(HibernateException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			} finally {
 				if(sessionFactory.isClosed())
 					sessionFactory = null;
