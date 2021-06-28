@@ -20,7 +20,7 @@ sonarqube {
 	property 'sonar.coverage.jacoco.xmlReportPaths', "$project.projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
     
     // Ignore rules
-    property "sonar.issue.ignore.multicriteria", "e11, e12, e15, e16, e17, e18, e19"
+    property "sonar.issue.ignore.multicriteria", "e11, e12, e19"
     
     // Removed rule because some test cannot have assertion
     property "sonar.issue.ignore.multicriteria.e11.ruleKey", "java:S2699"
