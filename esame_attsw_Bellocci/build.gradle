@@ -129,7 +129,7 @@ e2eTest {
 task fatJAR(type: Jar) {
 
 	manifest {
-		attributes 'Main-class': 'com.examples.esame_attsw_Bellocci.app.swing.LibrarySwingApp'
+		attributes 'Main-class': 'com.examples.esameattswbellocci.app.swing.LibrarySwingApp'
 	}
 	
 	archiveBaseName = project.name + '-all-dependencies'
