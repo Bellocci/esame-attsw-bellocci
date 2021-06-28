@@ -46,7 +46,6 @@ public class BookMySQLRepository implements BookRepository {
 			if(transaction != null && transaction.isActive())
 				transaction.rollback();
 			LOGGER.error(e.getMessage(), e);
-			e.printStackTrace();
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
