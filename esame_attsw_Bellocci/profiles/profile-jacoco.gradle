@@ -21,9 +21,9 @@ jacocoTestCoverageVerification {
 	   	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esameattswbellocci.model.*",
-    			"com.examples.esameattswbellocci.app.*",
-    			"com.examples.esameattswbellocci.hibernate.util.HibernateUtil"
+    			"com.examples.examLibrary.model.*",
+    			"com.examples.examLibrary.app.*",
+    			"com.examples.examLibrary.hibernate.util.HibernateUtil"
     		]    
       		limit {
         		minimum = 0.2
@@ -33,9 +33,9 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esameattswbellocci.model.*",
-    			"com.examples.esameattswbellocci.app.*",
-    			"com.examples.esameattswbellocci.hibernate.util.HibernateUtil"
+    			"com.examples.examLibrary.model.*",
+    			"com.examples.examLibrary.app.*",
+    			"com.examples.examLibrary.hibernate.util.HibernateUtil"
     		] 
       		limit {
         		counter = 'INSTRUCTION' 
@@ -46,9 +46,9 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esameattswbellocci.model.*",
-    			"com.examples.esameattswbellocci.app.*",
-    			"com.examples.esameattswbellocci.hibernate.util.HibernateUtil"
+    			"com.examples.examLibrary.model.*",
+    			"com.examples.examLibrary.app.*",
+    			"com.examples.examLibrary.hibernate.util.HibernateUtil"
     		]
     		limit {
     			counter = 'LINE'
@@ -86,7 +86,6 @@ jacocoTestReport {
         		fileTree(dir: it, exclude: [
         			"**/Library.class",
         			"**/Book.class",
-        			"**/LibrarySwingApp.class",
         			"**/HibernateUtil.class",
         		])
         	})
