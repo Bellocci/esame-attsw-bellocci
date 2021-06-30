@@ -72,7 +72,7 @@ dependencies {
 	implementation group: 'org.hibernate', name: 'hibernate-gradle-plugin', version: '5.5.2.Final'
 	
 	// Mockito dependencies
-	testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.10.0'
+	testImplementation group: 'org.mockito', name: 'mockito-inline', version: '3.10.0'
 	
 	// https://mvnrepository.com/artifact/com.h2database/h2
 	implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
