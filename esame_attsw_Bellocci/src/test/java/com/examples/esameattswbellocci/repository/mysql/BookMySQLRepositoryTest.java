@@ -1,6 +1,9 @@
 package com.examples.esameattswbellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -55,11 +58,6 @@ public class BookMySQLRepositoryTest {
 		HibernateUtil.resetSessionFactory();
 	}
 	
-	@After
-	public void resetSessionFactory() {
-		HibernateUtil.resetSessionFactory();
-	}
-	
 	@Before
 	public void setup() {
 		HibernateUtil.setProperties(settings);
@@ -67,6 +65,11 @@ public class BookMySQLRepositoryTest {
 		cleanDatabaseTables();
 	}
 
+	@After
+	public void resetSessionFactory(){
+		HibernateUtil.resetSessionFactory();
+	}
+	
 	private void cleanDatabaseTables() {
 		Transaction transaction = null;
 		Session session = null;
@@ -93,7 +96,7 @@ public class BookMySQLRepositoryTest {
 	}
 
 	@Test
-	public void testGetAllBooksOfLibraryWhenListIsEmptyShouldReturnAnEmptyListAndTheSessionIsNotNullAndClose() {
+	public void testGetAllBooksOfLibraryWhenListIsEmptyShouldReturnAnEmptyListAndCloseTheSession() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		
@@ -125,7 +128,7 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testGetAllBooksOfLibraryWhenListIsNotEmptyShouldReturnListOfBooksAndTheSessionIsNotNullAndClose() {
+	public void testGetAllBooksOfLibraryWhenListIsNotEmptyShouldReturnListOfBooksAndCloseTheSession() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		addLibraryToDatabase("2", "library2");
@@ -191,7 +194,7 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testFindBookByIdWhenDatabaseContainsTheBookShouldReturnItAndTheSessionIsNotNullAndClose() {
+	public void testFindBookByIdWhenDatabaseContainsTheBookShouldReturnItAndCloseTheSession() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
@@ -208,7 +211,7 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testFindBookByIdWhenDatabaseDoesntContainTheBookShouldReturnNullAndTheSessionIsNotNullAndClose() {
+	public void testFindBookByIdWhenDatabaseDoesntContainTheBookShouldReturnNullAndCloseTheSession() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		
@@ -236,7 +239,7 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testSaveBookInTheLibraryWhenDatabaseDoesntContainNewBookShouldAddItToDatabase() {
+	public void testSaveBookInTheLibraryWhenDatabaseDoesntContainNewBookShouldAddItToDatabaseAndCloseTheSession() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
@@ -270,6 +273,93 @@ public class BookMySQLRepositoryTest {
 				session.close();
 		}
 		return books;
+	}
+	
+	@Test
+	public void testSaveBookInTheLibraryWhenSessionFactoryThrowHibernateExceptionShouldThrowAndVerifySessionIsNull() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+            	.thenThrow(new HibernateException("Cannot open session"));
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
+						new Library("1", "library1"),
+						new Book("1", "book1"))
+					)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot open session");
+			
+			assertThat(bookRepository.getSession()).isNull();
+		}
+		
+	}
+	
+	@Test
+	public void testSaveBookInTheLibraryWhenTransactionIsNullShouldThrowAndCloseTheSession() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		
+		Transaction transaction = mock(Transaction.class);
+		Session session = mock(Session.class);
+		SessionFactory sessionFactory = mock(SessionFactory.class);
+		
+		bookRepository.setTransaction(transaction);
+		bookRepository.setSession(session);
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory())
+				.thenReturn(sessionFactory);
+			
+			when(sessionFactory.openSession()).thenReturn(session);
+			when(session.beginTransaction()).thenReturn(transaction);
+			doThrow(new IllegalStateException("Transaction isn't active")).doNothing()
+				.when(transaction).commit();
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
+						new Library("1", "library1"), 
+						new Book("1", "book1"))
+					)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Transaction isn't active");
+			
+			assertThat(bookRepository.getSession().isConnected()).isFalse();
+		}
+		
+	}
+	
+	@Test
+	public void testSaveBookInTheLibraryWhenTransactionCommitFailShouldThrowAndCloseTheSession() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		
+		Transaction transaction = mock(Transaction.class);
+		Session session = mock(Session.class);
+		SessionFactory sessionFactory = mock(SessionFactory.class);
+		
+		bookRepository.setTransaction(transaction);
+		bookRepository.setSession(session);
+		
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory())
+				.thenReturn(sessionFactory);
+			
+			when(sessionFactory.openSession()).thenReturn(session);
+			when(session.beginTransaction()).thenReturn(transaction);
+			doThrow(new RollbackException("Error commit transaction. Transaction rollback")).doNothing()
+				.when(transaction).commit();
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
+						new Library("1", "library1"), 
+						new Book("1", "book1"))
+					)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Error commit transaction. Transaction rollback");
+			
+			assertThat(bookRepository.getSession().isConnected()).isFalse();
+		}
 	}
 	
 	@Test
