@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
 
 import org.apache.logging.log4j.LogManager;
@@ -85,12 +86,14 @@ public class BookMySQLRepository implements BookRepository {
 			session.save(newBook);
 			transaction.commit();
 		} catch(HibernateException e) {
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException("Error to open the Session from SessionFactory");
 		} catch(IllegalStateException e) {
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException("Transaction isn't active");
 		} catch(RollbackException e) {
 			transaction.rollback();
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException("Error during commit. Transaction rollback");
+		} catch(PersistenceException e) {
+			throw new IllegalArgumentException("Database already contains the book");
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();

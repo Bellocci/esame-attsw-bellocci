@@ -297,6 +297,30 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
+	public void testSaveBookInTheLibraryWhenDatabaseAlreadyContainsNewBookShouldNotAddBookAndThrowAndCloseSession() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		
+		// exercise
+		assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
+					new Library("1", "library1"),
+					new Book("1", "existing_book"))
+				)
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Database already contains the book");
+		
+		// verify
+		
+		List<Book> books = getAllBooksFromDatabase();
+		assertThat(books)
+			.hasSize(1)
+			.noneMatch(e -> e.getName().equals("existing_book"));
+		
+		assertThat(bookRepository.getSession().isConnected()).isFalse();
+	}
+	
+	@Test
 	public void testSaveBookInTheLibraryWhenTransactionIsNullShouldThrowAndCloseTheSession() {
 		// setup
 		addLibraryToDatabase("1", "library1");
@@ -308,13 +332,11 @@ public class BookMySQLRepositoryTest {
 		bookRepository.setTransaction(transaction);
 		bookRepository.setSession(session);
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-			hibernateMock.when(() -> HibernateUtil.getSessionFactory())
-				.thenReturn(sessionFactory);
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
 			
 			when(sessionFactory.openSession()).thenReturn(session);
 			when(session.beginTransaction()).thenReturn(transaction);
-			doThrow(new IllegalStateException("Transaction isn't active")).doNothing()
-				.when(transaction).commit();
+			doThrow(new IllegalStateException("Transaction isn't active")).when(transaction).commit();
 			
 			// exercise & verify
 			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
@@ -347,7 +369,7 @@ public class BookMySQLRepositoryTest {
 			
 			when(sessionFactory.openSession()).thenReturn(session);
 			when(session.beginTransaction()).thenReturn(transaction);
-			doThrow(new RollbackException("Error commit transaction. Transaction rollback")).doNothing()
+			doThrow(new RollbackException("Error commit. Transaction rollback"))
 				.when(transaction).commit();
 			
 			// exercise & verify
@@ -356,7 +378,7 @@ public class BookMySQLRepositoryTest {
 						new Book("1", "book1"))
 					)
 				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Error commit transaction. Transaction rollback");
+				.hasMessage("Error commit. Transaction rollback");
 			
 			assertThat(bookRepository.getSession().isConnected()).isFalse();
 		}
