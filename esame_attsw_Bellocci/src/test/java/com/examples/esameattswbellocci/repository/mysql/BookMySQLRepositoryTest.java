@@ -1,12 +1,17 @@
 package com.examples.esameattswbellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.RollbackException;
+
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.After;
@@ -14,6 +19,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.examples.esameattswbellocci.hibernate.util.HibernateUtil;
 import com.examples.esameattswbellocci.model.Book;
@@ -46,13 +55,15 @@ public class BookMySQLRepositoryTest {
 		HibernateUtil.resetSessionFactory();
 	}
 	
-	@Before
-	public void setup() {
-		bookRepository = new BookMySQLRepository(settings);
+	@After
+	public void resetSessionFactory() {
+		HibernateUtil.resetSessionFactory();
 	}
 	
-	@After
-	public void cleanTables() {
+	@Before
+	public void setup() {
+		HibernateUtil.setProperties(settings);
+		bookRepository = new BookMySQLRepository();
 		cleanDatabaseTables();
 	}
 
@@ -69,10 +80,44 @@ public class BookMySQLRepositoryTest {
 	        for(Book book: books)
 	        	session.delete(book);
 	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
+		} catch(HibernateException e) {
 			e.printStackTrace();
+		} catch(IllegalStateException e) {
+			e.printStackTrace();
+		} catch(RollbackException e) {
+			transaction.rollback();
+		} finally {
+			if(session != null && session.isConnected())
+				session.close();
+		}
+	}
+
+	@Test
+	public void testGetAllBooksOfLibraryWhenListIsEmptyShouldReturnAnEmptyListAndTheSessionIsNotNullAndClose() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		
+		// exercise & verify
+		assertThat(bookRepository.getAllBooksOfLibrary("1")).isEmpty();
+		assertThat(bookRepository.getSession()).isNotNull();
+		assertThat(bookRepository.getSession().isOpen()).isFalse();
+	}
+	
+	private void addLibraryToDatabase(String id, String name) {
+		Library library = new Library(id, name);
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+	        transaction = session.beginTransaction();
+	        session.save(library);
+	        transaction.commit();
+		} catch(HibernateException e) {
+			e.printStackTrace();
+		} catch(IllegalStateException e) {
+			e.printStackTrace();
+		} catch(RollbackException e) {
+			transaction.rollback();
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -80,48 +125,14 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testConstructorWhenSettingsNotNullSetPropertiesOfHibernateUtilWithTheir() {
+	public void testGetAllBooksOfLibraryWhenListIsNotEmptyShouldReturnListOfBooksAndTheSessionIsNotNullAndClose() {
 		// setup
-		Properties settings = new Properties();
+		addLibraryToDatabase("1", "library1");
+		addLibraryToDatabase("2", "library2");
 		
-		// exercise
-		bookRepository = new BookMySQLRepository(settings);
-		
-		// verify
-		assertThat(HibernateUtil.getProperties()).isNotNull();
-		assertThat(HibernateUtil.getProperties()).isEqualTo(settings);
-	}
-	
-	@Test
-	public void testConstructorWhenSettingsIsNullSetPropertiesOfHibernateUtilNull() {
-		// exercise
-		bookRepository = new BookMySQLRepository(null);
-		
-		// verify
-		assertThat(HibernateUtil.getProperties()).isNull();
-	}
-
-	@Test
-	public void testGetAllBooksOfLibraryWhenListIsEmptyShouldReturnAnEmptyList() {
-		// exercise & verify
-		assertThat(bookRepository.getAllBooksOfLibrary("1")).isEmpty();
-		assertThat(bookRepository.getSession().isOpen()).isFalse();
-	}
-	
-	@Test
-	public void testGetAllBooksOfLibraryWhenListIsNotEmptyShouldReturnListOfBooks() {
-		// setup
-		Library library1 = new Library("1", "library1");
-		Library library2 = new Library("2", "library2");
-		addLibraryToDatabase(library1);
-		addLibraryToDatabase(library2);
-		
-		Book book1 = new Book("1", "book1");
-		Book book2 = new Book("2", "book2");
-		Book book3 = new Book("3", "book3");
-		addBookOfLibraryToDatabase(book1, library1);
-		addBookOfLibraryToDatabase(book2, library1);
-		addBookOfLibraryToDatabase(book3, library2);
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		addBookOfLibraryToDatabase("2", "book2", "1", "library1");
+		addBookOfLibraryToDatabase("3", "book3", "2", "library2");
 		
 		// exercise
 		List<Book> books = bookRepository.getAllBooksOfLibrary("1");
@@ -135,29 +146,13 @@ public class BookMySQLRepositoryTest {
 			.noneMatch(e -> e.getId().equals("3"))
 			.noneMatch(e -> e.getLibrary().getId().equals("2"));
 		
+		assertThat(bookRepository.getSession()).isNotNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
-	private void addLibraryToDatabase(Library library) {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        session.save(library);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			e.printStackTrace();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
-	}
-	
-	private void addBookOfLibraryToDatabase(Book book, Library library) {
-		book.setLibrary(library);
+	private void addBookOfLibraryToDatabase(String id, String name, String idLibrary, String nameLibrary) {
+		Book book = new Book(id, name);
+		book.setLibrary(new Library(idLibrary, nameLibrary));
 		Session session = null;
 		Transaction transaction = null;
 		try {
@@ -165,10 +160,12 @@ public class BookMySQLRepositoryTest {
 	        transaction = session.beginTransaction();
 	        session.save(book);
 	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
+		} catch(HibernateException e) {
 			e.printStackTrace();
+		} catch(IllegalStateException e) {
+			e.printStackTrace();
+		} catch(RollbackException e) {
+			transaction.rollback();
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -176,15 +173,29 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testFindBookByIdWhenDatabaseContainsTheBookShouldReturnIt() {
+	public void testGetAllBooksOfLibraryWhenOpenSessionThrowHibernateExceptionShouldThrowAndVerifySessionIsNull() {
 		// setup
-		Library library = new Library("1", "library1");
-		addLibraryToDatabase(library);
-		
-		Book book1 = new Book("1", "book1");
-		Book book2 = new Book("2", "book2");
-		addBookOfLibraryToDatabase(book1, library);
-		addBookOfLibraryToDatabase(book2, library);
+		addLibraryToDatabase("1", "library1");
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+                   //.thenReturn(sessionFactory)
+                   .thenThrow(new HibernateException("Cannot connect to session"));
+            
+            // exercise & verify
+            assertThatThrownBy(() -> bookRepository.getAllBooksOfLibrary("1"))
+            	.isInstanceOf(IllegalStateException.class)
+            	.hasMessage("Cannot connect to session");
+            
+            assertThat(bookRepository.getSession()).isNull();
+        }
+	}
+	
+	@Test
+	public void testFindBookByIdWhenDatabaseContainsTheBookShouldReturnItAndTheSessionIsNotNullAndClose() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		addBookOfLibraryToDatabase("2", "book2", "1", "library1");
 		
 		// exercise
 		Book bookFound = bookRepository.findBookById("2");
@@ -192,27 +203,46 @@ public class BookMySQLRepositoryTest {
 		// verify
 		assertThat(bookFound.getId()).isEqualTo("2");
 		assertThat(bookFound.getName()).isEqualTo("book2");
+		assertThat(bookRepository.getSession()).isNotNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
-	public void testFindBookByIdWhenDatabaseDoesntContainTheBookShouldReturnNull() {
+	public void testFindBookByIdWhenDatabaseDoesntContainTheBookShouldReturnNullAndTheSessionIsNotNullAndClose() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		
 		// exercise & verify
 		assertThat(bookRepository.findBookById("1")).isNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
+	public void testFindBookByIdWhenSessionFactoryThrowHibernateExceptionShouldThrowAndVerifySessionIsNull() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+            	.thenThrow(new HibernateException("Cannot open session"));
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.findBookById("1"))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot open session");
+			
+			assertThat(bookRepository.getSession()).isNull();
+		}	
+	}
+	
+	@Test
 	public void testSaveBookInTheLibraryWhenDatabaseDoesntContainNewBookShouldAddItToDatabase() {
 		// setup
-		Library library = new Library("1", "library1");
-		addLibraryToDatabase(library);
-		Book book = new Book("1", "book1");
-		addBookOfLibraryToDatabase(book, library);
-		Book newBook = new Book("2", "new_book");
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
 		
 		// exercise
-		bookRepository.saveBookInTheLibrary(library, newBook);
+		bookRepository.saveBookInTheLibrary(new Library("1", "library1"), new Book("2", "new_book"));
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
@@ -245,12 +275,9 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testDeleteBookFromLibraryWhenDatabaseContainsBookInTheLibraryShouldRemoveIt() {
 		// setup
-		Library library = new Library("1", "library1");
-		addLibraryToDatabase(library);
-		Book book1 = new Book("1", "book1");
-		Book bookDeleted = new Book("2", "book2");
-		addBookOfLibraryToDatabase(book1, library);
-		addBookOfLibraryToDatabase(bookDeleted, library);
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		addBookOfLibraryToDatabase("2", "book2", "1", "library1");
 		
 		assertThat(getAllBooksFromDatabase()).hasSize(2);
 		
