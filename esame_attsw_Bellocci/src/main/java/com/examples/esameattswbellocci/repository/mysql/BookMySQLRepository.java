@@ -2,13 +2,10 @@ package com.examples.esameattswbellocci.repository.mysql;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -21,15 +18,9 @@ import com.examples.esameattswbellocci.repository.BookRepository;
 
 public class BookMySQLRepository implements BookRepository {
 	
-	private static final Logger LOGGER = LogManager.getLogger(BookMySQLRepository.class);
-	
 	private Session session;
 	private Transaction transaction;
 
-	public BookMySQLRepository(Properties settings) {
-		HibernateUtil.setProperties(settings);
-	}
-	
 	public BookMySQLRepository() {}
 	
 	protected void setTransaction(Transaction transaction) {
@@ -86,7 +77,7 @@ public class BookMySQLRepository implements BookRepository {
 			session.save(newBook);
 			transaction.commit();
 		} catch(HibernateException e) {
-			throw new IllegalStateException("Error to open the Session from SessionFactory");
+			throw new IllegalStateException("Cannot open the Session");
 		} catch(IllegalStateException e) {
 			throw new IllegalStateException("Transaction isn't active");
 		} catch(RollbackException e) {
@@ -101,48 +92,23 @@ public class BookMySQLRepository implements BookRepository {
 	}
 
 	@Override
-	public void deleteBookFromLibrary(String idLibrary, String idBook) {
-		Book bookFound = findBookOfLibraryById(idLibrary, idBook);
-		session = null;
-		transaction = null;
+	public void deleteBookFromLibrary(Book bookToRemove) {
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        session.delete(bookFound);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+			transaction = session.beginTransaction();
+			session.delete(bookToRemove);
+			transaction.commit();
+		} catch(HibernateException e) {
+			throw new IllegalStateException("Cannot open the Session");
+		} catch(IllegalStateException e) {
+			throw new IllegalStateException("Transaction isn't active");
+		} catch(RollbackException e) {
+			transaction.rollback();
+			throw new IllegalStateException("Error during commit. Transaction rollback");
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
 		}
-	}
-
-
-	private Book findBookOfLibraryById(String idLibrary, String idBook) {
-		Book book = null;
-		session = null;
-		transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        String hql = "FROM Book WHERE id = :idBook AND id_library = :idLibrary";
-	        Query<Book> query = session.createQuery(hql, Book.class);
-	        query.setParameter("idBook", idBook);
-	        query.setParameter("idLibrary", idLibrary);
-	        book = query.uniqueResult();
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
-		return book;
 	}
 
 }
