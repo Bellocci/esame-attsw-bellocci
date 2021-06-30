@@ -1,10 +1,12 @@
 package com.examples.esameattswbellocci.repository.mysql;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -25,29 +27,25 @@ public class BookMySQLRepository implements BookRepository {
 		HibernateUtil.setProperties(settings);
 	}
 	
+	public BookMySQLRepository() {}
+
 	protected Session getSession() {
 		return this.session;
 	}
 
 	@Override
 	public List<Book> getAllBooksOfLibrary(String idLibrary) {
-		List<Book> books = null;
-		session = null;
-		transaction = null;
+		List<Book> books = new ArrayList<>();
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        String hql = "FROM Book WHERE id_library = :library";
-	        Query<Book> query = session.createQuery(hql, Book.class);
-	        query.setParameter("library", idLibrary);
-	        books = query.getResultList();
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+			String hql = "FROM Book WHERE id_library = :library";
+			Query<Book> query = session.createQuery(hql, Book.class);
+			query.setParameter("library", idLibrary);
+			books = query.getResultList();
+		} catch(HibernateException e) {
+			throw new IllegalStateException(e.getMessage());
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isConnected() != false)
 				session.close();
 		}
 		return books;
@@ -56,17 +54,11 @@ public class BookMySQLRepository implements BookRepository {
 	@Override
 	public Book findBookById(String idBook) {
 		Book book = null;
-		session = null;
-		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        book = session.get(Book.class, idBook);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+			book = session.get(Book.class, idBook);
+		} catch(HibernateException e) {
+			throw new IllegalStateException(e.getMessage());
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
