@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.RollbackException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -28,6 +30,14 @@ public class BookMySQLRepository implements BookRepository {
 	}
 	
 	public BookMySQLRepository() {}
+	
+	protected void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+	
+	protected void setSession(Session session) {
+		this.session = session;
+	}
 
 	protected Session getSession() {
 		return this.session;
@@ -68,18 +78,19 @@ public class BookMySQLRepository implements BookRepository {
 
 	@Override
 	public void saveBookInTheLibrary(Library library, Book newBook) {
-		session = null;
-		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        newBook.setLibrary(library);
-	        session.save(newBook);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+			transaction = session.beginTransaction();
+			newBook.setLibrary(library);
+			session.save(newBook);
+			transaction.commit();
+		} catch(HibernateException e) {
+			throw new IllegalStateException(e.getMessage());
+		} catch(IllegalStateException e) {
+			throw new IllegalStateException(e.getMessage());
+		} catch(RollbackException e) {
+			transaction.rollback();
+			throw new IllegalStateException(e.getMessage());
 		} finally {
 			if(session != null && session.isConnected())
 				session.close();
@@ -130,4 +141,5 @@ public class BookMySQLRepository implements BookRepository {
 		}
 		return book;
 	}
+
 }
