@@ -45,7 +45,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(HibernateException e) {
 			throw new IllegalStateException(e.getMessage());
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 		return books;
@@ -60,7 +60,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(HibernateException e) {
 			throw new IllegalStateException(e.getMessage());
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 		return book;
@@ -84,7 +84,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(PersistenceException e) {
 			throw new IllegalArgumentException("Database already contains the book");
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 	}
@@ -104,7 +104,7 @@ public class BookMySQLRepository implements BookRepository {
 			transaction.rollback();
 			throw new IllegalStateException("Error during commit. Transaction rollback");
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 	}

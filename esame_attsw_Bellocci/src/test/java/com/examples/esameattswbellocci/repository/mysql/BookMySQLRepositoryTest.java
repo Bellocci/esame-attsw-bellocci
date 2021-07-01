@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -32,7 +31,6 @@ import org.mockito.Mockito;
 import com.examples.esameattswbellocci.hibernate.util.HibernateUtil;
 import com.examples.esameattswbellocci.model.Book;
 import com.examples.esameattswbellocci.model.Library;
-import com.examples.esameattswbellocci.repository.BookRepository;
 
 public class BookMySQLRepositoryTest {
 	
@@ -155,7 +153,6 @@ public class BookMySQLRepositoryTest {
 		bookRepository.setSession(null);
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
             hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-                   //.thenReturn(sessionFactory)
                    .thenThrow(new HibernateException("Cannot connect to session"));
             
             // exercise & verify
@@ -173,7 +170,7 @@ public class BookMySQLRepositoryTest {
 		addLibraryToDatabase("1", "library1");
 		Session session = mock(Session.class);
 		bookRepository.setSession(session);
-		when(session.isConnected()).thenReturn(true);
+		when(session.isOpen()).thenReturn(true);
 		
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
             hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
@@ -185,6 +182,7 @@ public class BookMySQLRepositoryTest {
             	.isInstanceOf(IllegalStateException.class)
             	.hasMessage("Cannot connect to session");
             
+            verify(session).isOpen();
             verify(session).close();
             verifyNoMoreInteractions(ignoreStubs(session));
         }
@@ -246,7 +244,7 @@ public class BookMySQLRepositoryTest {
 		Session session = mock(Session.class);
 		bookRepository.setSession(session);
 		
-		when(session.isConnected()).thenReturn(true);
+		when(session.isOpen()).thenReturn(true);
 		
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
 			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
@@ -257,6 +255,7 @@ public class BookMySQLRepositoryTest {
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessage("Cannot open session");
 			
+			verify(session).isOpen();
 			verify(session).close();
 			verifyNoMoreInteractions(ignoreStubs(session));
 		}	
@@ -378,7 +377,7 @@ public class BookMySQLRepositoryTest {
 			when(sessionFactory.openSession()).thenReturn(session);
 			when(session.beginTransaction()).thenReturn(transaction);
 			doThrow(new IllegalStateException("Transaction isn't active")).when(transaction).commit();
-			when(session.isConnected()).thenReturn(true);
+			when(session.isOpen()).thenReturn(true);
 			
 			// exercise & verify
 			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
@@ -413,7 +412,7 @@ public class BookMySQLRepositoryTest {
 			when(session.beginTransaction()).thenReturn(transaction);
 			doThrow(new RollbackException("Error during commit. Transaction rollback"))
 				.when(transaction).commit();
-			when(session.isConnected()).thenReturn(true);
+			when(session.isOpen()).thenReturn(true);
 			
 			// exercise & verify
 			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
@@ -515,7 +514,7 @@ public class BookMySQLRepositoryTest {
 			when(sessionFactory.openSession()).thenReturn(session);
 			when(session.beginTransaction()).thenReturn(transaction);
 			doThrow(new IllegalStateException("Transaction isn't active")).when(transaction).commit();
-			when(session.isConnected()).thenReturn(true);
+			when(session.isOpen()).thenReturn(true);
 			
 			// exercise & verify
 			assertThatThrownBy(() -> bookRepository.deleteBookFromLibrary(new Book("1", "book1")))
@@ -547,7 +546,7 @@ public class BookMySQLRepositoryTest {
 			when(session.beginTransaction()).thenReturn(transaction);
 			doThrow(new RollbackException("Error during commit. Transaction rollback"))
 				.when(transaction).commit();
-			when(session.isConnected()).thenReturn(true);
+			when(session.isOpen()).thenReturn(true);
 			
 			// exercise & verify
 			assertThatThrownBy(() -> bookRepository.deleteBookFromLibrary(new Book("1", "book1")))
