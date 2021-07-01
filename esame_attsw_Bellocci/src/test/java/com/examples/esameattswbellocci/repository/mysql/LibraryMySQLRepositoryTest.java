@@ -1,30 +1,16 @@
 package com.examples.esameattswbellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Properties;
 
-import javax.persistence.RollbackException;
-
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import com.examples.esameattswbellocci.hibernate.util.HibernateUtil;
 import com.examples.esameattswbellocci.model.Book;
@@ -117,52 +103,6 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testGetAllLibrariesWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
-		// setup
-		Library library1 = new Library("1", "library1");
-		addLibrariesToDatabase(library1);
-		libraryRepository.setSession(null);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-                   .thenThrow(new HibernateException("Error to open session"));
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.getAllLibraries())
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            assertThat(libraryRepository.getSession()).isNull();
-		}
-	}
-	
-	@Test
-	public void testGetAllLibrariesWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndNotClosedSessionAgain() {
-		// setup
-		Library library1 = new Library("1", "library1");
-		addLibrariesToDatabase(library1);
-		Session session = mock(Session.class);
-		libraryRepository.setSession(session);
-		when(session.isOpen()).thenReturn(false);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-                   .thenThrow(new HibernateException("Error to open session"));
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.getAllLibraries())
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            
-            verify(session).isOpen();
-            verify(session, never()).close();
-            verifyNoMoreInteractions(session);
-		}
-	}
-
-	
-	@Test
 	public void testFoundLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnIt() {
 		// setup
 		Library library = new Library("1", "library1");
@@ -185,51 +125,6 @@ public class LibraryMySQLRepositoryTest {
 		// verify
 		assertThat(libraryFound).isNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
-	}
-	
-	@Test
-	public void testFoundLibraryByIdWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		libraryRepository.setSession(null);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-                   .thenThrow(new HibernateException("Error to open session"));
-         
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.findLibraryById("1"))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            assertThat(libraryRepository.getSession()).isNull();
-            
-		}
-	}
-	
-	@Test
-	public void testFoundLibraryByIdWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndDontCloseSessionAgain() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		Session session = mock(Session.class);
-		libraryRepository.setSession(session);
-		when(session.isOpen()).thenReturn(false);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-                   .thenThrow(new HibernateException("Error to open session"));
-         
-         // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.findLibraryById("1"))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            verify(session).isOpen();
-            verify(session, never()).close();
-            verifyNoMoreInteractions(session);
-		}
 	}
 	
 	@Test
@@ -260,117 +155,7 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testSaveLibraryWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
-		// setup
-		Library library = new Library("1", "library1");
-		libraryRepository.setSession(null);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-            	.thenThrow(new HibernateException("Error to open session"));
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.saveLibrary(library))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            assertThat(libraryRepository.getSession()).isNull();
-		}
-	}
-	
-	@Test
-	public void testSaveLibraryWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndDontCloseSessionAgain() {
-		// setup
-		Library library = new Library("1", "library1");
-		Session session = mock(Session.class);
-		libraryRepository.setSession(session);
-		when(session.isOpen()).thenReturn(false);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
-            	.thenThrow(new HibernateException("Error to open session"));
-         
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.saveLibrary(library))
-        		.isInstanceOf(IllegalStateException.class)
-        		.hasMessage("Cannot open the session");
-            
-            verify(session).isOpen();
-            verify(session, never()).close();
-            verifyNoMoreInteractions(session);
-		}	
-	}
-	
-	@Test
-	public void testSaveLibraryWhenTransactionCommitFailureBecuseDoesntActiveShouldThrowAndCloseTheSession() {
-		// setup
-		Library library = new Library("1", "library1");
-		
-		SessionFactory sessionFactory = mock(SessionFactory.class);
-		Session session = mock(Session.class);
-		Transaction transaction = mock(Transaction.class);
-		
-		libraryRepository.setSession(session);
-		libraryRepository.setTransaction(transaction);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
-            
-            when(sessionFactory.openSession()).thenReturn(session);
-            when(session.beginTransaction()).thenReturn(transaction);
-            doThrow(new IllegalStateException("Transaction error")).when(transaction).commit();
-            when(session.isOpen()).thenReturn(true);
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.saveLibrary(library))
-    			.isInstanceOf(IllegalStateException.class)
-    			.hasMessage("Transaction isn't active");
-            
-            InOrder inOrder = Mockito.inOrder(session);
-            inOrder.verify(session).isOpen();
-            inOrder.verify(session).close();
-            inOrder.verifyNoMoreInteractions();
-		}
-	}
-	
-	@Test
-	public void testSaveLibraryWhenTransactionCommitFailsShouldThrowRollbackTransactionAndCloseTheSession() {
-		// setup
-		Library library = new Library("1", "library1");
-		
-		SessionFactory sessionFactory = mock(SessionFactory.class);
-		Session session = mock(Session.class);
-		Transaction transaction = mock(Transaction.class);
-		
-		libraryRepository.setSession(session);
-		libraryRepository.setTransaction(transaction);
-		
-		libraryRepository.setSession(session);
-		libraryRepository.setTransaction(transaction);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
-            
-            when(sessionFactory.openSession()).thenReturn(session);
-            when(session.beginTransaction()).thenReturn(transaction);
-            doThrow(new RollbackException("Transaction error")).when(transaction).commit();
-            when(session.isOpen()).thenReturn(true);
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.saveLibrary(library))
-    			.isInstanceOf(IllegalStateException.class)
-    			.hasMessage("Commit fails. Transaction rollback");
-            
-            InOrder inOrder = Mockito.inOrder(transaction, session);
-            inOrder.verify(transaction).rollback();
-            inOrder.verify(session).isOpen();
-            inOrder.verify(session).close();
-            inOrder.verifyNoMoreInteractions();
-		}
-	}
-	
-	@Test
-	public void testSaveLibraryWhenDatabaseAlreadyContainsLibraryWithSameIdShouldThrowNotAddTheLibraryAndCloseTheSession() {
+	public void testSaveLibraryWhenDatabaseAlreadyContainsLibraryWithSameIdShouldThrowAndCloseTheSession() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibrariesToDatabase(library);
@@ -387,7 +172,6 @@ public class LibraryMySQLRepositoryTest {
 		
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
-	
 	
 	@Test
 	public void testDeleteLibraryWhenDatabaseContainLibraryShouldRemoveItFromDatabase() {
@@ -449,132 +233,6 @@ public class LibraryMySQLRepositoryTest {
 		session.save(book);
 		transaction.commit();
 		session.close();
-	}
-	
-	@Test
-	public void testDeleteLibraryWhenOpenSessionFailsAndSessionIsNullShouldThrowAndSessionRemainsNull() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		SessionFactory sessionFactory = mock(SessionFactory.class);
-		libraryRepository.setSession(null);
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
-            
-            when(sessionFactory.openSession()).thenThrow(new HibernateException("Error openSession method"));
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.deleteLibrary("1"))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            assertThat(libraryRepository.getSession()).isNull();
-		}
-		
-        assertThat(getAllLibrariesFromDatabase())
-    		.hasSize(1)
-    		.anyMatch(e -> e.getId().equals("1") && e.getName().equals("library1"));
-	}
-	
-	@Test
-	public void testDeleteLibraryWhenOpenSessionFailsAndSessionIsClosedShouldThrowAndDontCloseSessionAgain() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		SessionFactory sessionFactory = mock(SessionFactory.class);
-		Session session = mock(Session.class);
-		libraryRepository.setSession(session);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
-            
-            when(session.isOpen()).thenReturn(false);
-            when(sessionFactory.openSession()).thenThrow(new HibernateException("Error openSession method"));
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.deleteLibrary("1"))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Cannot open the session");
-            
-            verify(session).isOpen();
-            verify(session, never()).close();
-            verifyNoMoreInteractions(session);
-		}
-		
-		assertThat(getAllLibrariesFromDatabase())
-			.hasSize(1)
-			.anyMatch(e -> e.getId().equals("1") && e.getName().equals("library1"));
-	}
-	
-	@Test
-	public void testDeleteLibraryWhenTransitionCommitFailsBecauseItIsNotActiveShouldThrowAndCloseTheSession() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		SessionFactory sessionFactory = mock(SessionFactory.class);
-		Session session = mock(Session.class);
-		Transaction transaction = mock(Transaction.class);
-		
-		libraryRepository.setSession(session);
-		libraryRepository.setTransaction(transaction);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
-            
-            when(sessionFactory.openSession()).thenReturn(session);
-            when(session.beginTransaction()).thenReturn(transaction);
-            doThrow(new IllegalStateException("Error transaction")).when(transaction).commit();
-            when(session.isOpen()).thenReturn(true);
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.deleteLibrary("1"))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Transaction commit fails because it isn't active");
-            
-            verify(session).isOpen();
-            verify(session).close();
-		}
-		
-		assertThat(getAllLibrariesFromDatabase())
-			.hasSize(1)
-			.anyMatch(e -> e.getId().equals("1") && e.getName().equals("library1"));
-	}
-	
-	@Test
-	public void testDeleteLibraryWhenTransactionCommitFailsShouldThrowRollbackAndCloseTheSession() {
-		// setup
-		Library library = new Library("1", "library1");
-		addLibrariesToDatabase(library);
-		SessionFactory sessionFactory = mock(SessionFactory.class);
-		Session session = mock(Session.class);
-		Transaction transaction = mock(Transaction.class);
-		
-		libraryRepository.setSession(session);
-		libraryRepository.setTransaction(transaction);
-		
-		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
-            hibernateMock.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactory);
-            
-            when(sessionFactory.openSession()).thenReturn(session);
-            when(session.beginTransaction()).thenReturn(transaction);
-            doThrow(new RollbackException("Error transaction")).when(transaction).commit();
-            when(session.isOpen()).thenReturn(true);
-            
-            // exercise & verify
-            assertThatThrownBy(() -> libraryRepository.deleteLibrary("1"))
-            	.isInstanceOf(IllegalStateException.class)
-            	.hasMessage("Transaction commit fails. Transaction rollback");
-            
-            InOrder inOrder = Mockito.inOrder(transaction, session);
-            inOrder.verify(transaction).rollback();
-            inOrder.verify(session).isOpen();
-            inOrder.verify(session).close();
-            inOrder.verifyNoMoreInteractions();
-		}
-		
-		assertThat(getAllLibrariesFromDatabase())
-			.hasSize(1)
-			.anyMatch(e -> e.getId().equals("1") && e.getName().equals("library1"));
 	}
 	
 	@Test
