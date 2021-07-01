@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -20,8 +21,10 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	private Session session;
 	private Transaction transaction;
 	
-	public LibraryMySQLRepository(Properties settings) {
-		HibernateUtil.setProperties(settings);
+	public LibraryMySQLRepository() {}
+	
+	protected void setSession(Session session) {
+		this.session = session;
 	}
 	
 	protected Session getSession() {
@@ -31,18 +34,13 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	@Override
 	public List<Library> getAllLibraries() {
 		List<Library> libraries = new ArrayList<>();
-		session = null;
-		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        libraries = session.createQuery("FROM Library", Library.class).list();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+			libraries = session.createQuery("FROM Library", Library.class).list();
+		} catch(HibernateException e) {
+			throw new IllegalStateException("Cannot open the session");
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 		return libraries;

@@ -1,11 +1,16 @@
 package com.examples.esameattswbellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
@@ -14,10 +19,13 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import com.examples.esameattswbellocci.hibernate.util.HibernateUtil;
 import com.examples.esameattswbellocci.model.Book;
 import com.examples.esameattswbellocci.model.Library;
+import com.examples.esameattswbellocci.repository.BookRepository;
 
 public class LibraryMySQLRepositoryTest {
 	
@@ -48,64 +56,32 @@ public class LibraryMySQLRepositoryTest {
 	}
 
 	@Before
-	public void setupDatabase() {        	
-		libraryRepository = new LibraryMySQLRepository(settings);
-	}
-	
-	@After
-	public void cleanTables() {
+	public void setupDatabase() {
+		HibernateUtil.setProperties(settings);
+		libraryRepository = new LibraryMySQLRepository();
 		cleanDatabaseTables();
 	}
 	
 	private void cleanDatabaseTables() {
 		Transaction transaction = null;
 		Session session = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-		    transaction = session.beginTransaction();
-	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	        for(Library library: libraries)
-	        	session.delete(library);
-	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	        for(Book book: books)
-	        	session.delete(book);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			e.printStackTrace();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
-	}
-	
-	@Test
-	public void testConstructorWhenSettingsNotNullSetPropertiesOfHibernateUtilWithTheir() {
-		// setup
-		Properties settings = new Properties();
-		
-		// exercise
-		libraryRepository = new LibraryMySQLRepository(settings);
-		
-		// verify
-		assertThat(HibernateUtil.getProperties()).isNotNull();
-		assertThat(HibernateUtil.getProperties()).isEqualTo(settings);
-	}
-	
-	@Test
-	public void testConstructorWhenSettingsIsNullSetPropertiesOfHibernateUtilNull() {
-		// exercise
-		libraryRepository = new LibraryMySQLRepository(null);
-		
-		// verify
-		assertThat(HibernateUtil.getProperties()).isNull();
+		session = HibernateUtil.getSessionFactory().openSession();
+	    transaction = session.beginTransaction();
+        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+        for(Library library: libraries)
+        	session.delete(library);
+        List<Book> books = session.createQuery("FROM Book", Book.class).list();
+        for(Book book: books)
+        	session.delete(book);
+        transaction.commit();
+		session.close();
 	}
 
 	@Test
 	public void testGetAllLibrariesWhenListIsEmptyShouldReturnAnEmptyList() {
 		// verify
 		assertThat(libraryRepository.getAllLibraries()).isEmpty();
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
@@ -125,26 +101,63 @@ public class LibraryMySQLRepositoryTest {
 			.anyMatch(e -> e.getId().equals("1"))
 			.anyMatch(e -> e.getId().equals("2"));
 		
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
 	private void addLibrariesToDatabase(Library library) {
-		Transaction transaction = null;
-		Session session = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-		    transaction = session.beginTransaction();
-		    session.save(library);
-		    transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			e.printStackTrace();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    Transaction transaction = session.beginTransaction();
+	    session.save(library);
+	    transaction.commit();
+		session.close();
+	}
+	
+	@Test
+	public void testGetAllLibrariesWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
+		// setup
+		Library library1 = new Library("1", "library1");
+		addLibrariesToDatabase(library1);
+		libraryRepository.setSession(null);
+		
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+                   .thenThrow(new HibernateException("Error to open session"));
+            
+            // exercise & verify
+            assertThatThrownBy(() -> libraryRepository.getAllLibraries())
+            	.isInstanceOf(IllegalStateException.class)
+            	.hasMessage("Cannot open the session");
+            
+            assertThat(libraryRepository.getSession()).isNull();
 		}
 	}
+	
+	@Test
+	public void testGetAllLibrariesWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndSessionRemainsClosed() {
+		// setup
+		Library library1 = new Library("1", "library1");
+		addLibrariesToDatabase(library1);
+		Session session = mock(Session.class);
+		libraryRepository.setSession(session);
+		when(session.isOpen()).thenReturn(true);
+		
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+                   .thenThrow(new HibernateException("Error to open session"));
+            
+            // exercise & verify
+            assertThatThrownBy(() -> libraryRepository.getAllLibraries())
+            	.isInstanceOf(IllegalStateException.class)
+            	.hasMessage("Cannot open the session");
+            
+            
+            verify(session).isOpen();
+            verify(session).close();
+            verifyNoMoreInteractions(session);
+		}
+	}
+
 	
 	@Test
 	public void testFoundLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnIt() {
