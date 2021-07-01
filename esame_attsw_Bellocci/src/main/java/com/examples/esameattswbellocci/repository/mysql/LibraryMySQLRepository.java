@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.PersistenceException;
+import javax.persistence.RollbackException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -30,6 +33,10 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	protected Session getSession() {
 		return this.session;
 	}
+	
+	protected void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
 
 	@Override
 	public List<Library> getAllLibraries() {
@@ -49,19 +56,13 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	@Override
 	public Library findLibraryById(String idLibrary) {
 		Library library = null;
-		session = null;
-		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        library = session.get(Library.class, idLibrary);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+			library = session.get(Library.class, idLibrary);
+		} catch(HibernateException e) {
+			throw new IllegalStateException("Cannot open the session");
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 		return library;
@@ -69,39 +70,45 @@ public class LibraryMySQLRepository implements LibraryRepository {
 
 	@Override
 	public void saveLibrary(Library library) {
-		session = null;
-		transaction = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			transaction = session.beginTransaction();
 			session.save(library);
 			transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+		} catch(HibernateException e) {
+			throw new IllegalStateException("Cannot open the session");
+		} catch(IllegalStateException e) {
+			throw new IllegalStateException("Transaction isn't active");
+		} catch(RollbackException e) {
+			transaction.rollback();
+			throw new IllegalStateException("Commit fails. Transaction rollback");
+		} catch(PersistenceException e) {
+			throw new IllegalArgumentException("Database already contains library with id " + library.getId());
 		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}  
+			if(session != null && session.isOpen())
+				session.close();  
+		}
 	}
 
 	@Override
 	public void deleteLibrary(String idLibrary) {
-		session = null;
-		transaction = null;
-		Library libraryFound = findLibraryById(idLibrary);
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			transaction = session.beginTransaction();
+			Library libraryFound = session.get(Library.class, idLibrary);
 			session.delete(libraryFound);
 			transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null && transaction.isActive())
-				transaction.rollback();
-			LOGGER.error(e.getMessage(), e);
+		} catch(HibernateException e) {
+			throw new IllegalStateException("Cannot open the session");
+		} catch(IllegalStateException e) {
+			throw new IllegalStateException("Transaction commit fails because it isn't active");
+		} catch(RollbackException e) {
+			transaction.rollback();
+			throw new IllegalStateException("Transaction commit fails. Transaction rollback");
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException("Database doesn't contain library with id " + idLibrary);
 		} finally {
-			if(session != null && session.isConnected())
+			if(session != null && session.isOpen())
 				session.close();
 		}
 	}
