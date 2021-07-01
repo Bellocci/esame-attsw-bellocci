@@ -20,8 +20,6 @@ public class BookMySQLRepository implements BookRepository {
 	
 	private Session session;
 	private Transaction transaction;
-
-	public BookMySQLRepository() {}
 	
 	protected void setTransaction(Transaction transaction) {
 		this.transaction = transaction;
@@ -47,7 +45,7 @@ public class BookMySQLRepository implements BookRepository {
 		} catch(HibernateException e) {
 			throw new IllegalStateException(e.getMessage());
 		} finally {
-			if(session != null && session.isConnected() != false)
+			if(session != null && session.isConnected())
 				session.close();
 		}
 		return books;

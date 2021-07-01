@@ -176,9 +176,10 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testGetAllBooksOfLibraryWhenOpenSessionThrowHibernateExceptionShouldThrowAndVerifySessionIsNull() {
+	public void testGetAllBooksOfLibraryWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
 		// setup
 		addLibraryToDatabase("1", "library1");
+		bookRepository.setSession(null);
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
             hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
                    //.thenReturn(sessionFactory)
@@ -190,6 +191,29 @@ public class BookMySQLRepositoryTest {
             	.hasMessage("Cannot connect to session");
             
             assertThat(bookRepository.getSession()).isNull();
+        }
+	}
+	
+	@Test
+	public void testGetAllBooksOfLibraryWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndSessionRemainsClosed() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		session.close();
+		bookRepository.setSession(session);
+		
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+            hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+                   //.thenReturn(sessionFactory)
+                   .thenThrow(new HibernateException("Cannot connect to session"));
+            
+            // exercise & verify
+            assertThatThrownBy(() -> bookRepository.getAllBooksOfLibrary("1"))
+            	.isInstanceOf(IllegalStateException.class)
+            	.hasMessage("Cannot connect to session");
+            
+            assertThat(bookRepository.getSession()).isNotNull();
+            assertThat(bookRepository.getSession().isOpen()).isFalse();
         }
 	}
 	
@@ -217,14 +241,17 @@ public class BookMySQLRepositoryTest {
 		
 		// exercise & verify
 		assertThat(bookRepository.findBookById("1")).isNull();
+		assertThat(bookRepository.getSession()).isNotNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
-	public void testFindBookByIdWhenSessionFactoryThrowHibernateExceptionShouldThrowAndVerifySessionIsNull() {
+	public void testFindBookByIdWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		bookRepository.setSession(null);
+		
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
 			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
             	.thenThrow(new HibernateException("Cannot open session"));
@@ -235,6 +262,29 @@ public class BookMySQLRepositoryTest {
 				.hasMessage("Cannot open session");
 			
 			assertThat(bookRepository.getSession()).isNull();
+		}	
+	}
+	
+	@Test
+	public void testFindBookByIdWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndSessionRemainsClosed() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		session.close();
+		bookRepository.setSession(session);
+		
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+            	.thenThrow(new HibernateException("Cannot open session"));
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.findBookById("1"))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot open session");
+			
+			assertThat(bookRepository.getSession()).isNotNull();
+			assertThat(bookRepository.getSession().isOpen()).isFalse();
 		}	
 	}
 	
@@ -276,9 +326,10 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testSaveBookInTheLibraryWhenSessionFactoryThrowHibernateExceptionShouldThrowAndVerifySessionIsNull() {
+	public void testSaveBookInTheLibraryWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionReaminsNull() {
 		// setup
 		addLibraryToDatabase("1", "library1");
+		bookRepository.setSession(null);
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
 			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
             	.thenThrow(new HibernateException("Cannot open the Session"));
@@ -292,6 +343,30 @@ public class BookMySQLRepositoryTest {
 				.hasMessage("Cannot open the Session");
 			
 			assertThat(bookRepository.getSession()).isNull();
+		}
+	}
+	
+	@Test
+	public void testSaveBookInTheLibraryWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndSessionRemainsClosed() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		session.close();
+		bookRepository.setSession(session);
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+            	.thenThrow(new HibernateException("Cannot open the Session"));
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
+						new Library("1", "library1"),
+						new Book("1", "book1"))
+					)
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot open the Session");
+			
+			assertThat(bookRepository.getSession()).isNotNull();
+			assertThat(bookRepository.getSession().isOpen()).isFalse();
 		}
 	}
 	
@@ -408,10 +483,11 @@ public class BookMySQLRepositoryTest {
 	}
 
 	@Test
-	public void testDeleteBookFromLibraryWhenOpenSessionThrowShouldThrowAndSessionIsNull() {
+	public void testDeleteBookFromLibraryWhenSessionIsNullAndOpenSessionThrowShouldThrowAndSessionRemainsNull() {
 		// setup
 		addLibraryToDatabase("1", "library1");
 		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		bookRepository.setSession(null);
 		
 		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
 			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
@@ -423,6 +499,29 @@ public class BookMySQLRepositoryTest {
 				.hasMessage("Cannot open the Session");
 			
 			assertThat(bookRepository.getSession()).isNull();
+		}
+	}
+	
+	@Test
+	public void testDeleteBookFromLibraryWhenSessionIsClosedAndOpenSessionThrowShouldThrowAndSessionRemainsClosed() {
+		// setup
+		addLibraryToDatabase("1", "library1");
+		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		session.close();
+		bookRepository.setSession(session);
+		
+		try (MockedStatic<HibernateUtil> hibernateMock = Mockito.mockStatic(HibernateUtil.class)) {
+			hibernateMock.when(() -> HibernateUtil.getSessionFactory().openSession())
+				.thenThrow(new HibernateException("Cannot open the Session"));
+			
+			// exercise & verify
+			assertThatThrownBy(() -> bookRepository.deleteBookFromLibrary(new Book("1", "book1")))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot open the Session");
+			
+			assertThat(bookRepository.getSession()).isNotNull();
+			assertThat(bookRepository.getSession().isOpen()).isFalse();
 		}
 	}
 	
