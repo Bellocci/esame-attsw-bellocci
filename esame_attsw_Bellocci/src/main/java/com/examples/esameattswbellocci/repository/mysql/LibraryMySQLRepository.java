@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -12,6 +14,8 @@ import com.examples.esameattswbellocci.model.Library;
 import com.examples.esameattswbellocci.repository.LibraryRepository;
 
 public class LibraryMySQLRepository implements LibraryRepository {
+	
+	private static final Logger LOGGER = LogManager.getLogger(LibraryMySQLRepository.class);
 	
 	private Session session;
 	private Transaction transaction;
@@ -46,6 +50,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 			session.save(library);
 			transaction.commit();
 		} catch(PersistenceException e) {
+			LOGGER.error(e.getMessage(), e);
 			throw new IllegalArgumentException("Database already contains library with id " + library.getId());
 		} finally {
 			session.close();  
@@ -61,6 +66,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 			session.delete(libraryFound);
 			transaction.commit();
 		} catch(IllegalArgumentException e) {
+			LOGGER.error(e.getMessage(), e);
 			throw new IllegalArgumentException("Database doesn't contain library with id " + idLibrary);
 		} finally {
 			session.close();

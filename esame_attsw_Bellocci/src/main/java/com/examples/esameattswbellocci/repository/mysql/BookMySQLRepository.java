@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -14,6 +16,8 @@ import com.examples.esameattswbellocci.model.Library;
 import com.examples.esameattswbellocci.repository.BookRepository;
 
 public class BookMySQLRepository implements BookRepository {
+	
+	private static final Logger LOGGER = LogManager.getLogger(BookMySQLRepository.class);
 	
 	private Session session;
 	private Transaction transaction;
@@ -50,6 +54,7 @@ public class BookMySQLRepository implements BookRepository {
 			session.save(newBook);
 			transaction.commit();
 		} catch(PersistenceException e) {
+			LOGGER.error(e.getMessage(), e);
 			throw new IllegalArgumentException("Database already contains the book with id " + newBook.getId());
 		} finally {
 			session.close();
