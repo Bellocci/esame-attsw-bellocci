@@ -2,43 +2,36 @@ apply plugin: 'info.solidsoft.pitest'
 
 pitest {
 	reportDir = file("$buildDir/reports/pitest")
-	// Which classes need to be mutated
+
 	targetClasses = [
-		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.*"
+		"com.examples.esameattswbellocci.controller.*",
+		"com.examples.esameattswbellocci.repository.*",
 	]
-	// Which test classes use
+
 	targetTests = [
-		"com.examples.esame_attsw_Bellocci.controller.*",
-		"com.examples.esame_attsw_Bellocci.repository.*"
+		"com.examples.esameattswbellocci.controller.*",
+		"com.examples.esameattswbellocci.repository.*",
 	]
 	
 	excludedClasses = [
-		"com.examples.esame_attsw_Bellocci.view.*",
+		"com.examples.esameattswbellocci.view.*",
 	]
 	
 	excludedTestClasses = ['com.examples.**.*IT']
 	
 	excludedMethods = [
 		"get*",
-		"set*",
+		"set*"
 	]
 	
 	verbose = true
 	
 	outputFormats = ['XML', 'HTML']
-	// List of operations of mutations
+
 	mutators = [
 		'DEFAULTS',
 		'NON_VOID_METHOD_CALLS'
 	]
-	
-	avoidCallsTo = [
-		'org.hibernate.Session',
-		'org.hibernate.Transaction',
-		'org.hibernate.SessionFactory'
-	]
-	
-	// Score below which the test fails
-	mutationThreshold = 80
+
+	mutationThreshold = 70
 }

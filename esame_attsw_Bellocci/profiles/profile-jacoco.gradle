@@ -12,27 +12,18 @@ jacoco {
 }
 
 jacocoTestCoverageVerification {
-	dependsOn test, integrationTest, e2eTest
+
+	dependsOn test
 	finalizedBy jacocoTestReport
 	
   	violationRules {
-  	
-	   	rule {
-    		element = 'CLASS'
-    		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*"
-    		]    
-      		limit {
-        		minimum = 0.2
-      		}
-    	}
     	
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*"
+    			"com.examples.esameattswbellocci.model.*",
+    			"com.examples.esameattswbellocci.app.*",
+    			"com.examples.esameattswbellocci.hibernate.util.HibernateUtil",
     		] 
       		limit {
         		counter = 'INSTRUCTION' 
@@ -43,8 +34,9 @@ jacocoTestCoverageVerification {
     	rule {
     		element = 'CLASS'
     		excludes = [
-    			"com.examples.esame_attsw_Bellocci.model.*",
-    			"com.examples.esame_attsw_Bellocci.app.*"
+    			"com.examples.esameattswbellocci.model.*",
+    			"com.examples.esameattswbellocci.app.*",
+    			"com.examples.esameattswbellocci.hibernate.util.HibernateUtil",
     		]
     		limit {
     			counter = 'LINE'
@@ -67,21 +59,19 @@ test {
 jacocoTestReport {
 	dependsOn jacocoTestCoverageVerification
 	
-	executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
-	
     reports {
     	xml.enabled = true // coveralls plugin depends on xml format report
         html.enabled = true
     }
     
-    // Remove Book, Library and LibrarySwingView classes from JaCoCo report
 	afterEvaluate {
     	getClassDirectories().setFrom(
     		files(classDirectories.files.collect {
         		fileTree(dir: it, exclude: [
         			"**/Library.class",
         			"**/Book.class",
-        			"**/LibrarySwingApp.class"
+        			"**/LibrarySwingApp.class",
+        			"**/HibernateUtil.class",
         		])
         	})
         )
