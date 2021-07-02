@@ -23,35 +23,48 @@ public class LibraryController {
 	}
 
 	public void newLibrary(Library newLibrary) {
-		if(newLibrary.getId().trim().isEmpty())
-			throw new IllegalArgumentException("Id library cannot be empty or only blank space");
+		if(newLibrary.getId().trim().isEmpty()) {
+			libraryView.showError("Library id cannot be empty or only blank space", newLibrary);
+			return;
+		}
 		Library libraryFound = libraryRepository.findLibraryById(newLibrary.getId());
 		if(libraryFound != null) {
 			libraryView.showError("Already existing library with id " + libraryFound.getId(), libraryFound);
 			return;
 		}
-		libraryRepository.saveLibrary(newLibrary);
-		libraryView.libraryAdded(newLibrary);
+		try {
+			libraryRepository.saveLibrary(newLibrary);
+			libraryView.libraryAdded(newLibrary);
+		} catch(IllegalArgumentException e) {
+			libraryView.showError(e.getMessage(), newLibrary);
+		}
 	}
 	
 	public void deleteLibrary(Library library) {
 		Library libraryFound = libraryRepository.findLibraryById(library.getId());
 		if(libraryFound == null) {
-			libraryView.libraryRemoved(library);
-			libraryView.showError("Doesn't exist library with id " + library.getId(), library);
+			removedLibraryAndShowError(library);
 			return;
 		}
-		libraryRepository.deleteLibrary(library.getId());
-		libraryView.libraryRemoved(libraryFound);
+		try {
+			libraryRepository.deleteLibrary(library.getId());
+			libraryView.libraryRemoved(libraryFound);
+		} catch(IllegalArgumentException e) {
+			libraryView.showError(e.getMessage(), library);
+		}
 	}
 	
 	public void findLibrary(Library library) {
 		Library libraryFound = libraryRepository.findLibraryById(library.getId());
 		if(libraryFound == null) {
-			libraryView.libraryRemoved(library);
-			libraryView.showError("Doesn't exist library with id " + library.getId(), library);
+			removedLibraryAndShowError(library);
 			return;
 		}
 		libraryView.showAllBooksOfLibrary(libraryFound);
+	}
+	
+	private void removedLibraryAndShowError(Library library) {
+		libraryView.libraryRemoved(library);
+		libraryView.showError("Doesn't exist library with id 1", library);
 	}
 }
