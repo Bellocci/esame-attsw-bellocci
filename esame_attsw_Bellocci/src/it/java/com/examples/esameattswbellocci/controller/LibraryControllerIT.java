@@ -65,6 +65,7 @@ public class LibraryControllerIT {
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		
+		HibernateUtil.setProperties(settings);
 	}
 	
 	@AfterClass
@@ -76,7 +77,7 @@ public class LibraryControllerIT {
 	@Before
 	public void setup() {
 		closeable = MockitoAnnotations.openMocks(this);
-		libraryRepository = new LibraryMySQLRepository(settings);
+		libraryRepository = new LibraryMySQLRepository();
 		libraryController = new LibraryController(libraryView, libraryRepository);
 	}
 	
@@ -87,35 +88,26 @@ public class LibraryControllerIT {
 	}
 
 	private void cleanDatabaseTables() {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-			for(Library library: libraries)
-				session.delete(library);
-			List<Book> books = session.createQuery("FROM Book", Book.class).list();
-			for(Book book: books)
-				session.delete(book);
-			transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+		List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+		for(Library library: libraries)
+			session.delete(library);
+		List<Book> books = session.createQuery("FROM Book", Book.class).list();
+		for(Book book: books)
+			session.delete(book);
+		transaction.commit();
+		session.close();
 	}
 	
 	@Test
-	public void testGetAllLibraries() {
+	public void testAllLibraries() {
 		// setup
 		Library library = new Library("1", "library1");
 		libraryRepository.saveLibrary(library);
 		
 		// exercise
-		libraryController.getAllLibraries();
+		libraryController.allLibraries();
 		
 		// verify
 		verify(libraryView).showAllLibraries(asList(library));

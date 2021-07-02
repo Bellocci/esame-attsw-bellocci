@@ -4,6 +4,8 @@ import java.awt.EventQueue;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.cfg.AvailableSettings;
 
 import com.examples.esameattswbellocci.controller.BookController;
@@ -42,6 +44,8 @@ public class LibrarySwingApp implements Callable<Void> {
 	@Option(names = {"--db-password"}, description = "Database password")
 	private String password = "password";
 	
+	private static final Logger LOGGER = LogManager.getLogger(LibrarySwingApp.class);
+	
 	/**
 	 * Launch the application.
 	 */
@@ -74,8 +78,6 @@ public class LibrarySwingApp implements Callable<Void> {
 				HibernateUtil.setProperties(settings);
 			}
 			
-			
-			
 			// Instanciate repository
 			LibraryRepository libraryRepository = new LibraryMySQLRepository();
 			BookRepository bookRepository = new BookMySQLRepository();
@@ -94,14 +96,15 @@ public class LibrarySwingApp implements Callable<Void> {
 			bookView.setLibrarySwingView(libraryView);
 			libraryView.setBookSwingView(bookView);
 			
+			// show view
+			libraryView.setVisible(true);
+			
+			// show all libraries
 			try {
 				HibernateUtil.getSessionFactory();
-			} catch(IllegalArgumentException e) {
-				libraryView.showError(e.getMessage(), null);
-			} finally {
-				// show view
-				libraryView.setVisible(true);
 				libraryController.allLibraries();
+			} catch(IllegalArgumentException e) {
+				LOGGER.error(e.getMessage(), e);
 			}
 			
 		});

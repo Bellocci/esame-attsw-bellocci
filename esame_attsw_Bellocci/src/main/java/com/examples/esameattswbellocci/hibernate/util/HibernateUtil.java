@@ -45,8 +45,9 @@ public class HibernateUtil {
 	                   		.configure(new File(configurationPath +"hibernate.cfg.xml"))
 	                   		.buildSessionFactory();
 				}
-			} catch(Exception e) {
-				LOGGER.error(e.getMessage(), e);
+			} catch(HibernateException e) {
+				LOGGER.error(e.getMessage());
+				throw new IllegalArgumentException("Error with settings. Impossible build the sessionFactory");
 			}
 		}
 		return sessionFactory;
@@ -57,7 +58,7 @@ public class HibernateUtil {
 			try {
 				sessionFactory.close();
 			} catch(HibernateException e) {
-				LOGGER.error(e.getMessage(), e);
+				LOGGER.error(e.getMessage());
 			} finally {
 				if(sessionFactory.isClosed())
 					sessionFactory = null;

@@ -54,7 +54,7 @@ public class BookMySQLRepository implements BookRepository {
 			session.save(newBook);
 			transaction.commit();
 		} catch(PersistenceException e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.error(e.getMessage());
 			throw new IllegalArgumentException("Database already contains the book with id " + newBook.getId());
 		} finally {
 			session.close();

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -18,7 +19,7 @@ public class Library {
 	@Column(length = 50)
 	private String id;
 	
-	@Column(name = "Name", length = 50)
+	@Column(name = "Name", length = 50, nullable = false)
 	private String name;
 	
 	/*

@@ -86,8 +86,10 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		
-		libraryRepository = new LibraryMySQLRepository(settings);
-		bookRepository = new BookMySQLRepository(settings);
+		HibernateUtil.setProperties(settings);
+		
+		libraryRepository = new LibraryMySQLRepository();
+		bookRepository = new BookMySQLRepository();
 	}
 	
 	@AfterClass
@@ -99,6 +101,7 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Override
 	protected void onSetUp() throws Exception {
 		cleanDatabaseTables();
+		
 		addTestLibraryToDatabase(LIBRARY_FIXTURE_1_ID, LIBRARY_FIXTURE_1_NAME);
 		addTestLibraryToDatabase(LIBRARY_FIXTURE_2_ID, LIBRARY_FIXTURE_2_NAME);
 		

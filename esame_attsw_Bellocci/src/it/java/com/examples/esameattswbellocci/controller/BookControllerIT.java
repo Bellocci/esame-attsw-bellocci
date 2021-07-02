@@ -72,6 +72,8 @@ public class BookControllerIT {
 		settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+		
+		HibernateUtil.setProperties(settings);
 	}
 	
 	@AfterClass
@@ -83,7 +85,7 @@ public class BookControllerIT {
 	@Before
 	public void setup() {
 		closeable = MockitoAnnotations.openMocks(this);
-		bookRepository = new BookMySQLRepository(settings);
+		bookRepository = new BookMySQLRepository();
 		bookController = new BookController(bookRepository, bookView, libraryController);
 	}
 	
@@ -94,29 +96,20 @@ public class BookControllerIT {
 	}
 	
 	private void cleanDatabaseTables() {
-		Transaction transaction = null;
-		Session session = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-		    transaction = session.beginTransaction();
-		    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-		    for(Library library: libraries)
-		     	session.delete(library);
-		    List<Book> books = session.createQuery("FROM Book", Book.class).list();
-		    for(Book book: books)
-		       	session.delete(book);
-		    transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+		List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+		for(Library library: libraries)
+		   	session.delete(library);
+		List<Book> books = session.createQuery("FROM Book", Book.class).list();
+		for(Book book: books)
+		   	session.delete(book);
+		transaction.commit();
+		session.close();
 	}
 	
 	@Test
-	public void testGetAllBooks() {
+	public void testAllBooks() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibraryToDatabase(library);
@@ -134,20 +127,11 @@ public class BookControllerIT {
 	}
 	
 	private void addLibraryToDatabase(Library library) {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        session.save(library);
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    Transaction transaction = session.beginTransaction();
+	    session.save(library);
+	    transaction.commit();
+		session.close();
 	}
 
 	@Test

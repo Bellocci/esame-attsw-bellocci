@@ -61,6 +61,8 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+		
+		HibernateUtil.setProperties(settings);
 	}
 	
 	@AfterClass
@@ -70,8 +72,10 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 
 	@Override
 	protected void onSetUp() throws Exception {
+		cleanDatabaseTables();
+		
 		GuiActionRunner.execute(() -> {
-			libraryRepository = new LibraryMySQLRepository(settings);
+			libraryRepository = new LibraryMySQLRepository();
 			librarySwingView = new LibrarySwingView();
 			libraryController = new LibraryController(librarySwingView, libraryRepository);
 			librarySwingView.setLibraryController(libraryController);
@@ -79,33 +83,18 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		window = new FrameFixture(robot(), librarySwingView);
 		window.show(); // shows the frame to test
 	}
-
-	@Override
-	protected void onTearDown() {
-		cleanDatabaseTables();
-	}
 	
 	private void cleanDatabaseTables() {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	        for(Library library: libraries)
-	        	session.delete(library);
-	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	        for(Book book: books)
-	        	session.delete(book);
-	        transaction.commit();
-		} catch(Exception e) {
-			e.printStackTrace();
-			if(transaction != null)
-				transaction.rollback();
-		} finally {
-			if(session != null)
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    Transaction transaction = session.beginTransaction();
+	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+	    for(Library library: libraries)
+	       	session.delete(library);
+	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
+	    for(Book book: books)
+	       	session.delete(book);
+	    transaction.commit();
+		session.close();
 	}
 	
 	@Test @GUITest
@@ -115,7 +104,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 		libraryRepository.saveLibrary(new Library("2", "library2"));
 		
 		// exercise
-		GuiActionRunner.execute(() -> libraryController.getAllLibraries());
+		GuiActionRunner.execute(() -> libraryController.allLibraries());
 		
 		// verify
 		assertThat(window.list("libraryList").contents())
@@ -210,7 +199,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	private void initBookMVC() {
 		GuiActionRunner.execute(() -> {
 			bookSwingView = new BookSwingView();
-			bookRepository = new BookMySQLRepository(settings);
+			bookRepository = new BookMySQLRepository();
 			bookController = new BookController(bookRepository, bookSwingView, libraryController);
 			bookSwingView.setBookController(bookController);
 			bookSwingView.setLibrarySwingView(librarySwingView);

@@ -48,7 +48,7 @@ public class LibraryController {
 		}
 		try {
 			libraryRepository.deleteLibrary(library.getId());
-			libraryView.libraryRemoved(libraryFound);
+			libraryView.libraryRemoved(library);
 		} catch(IllegalArgumentException e) {
 			libraryView.showError(e.getMessage(), library);
 		}
@@ -60,11 +60,11 @@ public class LibraryController {
 			removedLibraryAndShowError(library);
 			return;
 		}
-		libraryView.showAllBooksOfLibrary(libraryFound);
+		libraryView.showAllBooksOfLibrary(library);
 	}
 	
 	private void removedLibraryAndShowError(Library library) {
 		libraryView.libraryRemoved(library);
-		libraryView.showError("Doesn't exist library with id 1", library);
+		libraryView.showError("Doesn't exist library with id " + library.getId(), library);
 	}
 }

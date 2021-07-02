@@ -38,6 +38,8 @@ public class BookMySQLRepositoryTest {
 		settings.put(AvailableSettings.FORMAT_SQL, "true");
 		settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 		settings.put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
+		
+		HibernateUtil.setProperties(settings);
 	}
 	
 	@AfterClass
@@ -47,7 +49,6 @@ public class BookMySQLRepositoryTest {
 	
 	@Before
 	public void setup() {
-		HibernateUtil.setProperties(settings);
 		bookRepository = new BookMySQLRepository();
 		cleanDatabaseTables();
 	}
@@ -173,9 +174,7 @@ public class BookMySQLRepositoryTest {
 	
 	private List<Book> getAllBooksFromDatabase() {
 		Session session = HibernateUtil.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
 		List<Book> books = session.createQuery("FROM Book", Book.class).list();	
-		transaction.commit();
 		session.close();
 		return books;
 	}

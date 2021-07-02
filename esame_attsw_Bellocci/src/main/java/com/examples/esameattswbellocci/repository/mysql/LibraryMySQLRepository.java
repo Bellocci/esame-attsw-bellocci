@@ -50,7 +50,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 			session.save(library);
 			transaction.commit();
 		} catch(PersistenceException e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.error(e.getMessage());
 			throw new IllegalArgumentException("Database already contains library with id " + library.getId());
 		} finally {
 			session.close();  
@@ -66,7 +66,7 @@ public class LibraryMySQLRepository implements LibraryRepository {
 			session.delete(libraryFound);
 			transaction.commit();
 		} catch(IllegalArgumentException e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.error(e.getMessage());
 			throw new IllegalArgumentException("Database doesn't contain library with id " + idLibrary);
 		} finally {
 			session.close();

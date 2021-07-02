@@ -65,8 +65,10 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		
+		HibernateUtil.setProperties(settings);
+		
 		library = new Library("1", "library1");
-		libraryRepository = new LibraryMySQLRepository(settings);
+		libraryRepository = new LibraryMySQLRepository();
 	}
 	
 	@AfterClass
@@ -76,12 +78,14 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	
 	@Override
 	protected void onSetUp() throws Exception {
+		cleanDatabaseTables();
+		
 		GuiActionRunner.execute(() -> {
 			librarySwingView = new LibrarySwingView();
 			libraryController = new LibraryController(librarySwingView, libraryRepository);
 			librarySwingView.setLibraryController(libraryController);
 			
-			bookRepository = new BookMySQLRepository(settings);
+			bookRepository = new BookMySQLRepository();
 			bookSwingView = new BookSwingView();
 			bookSwingView.setLibrary(library);
 			bookSwingView.setLibrarySwingView(librarySwingView);
@@ -92,33 +96,18 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 		window = new FrameFixture(robot(), bookSwingView);
 		window.show(); // shows the frame to test
 	}
-
-	@Override
-	protected void onTearDown() {
-		cleanDatabaseTables();
-	}
 	
 	private void cleanDatabaseTables() {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	        for(Library library: libraries)
-	        	session.delete(library);
-	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	        for(Book book: books)
-	        	session.delete(book);
-	        transaction.commit();
-		} catch(Exception e) {
-			e.printStackTrace();
-			if(transaction != null)
-				transaction.rollback();
-		} finally {
-			if(session != null)
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    Transaction transaction = session.beginTransaction();
+	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+	    for(Library library: libraries)
+	       	session.delete(library);
+	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
+	    for(Book book: books)
+	       	session.delete(book);
+	    transaction.commit();
+		session.close();
 	}
 	
 	@Test @GUITest
@@ -144,15 +133,18 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	public void testAllBooksWhenLibraryDoesntContainedIntoDatabase() {
 		// setup
 		libraryRepository.deleteLibrary(library.getId());
+		GuiActionRunner.execute(() -> librarySwingView.libraryAdded(library));
 		
 		// exercise
 		GuiActionRunner.execute(() -> bookController.allBooks(library));
 		
 		// verify
 		assertThat(bookSwingView.getListBooksModel().toArray()).isEmpty();
-		FrameFixture window_library = new FrameFixture(robot(), librarySwingView);
-		window_library.label("errorLabelMessage")
+		FrameFixture windowLibrary = new FrameFixture(robot(), librarySwingView);
+		windowLibrary.label("errorLabelMessage")
 			.requireText("Doesnt exist library with id 1 : " + library.getId() + " - " + library.getName());
+		assertThat(windowLibrary.list("libraryList").contents())
+			.noneMatch(e -> e.contains("1 - library1"));
 	}
 	
 	@Test @GUITest

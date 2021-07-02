@@ -53,6 +53,8 @@ public class HibernateUtilTest {
 		// setup
 		HibernateUtil.setProperties(settings);
 		
+		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		
 		// exercise & verify
 		assertThat(HibernateUtil.getSessionFactory()).isNotNull();
 	}
@@ -63,6 +65,8 @@ public class HibernateUtilTest {
 		HibernateUtil.setProperties(null);
 		HibernateUtil.setPathConfigurationFile("src/test/resources/");
 		
+		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		
 		// exercise & verify
 		assertThat(HibernateUtil.getSessionFactory()).isNotNull();
 	}
@@ -71,24 +75,16 @@ public class HibernateUtilTest {
 	public void testGetSessionFactoryWhenItIsAlreadyInitializeShouldReturnTheSameObject() {
 		// setup
 		HibernateUtil.setProperties(settings);
-		// exercise
-		SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-		// verify
-		assertThat(sessionFactory).isNotNull();
-		assertThat(HibernateUtil.getSessionFactory()).isEqualTo(sessionFactory);
-	}
-	 
-	@Test
-	public void testResetSessionFactoryWhenSessionFactoryIsNotNullAndOpenShouldCloseItAndIstanciateToNull() {
-		// setup
-		HibernateUtil.setProperties(null);
 		SessionFactory sessionFactory = createSessionFactory();
 		HibernateUtil.setSessionFactory(sessionFactory);
-		assertThat(HibernateUtil.getValueSessionFactory()).isNotNull();
+		
 		// exercise
-		HibernateUtil.resetSessionFactory();
-		//verify
-		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		SessionFactory getSessionFactory = HibernateUtil.getSessionFactory();
+		
+		// verify
+		assertThat(getSessionFactory)
+			.isNotNull()
+			.isEqualTo(sessionFactory);
 	}
 	
 	private SessionFactory createSessionFactory() {
@@ -106,11 +102,41 @@ public class HibernateUtilTest {
 	}
 	
 	@Test
+	public void testGetSessionFactoryWhenBuildSessionFactoryFailsShouldThrow() {
+		// setup
+		HibernateUtil.setProperties(null);
+		HibernateUtil.setPathConfigurationFile("src/test/");
+		
+		// exercise & verify
+		assertThatThrownBy(() -> HibernateUtil.getSessionFactory())
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Error with settings. Impossible build the sessionFactory");
+	}
+	 
+	@Test
+	public void testResetSessionFactoryWhenSessionFactoryIsNotNullAndOpenShouldCloseItAndIstanciateToNull() {
+		// setup
+		HibernateUtil.setProperties(null);
+		SessionFactory sessionFactory = createSessionFactory();
+		HibernateUtil.setSessionFactory(sessionFactory);
+		
+		assertThat(HibernateUtil.getValueSessionFactory()).isNotNull();
+		
+		// exercise
+		HibernateUtil.resetSessionFactory();
+		
+		//verify
+		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+	}
+	
+	@Test
 	public void testResetSessionFactoryWhenSessionFactoryIsNullItsIstanceDoesntChange() {
 		// setup
 		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		
 		// exercise
 		HibernateUtil.resetSessionFactory();
+		
 		//verify
 		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
 	}
@@ -122,8 +148,10 @@ public class HibernateUtilTest {
 		HibernateUtil.setSessionFactory(sessionFactory);
 		HibernateUtil.getValueSessionFactory().close();
 		assertThat(HibernateUtil.getSessionFactory()).isNotNull();
+		
 		// exercise
 		HibernateUtil.resetSessionFactory();
+		
 		// verify
 		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
 	}

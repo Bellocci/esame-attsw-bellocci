@@ -15,7 +15,7 @@ public class Book {
 	@Column(length = 50)
 	private String id;
 	
-	@Column(name = "Name", length = 50)
+	@Column(name = "Name", length = 50, nullable = false)
 	private String name;
 	
 	@ManyToOne

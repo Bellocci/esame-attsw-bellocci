@@ -2,7 +2,6 @@ package com.examples.esameattswbellocci.repository.mysql;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -51,6 +50,8 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		settings.put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
 		settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
+		
+		HibernateUtil.setProperties(settings);
 	}
 	
 	@AfterClass
@@ -61,7 +62,7 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	
 	@Before
 	public void setup() {
-		libraryRepository = new LibraryMySQLRepository(settings);
+		libraryRepository = new LibraryMySQLRepository();
 	}
 	
 	@After
@@ -70,29 +71,20 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	}
 	
 	private void cleanDatabaseTables() {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-			for(Library library: libraries)
-				session.delete(library);
-			List<Book> books = session.createQuery("FROM Book", Book.class).list();
-			for(Book book: books)
-				session.delete(book);
-			transaction.commit();			
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+		List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+		for(Library library: libraries)
+			session.delete(library);
+		List<Book> books = session.createQuery("FROM Book", Book.class).list();
+		for(Book book: books)
+			session.delete(book);
+		transaction.commit();			
+		session.close();
 	}
 
 	@Test
-	public void testGetAllLibraries() {
+	public void testTakeAllLibraries() {
 		// setup
 		Library library1 = new Library("1", "library1");
 		Library library2 = new Library("2", "library2");
@@ -100,7 +92,7 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 		addLibrariesToDatabase(library2);
 		
 		// exercise
-		List<Library> libraries = libraryRepository.getAllLibraries();
+		List<Library> libraries = libraryRepository.takeAllLibraries();
 		
 		// verify
 		assertThat(libraries)
@@ -109,24 +101,15 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	}
 	
 	private void addLibrariesToDatabase(Library library) {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			session.save(library);
-			transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+		session.save(library);
+		transaction.commit();
+		session.close();
 	}
 	
 	@Test
-	public void testFoundLibraryById() {
+	public void testFindLibraryById() {
 		// setup
 		Library library = new Library("1", "library1");
 		Library library2 = new Library("2", "library2");
@@ -158,21 +141,9 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	}
 	
 	private Library searchLibraryInTheDatabase(Library library) {
-		Library libraryFound = null;
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			libraryFound = session.get(Library.class, library.getId());
-	        transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Library libraryFound = session.get(Library.class, library.getId());
+		session.close();
         return libraryFound;
 	}
 	
@@ -199,40 +170,19 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	}
 	
 	private List<Book> getAllBooksFromDatabase() {
-		List<Book> books = new ArrayList<>();
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			books = session.createQuery("FROM Book", Book.class).list();
-			transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		List<Book> books = session.createQuery("FROM Book", Book.class).list();
+		session.close();
         return books;
 	}
 	
 	private void addBookOfLibraryToDatabase(Library library, String idBook, String nameBook) {
 		Book book = new Book(idBook, nameBook);
 		book.setLibrary(library);
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-			transaction = session.beginTransaction();
-			session.save(book);
-			transaction.commit();
-		} catch(Exception e) {
-			if(transaction != null & transaction.isActive())
-				transaction.rollback();
-		} finally {
-			if(session != null && session.isConnected())
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+		session.save(book);
+		transaction.commit();
+		session.close();
 	}
 }

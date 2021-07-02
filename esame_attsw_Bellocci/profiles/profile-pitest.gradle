@@ -2,17 +2,15 @@ apply plugin: 'info.solidsoft.pitest'
 
 pitest {
 	reportDir = file("$buildDir/reports/pitest")
-	// Which classes need to be mutated
+
 	targetClasses = [
 		"com.examples.esameattswbellocci.controller.*",
 		"com.examples.esameattswbellocci.repository.*",
-		"com.examples.esameattswbellocci.hibernate.*"
 	]
-	// Which test classes use
+
 	targetTests = [
 		"com.examples.esameattswbellocci.controller.*",
 		"com.examples.esameattswbellocci.repository.*",
-		"com.examples.esameattswbellocci.hibernate.*"
 	]
 	
 	excludedClasses = [
@@ -23,30 +21,17 @@ pitest {
 	
 	excludedMethods = [
 		"get*",
-		"set*",
+		"set*"
 	]
 	
 	verbose = true
 	
 	outputFormats = ['XML', 'HTML']
-	// List of operations of mutations
+
 	mutators = [
 		'DEFAULTS',
 		'NON_VOID_METHOD_CALLS'
 	]
-	
-	avoidCallsTo = [
-		"org.hibernate.HibernateException",
-		"org.hibernate.SessionFactory",
-		"org.hibernate.boot.registry.StandardServiceRegistryBuilder",
-		"org.hibernate.Configuration",
-		"org.hibernate.ServiceRegistry",
-		"org.hibernate.Session",
-		"org.hibernate.Transaction",
-		"org.hibernate.query.Query",
-		"java.lang.Exception"
-	]
-	
-	// Score below which the test fails
-	mutationThreshold = 50
+
+	mutationThreshold = 70
 }

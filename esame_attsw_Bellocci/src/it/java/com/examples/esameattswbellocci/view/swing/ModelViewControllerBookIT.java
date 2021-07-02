@@ -74,7 +74,8 @@ public class ModelViewControllerBookIT extends AssertJSwingJUnitTestCase {
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		
-		libraryRepository = new LibraryMySQLRepository(settings);
+		HibernateUtil.setProperties(settings);
+		libraryRepository = new LibraryMySQLRepository();
 	}
 	
 	@AfterClass
@@ -85,7 +86,9 @@ public class ModelViewControllerBookIT extends AssertJSwingJUnitTestCase {
 
 	@Override
 	protected void onSetUp() throws Exception {
-		bookRepository = new BookMySQLRepository(settings);
+		cleanDatabaseTables();
+		
+		bookRepository = new BookMySQLRepository();
 		libraryRepository.saveLibrary(library);
 		window = new FrameFixture(robot(), GuiActionRunner.execute(() -> {
 			librarySwingView = new LibrarySwingView();
@@ -101,52 +104,47 @@ public class ModelViewControllerBookIT extends AssertJSwingJUnitTestCase {
 		window.show();
 	}
 	
-	@Override
-	protected void onTearDown() {
-		cleanDatabaseTables();
-	}
-	
 	private void cleanDatabaseTables() {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	        for(Library library: libraries)
-	        	session.delete(library);
-	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	        for(Book book: books)
-	        	session.delete(book);
-	        transaction.commit();
-		} catch(Exception e) {
-			e.printStackTrace();
-			if(transaction != null)
-				transaction.rollback();
-		} finally {
-			if(session != null)
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    Transaction transaction = session.beginTransaction();
+	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+	    for(Library library: libraries)
+	       	session.delete(library);
+	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
+	    for(Book book: books)
+	       	session.delete(book);
+	    transaction.commit();
+		session.close();
 	}
 	
 	@Test
 	public void testAddBook() {
-		window.textBox("idTextBox").enterText("1");
-		window.textBox("nameTextBox").enterText("book1");
-		window.button(JButtonMatcher.withText("Add book")).click();
+		// setup
 		Book book = new Book("1", "book1");
 		book.setLibrary(library);
+		window.textBox("idTextBox").enterText("1");
+		window.textBox("nameTextBox").enterText("book1");
+		
+		// exercise
+		window.button(JButtonMatcher.withText("Add book")).click();
+		
+		// verify
 		assertThat(bookRepository.findBookById("1")).isEqualTo(book);
 	}
 	
 	@Test
 	public void testDeleteBook() {
+		// setup
 		Book book = new Book("1", "book1");
 		book.setLibrary(library);
 		bookRepository.saveBookInTheLibrary(library, book);
 		GuiActionRunner.execute(() -> bookController.allBooks(library));
 		window.list("bookList").selectItem(0);
+		
+		// exercise
 		window.button(JButtonMatcher.withText("Delete book")).click();
+		
+		// verify
 		assertThat(bookRepository.findBookById(book.getId())).isNull();
 	}
 

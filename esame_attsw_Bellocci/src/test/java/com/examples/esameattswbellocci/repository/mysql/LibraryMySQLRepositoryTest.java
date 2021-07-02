@@ -37,6 +37,7 @@ public class LibraryMySQLRepositoryTest {
 		settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 		settings.put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
 
+		HibernateUtil.setProperties(settings);
 	}
 	
 	@AfterClass
@@ -46,7 +47,6 @@ public class LibraryMySQLRepositoryTest {
 
 	@Before
 	public void setupDatabase() {
-		HibernateUtil.setProperties(settings);
 		libraryRepository = new LibraryMySQLRepository();
 		cleanDatabaseTables();
 	}
@@ -218,9 +218,7 @@ public class LibraryMySQLRepositoryTest {
 	
 	private List<Book> getAllBooksFromDatabase() {
 		Session session = HibernateUtil.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
 		List<Book> listBooks = session.createQuery("FROM Book", Book.class).list();
-		transaction.commit();
 		session.close();
         return listBooks;
 	}

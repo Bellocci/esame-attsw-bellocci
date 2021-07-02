@@ -65,7 +65,9 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 		settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
 		settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		
-		libraryRepository = new LibraryMySQLRepository(settings);
+		HibernateUtil.setProperties(settings);
+		
+		libraryRepository = new LibraryMySQLRepository();
 	}
 	
 	@AfterClass
@@ -76,7 +78,9 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 
 	@Override
 	protected void onSetUp() throws Exception {
-		libraryRepository = new LibraryMySQLRepository(settings);
+		cleanDatabaseTables();
+		
+		libraryRepository = new LibraryMySQLRepository();
 		window = new FrameFixture(robot(), GuiActionRunner.execute(() -> {
 			LibrarySwingView librarySwingView = new LibrarySwingView();
 			libraryController = new LibraryController(librarySwingView, libraryRepository);
@@ -86,32 +90,17 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 		window.show();
 	}
 	
-	@Override
-	protected void onTearDown() {
-		cleanDatabaseTables();
-	}
-	
 	private void cleanDatabaseTables() {
-		Session session = null;
-		Transaction transaction = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-	        transaction = session.beginTransaction();
-	        List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
-	        for(Library library: libraries)
-	        	session.delete(library);
-	        List<Book> books = session.createQuery("FROM Book", Book.class).list();
-	        for(Book book: books)
-	        	session.delete(book);
-	        transaction.commit();
-		} catch(Exception e) {
-			e.printStackTrace();
-			if(transaction != null)
-				transaction.rollback();
-		} finally {
-			if(session != null)
-				session.close();
-		}
+		Session session = HibernateUtil.getSessionFactory().openSession();
+	    Transaction transaction = session.beginTransaction();
+	    List<Library> libraries = session.createQuery("FROM Library", Library.class).list();
+	    for(Library library: libraries)
+	       	session.delete(library);
+	    List<Book> books = session.createQuery("FROM Book", Book.class).list();
+	    for(Book book: books)
+	       	session.delete(book);
+	    transaction.commit();
+		session.close();
 	}
 
 	@Test
@@ -131,7 +120,7 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 	public void testDeleteLibrary() {
 		// setup
 		libraryRepository.saveLibrary(new Library("1", "library1"));
-		GuiActionRunner.execute(() -> libraryController.getAllLibraries());
+		GuiActionRunner.execute(() -> libraryController.allLibraries());
 		window.list("libraryList").selectItem(0);
 		
 		// exercise

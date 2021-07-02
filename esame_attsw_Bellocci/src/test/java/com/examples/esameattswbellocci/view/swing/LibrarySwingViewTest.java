@@ -205,6 +205,7 @@ public class LibrarySwingViewTest extends AssertJSwingJUnitTestCase {
 			listLibraryModel.addElement(library2);
 			librarySwingView.getLblErrorMessage().setText("Error");
 		});
+		//window.list("libraryList").selectItem(1);
 		
 		// exercise
 		GuiActionRunner.execute(() -> librarySwingView.libraryRemoved(library2));

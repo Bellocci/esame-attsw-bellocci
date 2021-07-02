@@ -230,6 +230,7 @@ public class LibrarySwingView extends JFrame implements LibraryView {
 	@Override
 	public void libraryRemoved(Library library) {
 		listLibraryModel.removeElement(library);
+		//listLibraryModel.removeElement(listLibraries.getSelectedValue());
 		clearErrorMessage();
 	}
 
