@@ -11,8 +11,8 @@ sonarqube {
     property "sonar.organization", "belloccifrancesco-github"
     property "sonar.host.url", "https://sonarcloud.io"
     
-    property "sonar.coverage.exclusions", "**/LibrarySwingApp.java, **/Book.java, "+ 
-    	"**/Library.java, **/HibernateUtil.class"
+    property "sonar.coverage.exclusions", "**/LibrarySwingApp.java, **/Book.java, " + 
+    	"**/Library.java, **/HibernateUtil.java"
     
     property "sonar.projectName", "Esame attsw Bellocci"	
 	property "sonar.sourceEncoding", "UTF-8"
