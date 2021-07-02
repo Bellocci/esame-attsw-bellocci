@@ -67,15 +67,15 @@ public class LibraryMySQLRepositoryTest {
 	}
 
 	@Test
-	public void testGetAllLibrariesWhenListIsEmptyShouldReturnAnEmptyListAndCloseTheSession() {
+	public void testTakeAllLibrariesWhenListIsEmptyShouldReturnAnEmptyListAndCloseTheSession() {
 		// verify
-		assertThat(libraryRepository.getAllLibraries()).isEmpty();
+		assertThat(libraryRepository.takeAllLibraries()).isEmpty();
 		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
-	public void testGetAllLibrariesWhenListIsNotEmptyShouldReturnAListWithAllLibrariesAndCloseTheSession() {
+	public void testTakeAllLibrariesWhenListIsNotEmptyShouldReturnAListWithAllLibrariesAndCloseTheSession() {
 		// setup
 		Library library1 = new Library("1", "library1");
 		Library library2 = new Library("2", "library2");
@@ -83,7 +83,7 @@ public class LibraryMySQLRepositoryTest {
 		addLibrariesToDatabase(library2);
 		
 		// exercise
-		List<Library> libraries = libraryRepository.getAllLibraries();
+		List<Library> libraries = libraryRepository.takeAllLibraries();
 		
 		// verify
 		assertThat(libraries)
@@ -103,7 +103,7 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testFoundLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnIt() {
+	public void testFindLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnIt() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibrariesToDatabase(library);
@@ -118,7 +118,7 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testFoundLibraryByIdWhenLibraryDidntContainInTheDatabaseShouldReturnNull() {
+	public void testFindLibraryByIdWhenLibraryDidntContainInTheDatabaseShouldReturnNull() {
 		// exercise
 		Library libraryFound = libraryRepository.findLibraryById("1");
 		

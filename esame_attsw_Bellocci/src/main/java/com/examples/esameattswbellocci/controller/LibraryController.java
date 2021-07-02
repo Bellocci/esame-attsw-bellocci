@@ -19,7 +19,7 @@ public class LibraryController {
 	}
 
 	public void getAllLibraries() {
-		libraryView.showAllLibraries(libraryRepository.getAllLibraries());
+		libraryView.showAllLibraries(libraryRepository.takeAllLibraries());
 	}
 
 	public void newLibrary(Library newLibrary) {

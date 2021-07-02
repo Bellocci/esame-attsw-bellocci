@@ -41,10 +41,10 @@ public class LibraryControllerTest {
 	}
 	
 	@Test
-	public void testGetAllLibrariesShouldRequestTheLibrariesFromDatabaseAndReturnThemToTheView() {
+	public void testTakeAllLibrariesShouldRequestTheLibrariesFromDatabaseAndReturnThemToTheView() {
 		// setup
 		List<Library> listLibraries = new ArrayList<Library>();	
-		when(libraryRepository.getAllLibraries()).thenReturn(listLibraries);
+		when(libraryRepository.takeAllLibraries()).thenReturn(listLibraries);
 		
 		// exercise
 		libraryController.getAllLibraries();
