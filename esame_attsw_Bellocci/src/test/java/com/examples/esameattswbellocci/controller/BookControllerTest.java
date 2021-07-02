@@ -57,7 +57,7 @@ public class BookControllerTest {
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
 		List<Book> books = asList(new Book());
-		when(bookRepository.getAllBooksOfLibrary(library.getId())).thenReturn(books);
+		when(bookRepository.takeAllBooksOfLibrary(library.getId())).thenReturn(books);
 		
 		// exercise
 		bookController.allBooks(library);

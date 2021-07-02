@@ -20,7 +20,7 @@ public class BookController {
 	public void allBooks(Library library) {
 		if(!searchLibraryIntoDatabase(library))
 			return;
-		bookView.showAllBooks(bookRepository.getAllBooksOfLibrary(library.getId()));
+		bookView.showAllBooks(bookRepository.takeAllBooksOfLibrary(library.getId()));
 	}
 	
 	public void newBook(Library library, Book book) {
