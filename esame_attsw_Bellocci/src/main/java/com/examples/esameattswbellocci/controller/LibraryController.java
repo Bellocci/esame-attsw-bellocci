@@ -18,7 +18,7 @@ public class LibraryController {
 		return this.libraryRepository;
 	}
 
-	public void getAllLibraries() {
+	public void allLibraries() {
 		libraryView.showAllLibraries(libraryRepository.takeAllLibraries());
 	}
 
