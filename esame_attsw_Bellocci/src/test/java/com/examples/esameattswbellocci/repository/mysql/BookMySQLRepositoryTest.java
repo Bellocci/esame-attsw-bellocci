@@ -182,14 +182,13 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testSaveBookInTheLibraryWhenDatabaseAlreadyContainsNewBookShouldThrowAndCloseSession() {
 		// setup
+		Library library = new Library("1", "library1");
+		Book book = new Book("1", "book1");
 		addLibraryToDatabase("1", "library1");
 		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
 		
 		// exercise
-		assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(
-					new Library("1", "library1"),
-					new Book("1", "existing_book"))
-				)
+		assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(library, book))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("Database already contains the book with id 1");
 		

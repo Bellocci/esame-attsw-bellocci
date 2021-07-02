@@ -20,8 +20,6 @@ public class LibraryMySQLRepository implements LibraryRepository {
 	private Session session;
 	private Transaction transaction;
 	
-	public LibraryMySQLRepository() {}
-	
 	protected Session getSession() {
 		return this.session;
 	}
