@@ -4,12 +4,13 @@ import java.awt.EventQueue;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.cfg.AvailableSettings;
 
 import com.examples.esameattswbellocci.controller.BookController;
 import com.examples.esameattswbellocci.controller.LibraryController;
+import com.examples.esameattswbellocci.hibernate.util.HibernateUtil;
+import com.examples.esameattswbellocci.repository.BookRepository;
+import com.examples.esameattswbellocci.repository.LibraryRepository;
 import com.examples.esameattswbellocci.repository.mysql.BookMySQLRepository;
 import com.examples.esameattswbellocci.repository.mysql.LibraryMySQLRepository;
 import com.examples.esameattswbellocci.view.swing.BookSwingView;
@@ -41,8 +42,6 @@ public class LibrarySwingApp implements Callable<Void> {
 	@Option(names = {"--db-password"}, description = "Database password")
 	private String password = "password";
 	
-	private static final Logger LOGGER = LogManager.getLogger(LibrarySwingApp.class);
-	
 	/**
 	 * Launch the application.
 	 */
@@ -53,49 +52,58 @@ public class LibrarySwingApp implements Callable<Void> {
 	@Override
 	public Void call() throws Exception {
 		EventQueue.invokeLater(() -> {
-			try {
-				LibraryMySQLRepository libraryRepository;
-				BookMySQLRepository bookRepository;
-				if(!useHibernateCfgXML) {
-					Properties settings = new Properties();
-					
-					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
-					settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
-					settings.put(AvailableSettings.URL, "jdbc:mysql://"+mysqlHost+":"+
-															mysqlPort+"/"+databaseName+"?useSSL=false");
-					settings.put(AvailableSettings.USER, username);
-					settings.put(AvailableSettings.PASS, password);
-					settings.put(AvailableSettings.POOL_SIZE, "1");
-					settings.put(AvailableSettings.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-					settings.put(AvailableSettings.SHOW_SQL, "true");
-					settings.put(AvailableSettings.FORMAT_SQL, "true");
-					settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-					settings.put(AvailableSettings.HBM2DDL_AUTO, "update");
-					settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
-					settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
-					settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
-					
-					
-					libraryRepository = new LibraryMySQLRepository(settings);
-					bookRepository = new BookMySQLRepository(settings);
-				}
-				else {
-					libraryRepository = new LibraryMySQLRepository(null);
-					bookRepository = new BookMySQLRepository(null);
-				}
-				LibrarySwingView libraryView = new LibrarySwingView();
-				LibraryController libraryController = new LibraryController(libraryView, libraryRepository);
-				libraryView.setLibraryController(libraryController);
-				BookSwingView bookView = new BookSwingView();
-				BookController bookController = new BookController(bookRepository, bookView, libraryController);
-				bookView.setBookController(bookController);
-				bookView.setLibrarySwingView(libraryView);
-				libraryView.setBookSwingView(bookView);
-				libraryView.setVisible(true);
-				libraryController.getAllLibraries();
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage(), e);
+			if(!useHibernateCfgXML) {
+				Properties settings = new Properties();
+				
+				settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
+				settings.put(AvailableSettings.DRIVER, "com.mysql.cj.jdbc.Driver");
+				settings.put(AvailableSettings.URL, "jdbc:mysql://"+mysqlHost+":"+
+														mysqlPort+"/"+databaseName+"?useSSL=false");
+				settings.put(AvailableSettings.USER, username);
+				settings.put(AvailableSettings.PASS, password);
+				settings.put(AvailableSettings.POOL_SIZE, "1");
+				settings.put(AvailableSettings.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+				settings.put(AvailableSettings.SHOW_SQL, "true");
+				settings.put(AvailableSettings.FORMAT_SQL, "true");
+				settings.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+				settings.put(AvailableSettings.HBM2DDL_AUTO, "update");
+				settings.put(AvailableSettings.HBM2DDL_HALT_ON_ERROR, "true");
+				settings.put(AvailableSettings.HBM2DDL_CREATE_SCHEMAS, "true");
+				settings.put(AvailableSettings.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+				
+				HibernateUtil.setProperties(settings);
 			}
+			
+			
+			
+			// Instanciate repository
+			LibraryRepository libraryRepository = new LibraryMySQLRepository();
+			BookRepository bookRepository = new BookMySQLRepository();
+			
+			// Istanciate view
+			LibrarySwingView libraryView = new LibrarySwingView();
+			BookSwingView bookView = new BookSwingView();
+			
+			// Istanciate controller
+			LibraryController libraryController = new LibraryController(libraryView, libraryRepository);
+			BookController bookController = new BookController(bookRepository, bookView, libraryController);
+			
+			// setting params
+			libraryView.setLibraryController(libraryController);
+			bookView.setBookController(bookController);
+			bookView.setLibrarySwingView(libraryView);
+			libraryView.setBookSwingView(bookView);
+			
+			try {
+				HibernateUtil.getSessionFactory();
+			} catch(IllegalArgumentException e) {
+				libraryView.showError(e.getMessage(), null);
+			} finally {
+				// show view
+				libraryView.setVisible(true);
+				libraryController.allLibraries();
+			}
+			
 		});
 		return null;
 	}
