@@ -11,8 +11,6 @@ public class BookController {
 	private BookView bookView;
 	private LibraryController libraryController;
 	
-	private static final String CLOSE_VIEW_ERROR_MESSAGE = "Doesnt exist library with id ";
-	
 	public BookController(BookRepository bookRepository, BookView bookView, LibraryController libraryController) {
 		this.bookRepository = bookRepository;
 		this.bookView = bookView;
@@ -20,38 +18,48 @@ public class BookController {
 	}
 	
 	public void allBooks(Library library) {
-		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
+		if(!searchLibraryIntoDatabase(library))
 			return;
-		}
 		bookView.showAllBooks(bookRepository.getAllBooksOfLibrary(library.getId()));
 	}
 	
 	public void newBook(Library library, Book book) {
-		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
+		if(!searchLibraryIntoDatabase(library))
 			return;
-		}
 		Book bookFound = bookRepository.findBookById(book.getId());
 		if(bookFound != null) {
 			bookView.showError("Already existing book with id " + bookFound.getId(), bookFound);
 			return;
 		}
-		bookRepository.saveBookInTheLibrary(library, book);
-		bookView.bookAdded(book);
+		try {
+			bookRepository.saveBookInTheLibrary(library, book);
+			bookView.bookAdded(book);
+		} catch(IllegalArgumentException e) {
+			bookView.showError(e.getMessage(), book);
+		}
 	}
 	
 	public void deleteBook(Library library, Book book) {
-		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
-			bookView.closeViewError(CLOSE_VIEW_ERROR_MESSAGE + library.getId(), library);
+		if(!searchLibraryIntoDatabase(library))
 			return;
-		}
 		if(bookRepository.findBookById(book.getId()) == null) {
 			bookView.bookRemoved(book);
 			bookView.showError("No existing book with id " + book.getId(), book);
 			return;
 		}
-		bookRepository.deleteBookFromLibrary(library.getId(), book.getId());
-		bookView.bookRemoved(book);
+		try {
+			bookRepository.deleteBookFromLibrary(book.getId(), library.getId());
+			bookView.bookRemoved(book);
+		} catch(IllegalArgumentException e) {
+			bookView.showError(e.getMessage(), book);
+		}
+	}
+	
+	private boolean searchLibraryIntoDatabase(Library library) {
+		if(libraryController.getLibraryRepository().findLibraryById(library.getId()) == null) {
+			bookView.closeViewError("Doesnt exist library with id " + library.getId(), library);
+			return false;
+		}
+		return true;
 	}
 }
