@@ -9,8 +9,13 @@
 
 Exam project that implements gradle with mysql and uses a many-to-many relationship
 
-Run project:
+To active profile with gradle have to add:
+  -PbuildProfile="profile name"
+  
+Example with JaCoCo:
+  gradle -PbuildProfile=jacoco jacocoTestReport
 
+Run project:
   1. docker-compose up
   2. open browser to localhost:8080
   3. Run application
