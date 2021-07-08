@@ -23,10 +23,6 @@ public class LibraryController {
 	}
 
 	public void newLibrary(Library newLibrary) {
-		if(newLibrary.getId().trim().isEmpty()) {
-			libraryView.showError("Library id cannot be empty or only blank space", newLibrary);
-			return;
-		}
 		Library libraryFound = libraryRepository.findLibraryById(newLibrary.getId());
 		if(libraryFound != null) {
 			libraryView.showError("Already existing library with id " + libraryFound.getId(), libraryFound);
@@ -36,13 +32,12 @@ public class LibraryController {
 			libraryRepository.saveLibrary(newLibrary);
 			libraryView.libraryAdded(newLibrary);
 		} catch(IllegalArgumentException e) {
-			libraryView.showError(e.getMessage(), newLibrary);
+			libraryView.showError(e.getMessage(), new Library(newLibrary.getId(), "???"));
 		}
 	}
 	
 	public void deleteLibrary(Library library) {
-		Library libraryFound = libraryRepository.findLibraryById(library.getId());
-		if(libraryFound == null) {
+		if(libraryRepository.findLibraryById(library.getId()) == null) {
 			removedLibraryAndShowError(library);
 			return;
 		}
@@ -55,8 +50,7 @@ public class LibraryController {
 	}
 	
 	public void findLibrary(Library library) {
-		Library libraryFound = libraryRepository.findLibraryById(library.getId());
-		if(libraryFound == null) {
+		if(libraryRepository.findLibraryById(library.getId()) == null) {
 			removedLibraryAndShowError(library);
 			return;
 		}

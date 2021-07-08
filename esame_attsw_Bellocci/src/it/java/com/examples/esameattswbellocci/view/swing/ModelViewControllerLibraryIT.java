@@ -42,7 +42,7 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 	
 	@SuppressWarnings({ "rawtypes", "resource" })
 	@BeforeClass
-	public static void setupServerAndHibernate() {
+	public static void setupServerAndHibernateWithMySQL() {
 		mySQLContainer = new MySQLContainer("mysql:8")
 				.withDatabaseName("test")
 				.withUsername("user")
@@ -71,8 +71,8 @@ public class ModelViewControllerLibraryIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@AfterClass
-	public static void shutdownServerAndHibernate() {
-		HibernateUtil.resetSessionFactory();
+	public static void shutdownServerAndCloseSessionFactory() {
+		HibernateUtil.closeSessionFactory();
 		mySQLContainer.stop();
 	}
 

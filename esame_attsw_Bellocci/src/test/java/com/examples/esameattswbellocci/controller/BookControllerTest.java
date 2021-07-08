@@ -77,11 +77,11 @@ public class BookControllerTest {
 		
 		// verify
 		verify(bookView).closeViewError("Doesnt exist library with id 1", library);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository, libraryController));
+		verifyNoMoreInteractions(ignoreStubs(bookRepository, bookView));
 	}
 	
 	@Test
-	public void testNewBookWhenBookDoesntAlreadyExist() {
+	public void testNewBookWhenBookDoesntExistShouldRequireToSaveNewBookIntoDatabaseAndView() {
 		// setup
 		Book book = new Book("1", "book1");
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
@@ -99,7 +99,7 @@ public class BookControllerTest {
 	}
 	
 	@Test
-	public void testNewBookWhenBookAlreadyExist() {
+	public void testNewBookWhenBookAlreadyExistShouldDelegateBookViewToShowError() {
 		// setup
 		Book alreadyAdded = new Book("1", "test");
 		Book newBook = new Book("1", "book1");
@@ -116,7 +116,7 @@ public class BookControllerTest {
 	}
 	
 	@Test
-	public void testNewBookWhenLibraryDoesntExistIntoDatabase() {
+	public void testNewBookWhenLibraryDoesntExistIntoDatabaseShouldDelegateBookViewToShowError() {
 		// setup
 		Book newBook = new Book("1", "book1");
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
@@ -127,29 +127,29 @@ public class BookControllerTest {
 		
 		// verify
 		verify(bookView).closeViewError("Doesnt exist library with id 1", library);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository, bookRepository));
+		verifyNoMoreInteractions(ignoreStubs(bookView, bookRepository));
 	}
 	
 	@Test
-	public void testNewBookWhenAlreadyAddedBookIsPassedToBookRepositoryShouldShowErrorInBookView() {
+	public void testNewBookWhenAlreadyExistingBookIsPassedToBookRepositoryShouldShowErrorInBookView() {
 		// setup
-		Book alreadyAdded = new Book("1", "book1");
+		Book alreadyExist = new Book("1", "book1");
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById("1")).thenReturn(library);
-		when(bookRepository.findBookById(alreadyAdded.getId())).thenReturn(null);
+		when(bookRepository.findBookById(alreadyExist.getId())).thenReturn(null);
 		doThrow(new IllegalArgumentException("Database already contains the book with id 1"))
-			.when(bookRepository).saveBookInTheLibrary(library, alreadyAdded);
+			.when(bookRepository).saveBookInTheLibrary(library, alreadyExist);
 		
 		// exercise
-		bookController.newBook(library, alreadyAdded);
+		bookController.newBook(library, alreadyExist);
 		
 		// verify
-		verify(bookView).showError("Database already contains the book with id 1", alreadyAdded);
-		verifyNoMoreInteractions(ignoreStubs(bookView));
+		verify(bookView).showError("Database already contains the book with id 1", 
+				new Book(alreadyExist.getId(), "???"));
 	}
 	
 	@Test
-	public void testDeleteBookWhenBookExists() {
+	public void testDeleteBookWhenBookExistsShouldRequireToRemoveBookFromDatabaseAndView() {
 		// setup
 		Book bookDeleted = new Book("1", "book1");
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
@@ -161,13 +161,13 @@ public class BookControllerTest {
 		
 		// verify
 		InOrder inOrder = inOrder(bookRepository, bookView);
-		inOrder.verify(bookRepository).deleteBookFromLibrary("1", "1");
+		inOrder.verify(bookRepository).deleteBookFromLibrary("1");
 		inOrder.verify(bookView).bookRemoved(bookDeleted);
 		inOrder.verifyNoMoreInteractions();
 	}
 	
 	@Test
-	public void testDeleteBookWhenBookDoesntExist() {
+	public void testDeleteBookWhenBookDoesntExistShouldRequireToShowErrorIntoView() {
 		// setup
 		Book bookNoFound = new Book("1", "book1");
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
@@ -184,18 +184,18 @@ public class BookControllerTest {
 	}
 	
 	@Test
-	public void testDeleteBookWhenLibraryDoesntExistIntoDatabase() {
+	public void testDeleteBookWhenLibraryDoesntExistIntoDatabaseShouldDelegateBookViewForShowTheError() {
 		// setup
-		Book newBook = new Book("1", "book1");
+		Book bookToRemove = new Book("1", "book1");
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(null);
 		
 		// exercise
-		bookController.deleteBook(library, newBook);
+		bookController.deleteBook(library, bookToRemove);
 		
 		// verify
 		verify(bookView).closeViewError("Doesnt exist library with id 1", library);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository, bookRepository));
+		verifyNoMoreInteractions(ignoreStubs(bookView, bookRepository));
 	}
 	
 	@Test
@@ -206,37 +206,33 @@ public class BookControllerTest {
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
 		when(bookRepository.findBookById("1")).thenReturn(book);
 		doThrow(new IllegalArgumentException("Database doesn't contain book with id 1"))
-			.when(bookRepository).deleteBookFromLibrary("1", "1");
+			.when(bookRepository).deleteBookFromLibrary("1");
 		
 		// exercise
 		bookController.deleteBook(library, book);
 		
 		// verify
-		verify(bookRepository).deleteBookFromLibrary("1", "1");
+		verify(bookRepository).deleteBookFromLibrary("1");
 		verify(bookView).showError("Database doesn't contain book with id 1", book);
-		verifyNoMoreInteractions(ignoreStubs(bookRepository));
-		verifyNoMoreInteractions(ignoreStubs(bookView));
 	}
 	
 	@Test
 	public void testDeleteBookWhenBookIsContainedInAnotherLibraryShouldShowErrorInBookView() {
 		// setup
 		Library library2 = new Library("2", "library2");
-		Book book = new Book("1", "not_exist");
+		Book book = new Book("1", "into_another_library");
 		book.setLibrary(library2);
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
 		when(bookRepository.findBookById("1")).thenReturn(book);
 		doThrow(new IllegalArgumentException("Library with id 1 doesn't contain book with id 1"))
-			.when(bookRepository).deleteBookFromLibrary("1", "1");
+			.when(bookRepository).deleteBookFromLibrary("1");
 		
 		// exercise
 		bookController.deleteBook(library, book);
 		
 		// verify
-		verify(bookRepository).deleteBookFromLibrary("1", "1");
+		verify(bookRepository).deleteBookFromLibrary("1");
 		verify(bookView).showError("Library with id 1 doesn't contain book with id 1", book);
-		verifyNoMoreInteractions(ignoreStubs(bookRepository));
-		verifyNoMoreInteractions(ignoreStubs(bookView));
 	}
 }

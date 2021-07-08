@@ -110,23 +110,24 @@ public class HibernateUtilTest {
 		// exercise & verify
 		assertThatThrownBy(() -> HibernateUtil.getSessionFactory())
 			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Error with settings. Impossible build the sessionFactory");
+			.hasMessage("Invalid configuration or mapping. Impossible build the sessionFactory");
 	}
 	 
 	@Test
-	public void testResetSessionFactoryWhenSessionFactoryIsNotNullAndOpenShouldCloseItAndIstanciateToNull() {
+	public void testResetSessionFactoryWhenSessionFactoryIsNotNullAndOpenShouldCloseIt() {
 		// setup
 		HibernateUtil.setProperties(null);
 		SessionFactory sessionFactory = createSessionFactory();
 		HibernateUtil.setSessionFactory(sessionFactory);
 		
 		assertThat(HibernateUtil.getValueSessionFactory()).isNotNull();
+		assertThat(HibernateUtil.getValueSessionFactory().isOpen()).isTrue();
 		
 		// exercise
-		HibernateUtil.resetSessionFactory();
+		HibernateUtil.closeSessionFactory();
 		
 		//verify
-		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		assertThat(HibernateUtil.getValueSessionFactory().isOpen()).isFalse();
 	}
 	
 	@Test
@@ -135,24 +136,26 @@ public class HibernateUtilTest {
 		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
 		
 		// exercise
-		HibernateUtil.resetSessionFactory();
+		HibernateUtil.closeSessionFactory();
 		
 		//verify
 		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
 	}
 	
 	@Test
-	public void testResetSessionFactoryWhenSessionFactoryIsClosedButNotNullShouldSetItNull() {
+	public void testResetSessionFactoryWhenSessionFactoryIsClosedButNotNullItsIstanceDoesntChange() {
 		// setup
 		SessionFactory sessionFactory = createSessionFactory();
 		HibernateUtil.setSessionFactory(sessionFactory);
 		HibernateUtil.getValueSessionFactory().close();
-		assertThat(HibernateUtil.getSessionFactory()).isNotNull();
+		assertThat(HibernateUtil.getValueSessionFactory()).isNotNull();
 		
 		// exercise
-		HibernateUtil.resetSessionFactory();
+		HibernateUtil.closeSessionFactory();
 		
 		// verify
-		assertThat(HibernateUtil.getValueSessionFactory()).isNull();
+		assertThat(HibernateUtil.getValueSessionFactory()).isNotNull();
+		assertThat(HibernateUtil.getValueSessionFactory().isClosed()).isTrue();
+		assertThat(HibernateUtil.getValueSessionFactory()).isEqualTo(sessionFactory);
 	}
 }

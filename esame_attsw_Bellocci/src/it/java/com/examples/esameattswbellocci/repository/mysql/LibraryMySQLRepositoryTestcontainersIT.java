@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,7 +28,7 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	private static Properties settings;
 	
 	@BeforeClass
-	public static void setupServerAndHibernate() {
+	public static void setupServerAndHibernateWithMySQL() {
 		mySQLContainer
 			.withDatabaseName("test")
 			.withUsername("user")
@@ -55,19 +54,15 @@ public class LibraryMySQLRepositoryTestcontainersIT {
 	}
 	
 	@AfterClass
-	public static void shutdownServerAndHibernate() {
-		HibernateUtil.resetSessionFactory();
+	public static void shutdownServerAndCloseSessionFactory() {
+		HibernateUtil.closeSessionFactory();
 		mySQLContainer.stop();
 	}
 	
 	@Before
 	public void setup() {
-		libraryRepository = new LibraryMySQLRepository();
-	}
-	
-	@After
-	public void cleanTables() {
 		cleanDatabaseTables();
+		libraryRepository = new LibraryMySQLRepository();
 	}
 	
 	private void cleanDatabaseTables() {

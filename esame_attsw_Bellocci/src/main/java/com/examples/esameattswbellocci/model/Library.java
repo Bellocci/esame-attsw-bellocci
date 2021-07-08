@@ -2,6 +2,7 @@ package com.examples.esameattswbellocci.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -61,15 +62,10 @@ public class Library {
 	public void setListBooks(List<Book> listBooks) {
 		this.listBooks = listBooks;
 	}
-
+	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((listBooks == null) ? 0 : listBooks.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
+		return Objects.hash(id, name);
 	}
 
 	@Override
@@ -92,5 +88,10 @@ public class Library {
 				return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return "Library [id=" + id + ", name=" + name + "]";
 	}
 }

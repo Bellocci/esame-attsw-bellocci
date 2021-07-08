@@ -152,8 +152,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> bookSwingView.bookAdded(book));
 		
 		// verify
-		assertThat(window.list("bookList").contents())
-			.anyMatch(e -> e.contains("1 - book1"));
+		assertThat(window.list("bookList").contents()).anyMatch(e -> e.contains("1 - book1"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -173,8 +172,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> bookSwingView.bookRemoved(book2));
 		
 		// verify
-		assertThat(window.list("bookList").contents())
-			.noneMatch(e -> e.contains("2 - book2"));
+		assertThat(window.list("bookList").contents()).noneMatch(e -> e.contains("2 - book2"));
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
@@ -227,20 +225,21 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void testBackToLibrariesButtonShouldCleanTableAndErrorLabelAndDisableBookViewAndSetVisibleLibraryView() {
+	public void testBackToLibrariesButtonShouldCleanTableAndErrorLabelDisableBookViewAndSetVisibleLibraryView() {
 		// exercise
 		window.button(JButtonMatcher.withText("Back to libraries")).click();
 		
 		// verify
 		verify(librarySwingView).setVisible(true);
 		assertThat(bookSwingView.isVisible()).isFalse();
+		
 		window.show();
 		assertThat(window.list("bookList").contents()).isEmpty();
 		window.label("errorLabelMessage").requireText(" ");
 	}
 	
 	@Test
-	public void testCloseViewErrorShouldCleanTableAndDisableBookViewAndDelegateLibrarySwingViewShowError() {
+	public void testCloseViewErrorShouldCleanTableDisableBookViewAndDelegateLibrarySwingViewShowError() {
 		// setup
 		Book book = new Book("1", "book1");
 		book.setLibrary(library);
@@ -259,6 +258,7 @@ public class BookSwingViewTest extends AssertJSwingJUnitTestCase {
 		verify(librarySwingView).libraryRemoved(library);
 		verify(librarySwingView).showError("Doesnt exist library with id 1 ", library);
 		assertThat(bookSwingView.isVisible()).isFalse();
+		
 		window.show();
 		window.label("errorLabelMessage").requireText(" ");
 		assertThat(window.list("bookList").contents()).isEmpty();

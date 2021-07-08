@@ -48,7 +48,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	private static Library library;
 	
 	@BeforeClass
-	public static void setupServer() {
+	public static void setupHibernateWithH2() {
 		settings = new Properties();
 		
 		settings.put(AvailableSettings.DRIVER, "org.h2.Driver");
@@ -73,7 +73,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	
 	@AfterClass
 	public static void closeSessionFactory() {
-		HibernateUtil.resetSessionFactory();
+		HibernateUtil.closeSessionFactory();
 	}
 	
 	@Override
@@ -162,7 +162,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test @GUITest
-	public void testAddBookButtonError() {
+	public void testAddBookButtonErrorWhenBookAlreadyExistIntoDatabase() {
 		// setup
 		Book book1 = new Book("1", "existing");
 		book1.setLibrary(library);
@@ -178,7 +178,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test @GUITest
-	public void testAddBookButtonErrorWhenLibraryDoesntExist() {
+	public void testAddBookButtonErrorWhenLibraryDoesntExistIntoDatabase() {
 		// setup
 		libraryRepository.deleteLibrary(library.getId());
 		window.textBox("idTextBox").enterText("1");
@@ -214,7 +214,7 @@ public class BookSwingViewIT extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test @GUITest
-	public void testDeleteBookButtonError() {
+	public void testDeleteBookButtonErrorWhenBookDoesntExistIntoDatabase() {
 		// setup
 		Book book1 = new Book("1", "book1");
 		GuiActionRunner.execute(() -> bookSwingView.bookAdded(book1));

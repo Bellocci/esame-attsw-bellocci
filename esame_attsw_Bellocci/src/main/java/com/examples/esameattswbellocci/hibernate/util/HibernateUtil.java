@@ -25,7 +25,7 @@ public class HibernateUtil {
 	private HibernateUtil() { }
 
 	public static SessionFactory getSessionFactory() {
-		if(sessionFactory == null) {
+		if(sessionFactory == null || sessionFactory.isClosed()) {
 			try {
 				if(settings != null) {
 					Configuration configuration = new Configuration();
@@ -47,21 +47,19 @@ public class HibernateUtil {
 				}
 			} catch(HibernateException e) {
 				LOGGER.error(e.getMessage());
-				throw new IllegalArgumentException("Error with settings. Impossible build the sessionFactory");
+				throw new IllegalArgumentException("Invalid configuration or mapping. "
+						+ "Impossible build the sessionFactory");
 			}
 		}
 		return sessionFactory;
 	}
 	
-	public static void resetSessionFactory() {
-		if(sessionFactory != null) {
+	public static void closeSessionFactory() {
+		if(sessionFactory != null && sessionFactory.isOpen()) {
 			try {
 				sessionFactory.close();
 			} catch(HibernateException e) {
 				LOGGER.error(e.getMessage());
-			} finally {
-				if(sessionFactory.isClosed())
-					sessionFactory = null;
 			}
 		}
 	}

@@ -41,7 +41,7 @@ public class LibraryControllerIT {
 	private AutoCloseable closeable;
 	
 	@BeforeClass
-	public static void setupServerAndHibernate() {
+	public static void setupServerAndHibernateWithMySQL() {
 		
 		mySQLContainer
 			.withDatabaseName("test")
@@ -70,12 +70,13 @@ public class LibraryControllerIT {
 	
 	@AfterClass
 	public static void shutdownServerAndCloseSessionFactory() {
-		HibernateUtil.resetSessionFactory();
+		HibernateUtil.closeSessionFactory();
 		mySQLContainer.stop();
 	}
 	
 	@Before
 	public void setup() {
+		cleanDatabaseTables();
 		closeable = MockitoAnnotations.openMocks(this);
 		libraryRepository = new LibraryMySQLRepository();
 		libraryController = new LibraryController(libraryView, libraryRepository);
@@ -84,7 +85,6 @@ public class LibraryControllerIT {
 	@After
 	public void releaseMocksAndCleanDatabase() throws Exception {
 		closeable.close();
-		cleanDatabaseTables();
 	}
 
 	private void cleanDatabaseTables() {
