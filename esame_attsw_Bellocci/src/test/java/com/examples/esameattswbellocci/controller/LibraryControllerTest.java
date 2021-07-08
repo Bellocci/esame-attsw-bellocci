@@ -55,7 +55,7 @@ public class LibraryControllerTest {
 	
 
 	@Test
-	public void testNewLibraryWhenItDoesntExistShouldRequestToAddIntoDatabaseAndRequireToReturnThemToTheView() {
+	public void testNewLibraryWhenItDoesntExistShouldRequestToLibraryRepositoryAndLibraryViewToAddTheLibrary() {
 		// setup
 		Library newLibrary = new Library("1", "library1");
 		when(libraryRepository.findLibraryById("1")).thenReturn(null);
@@ -73,10 +73,11 @@ public class LibraryControllerTest {
 	public void testNewLibraryWhenItAlreadyExistShouldRequestShowErrorToTheView() {
 		// setup
 		Library alreadyAdded = new Library("1", "library1");
+		Library newLibrary = new Library("1", "new_library");
 		when(libraryRepository.findLibraryById("1")).thenReturn(alreadyAdded);
 		
 		// exercise
-		libraryController.newLibrary(alreadyAdded);
+		libraryController.newLibrary(newLibrary);
 		
 		// verify
 		verify(libraryView).showError("Already existing library with id 1", alreadyAdded);
@@ -84,33 +85,7 @@ public class LibraryControllerTest {
 	}
 	
 	@Test
-	public void testNewLibraryWhenIdIsEmptyShouldRequestShowErrorToTheView() {
-		// setup
-		Library library = new Library("", "library1");
-		
-		// exercise
-		libraryController.newLibrary(library);
-		
-		// verify
-		verify(libraryView).showError("Library id cannot be empty or only blank space", library);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
-	}
-	
-	@Test
-	public void testNewLibraryWhenIdAreOnlyBlankSpaceShouldRequestShowErrorToTheView() {
-		// setup
-		Library library = new Library("  ", "library1");
-		
-		// exercise
-		libraryController.newLibrary(library);
-				
-		// verify
-		verify(libraryView).showError("Library id cannot be empty or only blank space", library);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
-	}
-	
-	@Test
-	public void testNewLibraryWhenLibraryAlreadyAddedIsPassedAsArgumentToLibraryRepositoryShouldCatchAndShowErrorToTheView() {
+	public void testNewLibraryWhenLibraryAlreadyAddedIsPassedAsArgumentToLibraryRepositoryShouldShowErrorToTheView() {
 		// setup
 		Library alreadyAdded = new Library("1", "library1");
 		when(libraryRepository.findLibraryById("1")).thenReturn(null);
@@ -121,12 +96,11 @@ public class LibraryControllerTest {
 		libraryController.newLibrary(alreadyAdded);
 		
 		// verify
-		verify(libraryView).showError("Database already contains library with id 1", alreadyAdded);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
+		verify(libraryView).showError("Database already contains library with id 1", new Library("1", "???"));
 	}
 	
 	@Test
-	public void testDeleteLibraryWhenLibraryExistShouldRequestLibraryRepositoryAndLibraryViewToRemoveLibrary() {
+	public void testDeleteLibraryWhenLibraryExistShouldRequestToLibraryRepositoryAndLibraryViewToRemoveLibrary() {
 		// setup
 		Library library = new Library("1", "library1");
 		when(libraryRepository.findLibraryById("1")).thenReturn(library);
@@ -156,7 +130,7 @@ public class LibraryControllerTest {
 	}
 	
 	@Test
-	public void testDeleteLibraryWhenLibraryNotExistIntoDatabaseIsPassedAsArgumentOfLibraryRepositoryShouldCatchAndShowError() {
+	public void testDeleteLibraryWhenLibraryNotExistIntoDatabaseIsPassedAsArgumentOfLibraryRepositoryShouldShowError() {
 		// setup
 		Library libraryNotExist = new Library("1", "library1");
 		when(libraryRepository.findLibraryById("1")).thenReturn(libraryNotExist);
@@ -168,7 +142,6 @@ public class LibraryControllerTest {
 		
 		// verify
 		verify(libraryView).showError("Database doesn't contain library with id 1", libraryNotExist);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
 		verifyNoMoreInteractions(ignoreStubs(libraryView));
 	}
 	
@@ -201,6 +174,6 @@ public class LibraryControllerTest {
 		inOrder.verify(libraryRepository).findLibraryById("1");
 		inOrder.verify(libraryView).libraryRemoved(library);
 		inOrder.verify(libraryView).showError("Doesn't exist library with id 1", library);
-		verifyNoMoreInteractions(ignoreStubs(libraryRepository));
+		verifyNoMoreInteractions(ignoreStubs(libraryView));
 	}
 }

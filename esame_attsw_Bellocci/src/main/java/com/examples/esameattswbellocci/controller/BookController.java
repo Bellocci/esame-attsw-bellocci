@@ -23,19 +23,19 @@ public class BookController {
 		bookView.showAllBooks(bookRepository.takeAllBooksOfLibrary(library.getId()));
 	}
 	
-	public void newBook(Library library, Book book) {
+	public void newBook(Library library, Book newBook) {
 		if(!searchLibraryIntoDatabase(library))
 			return;
-		Book bookFound = bookRepository.findBookById(book.getId());
+		Book bookFound = bookRepository.findBookById(newBook.getId());
 		if(bookFound != null) {
 			bookView.showError("Already existing book with id " + bookFound.getId(), bookFound);
 			return;
 		}
 		try {
-			bookRepository.saveBookInTheLibrary(library, book);
-			bookView.bookAdded(book);
+			bookRepository.saveBookInTheLibrary(library, newBook);
+			bookView.bookAdded(newBook);
 		} catch(IllegalArgumentException e) {
-			bookView.showError(e.getMessage(), book);
+			bookView.showError(e.getMessage(), new Book(newBook.getId(), "???"));
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class BookController {
 			return;
 		}
 		try {
-			bookRepository.deleteBookFromLibrary(book.getId(), library.getId());
+			bookRepository.deleteBookFromLibrary(book.getId());
 			bookView.bookRemoved(book);
 		} catch(IllegalArgumentException e) {
 			bookView.showError(e.getMessage(), book);

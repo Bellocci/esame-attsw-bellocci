@@ -26,17 +26,17 @@ jobs:
              ~/.sonar/cache
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
           restore-keys: ${{ runner.os }}-m2-
-#     - name: Download mysql image
-#       run: docker pull mysql:8
-#     - name: Build with Gradle
-#       run: xvfb-run gradle build jar
-#       working-directory: esame_attsw_Bellocci
+     - name: Download mysql image
+       run: docker pull mysql:8
+     - name: Build with Gradle
+       run: xvfb-run gradle build jar
+       working-directory: esame_attsw_Bellocci
      - name: Jacoco
        run: xvfb-run gradle -PbuildProfile=jacoco jacocoTestReport
        working-directory: esame_attsw_Bellocci
-#     - name: Pitest
-#       run: xvfb-run gradle -PbuildProfile=pitest pitest
-#       working-directory: esame_attsw_Bellocci
+     - name: Pitest
+       run: xvfb-run gradle -PbuildProfile=pitest pitest
+       working-directory: esame_attsw_Bellocci
      - name: Coveralls
        run: xvfb-run gradle -PbuildProfile=coveralls coveralls
        working-directory: esame_attsw_Bellocci

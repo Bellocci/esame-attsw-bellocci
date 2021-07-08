@@ -62,7 +62,7 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	private static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8");
 	
 	@BeforeClass
-	public static void setupDatabase() {
+	public static void setupServerAndHibernateWithMySQL() {
 		mySQLContainer
 			.withDatabaseName(DB_NAME)
 			.withUsername(DB_USER)
@@ -93,8 +93,8 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 	}
 	
 	@AfterClass
-	public static void shutdownServerAndClearHibernateUtil() {
-		HibernateUtil.resetSessionFactory();
+	public static void shutdownServerAndCloseSessionFactory() {
+		HibernateUtil.closeSessionFactory();
 		mySQLContainer.stop();
 	}
 	
@@ -348,7 +348,7 @@ public class LibrarySwingAppE2E extends AssertJSwingJUnitTestCase {
 		windowLibrary.button(JButtonMatcher.withText("Open library")).click();
 		createFrameFixtureWindowBook();
 		windowBook.list("bookList").selectItem(Pattern.compile(".*" + BOOK_FIXTURE_1_NAME + ".*"));
-		bookRepository.deleteBookFromLibrary(LIBRARY_FIXTURE_1_ID, BOOK_FIXTURE_1_ID);
+		bookRepository.deleteBookFromLibrary(BOOK_FIXTURE_1_ID);
 		
 		// exercise
 		windowBook.button(JButtonMatcher.withText("Delete book")).click();

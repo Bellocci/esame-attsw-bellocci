@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.persistence.PersistenceException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -16,8 +14,6 @@ import com.examples.esameattswbellocci.model.Library;
 import com.examples.esameattswbellocci.repository.BookRepository;
 
 public class BookMySQLRepository implements BookRepository {
-	
-	private static final Logger LOGGER = LogManager.getLogger(BookMySQLRepository.class);
 	
 	private Session session;
 	private Transaction transaction;
@@ -54,7 +50,6 @@ public class BookMySQLRepository implements BookRepository {
 			session.save(newBook);
 			transaction.commit();
 		} catch(PersistenceException e) {
-			LOGGER.error(e.getMessage());
 			throw new IllegalArgumentException("Database already contains the book with id " + newBook.getId());
 		} finally {
 			session.close();
@@ -62,18 +57,18 @@ public class BookMySQLRepository implements BookRepository {
 	}
 
 	@Override
-	public void deleteBookFromLibrary(String idBook, String idLibrary) {
-		Book bookFound = findBookById(idBook);
-		if(bookFound == null)
+	public void deleteBookFromLibrary(String idBook) {
+		try {
+			Book bookFound = findBookById(idBook);
+			session = HibernateUtil.getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.delete(bookFound);
+			transaction.commit();
+		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException("Database doesn't contain book with id " + idBook);
-		if(!bookFound.getLibrary().getId().equals(idLibrary))
-			throw new IllegalArgumentException("Library with id " + idLibrary + 
-					" doesn't contain book with id " + idBook);
-		session = HibernateUtil.getSessionFactory().openSession();
-		transaction = session.beginTransaction();
-		session.delete(bookFound);
-		transaction.commit();
-		session.close();
+		} finally {
+			session.close();
+		}
 	}
 
 }

@@ -49,7 +49,7 @@ public class BookControllerIT {
 	private static Properties settings;
 	
 	@BeforeClass
-	public static void setupServerAndHibernate() {
+	public static void setupServerAndHibernateWithMySQL() {
 		mySQLContainer
 			.withDatabaseName("test")
 			.withUsername("user")
@@ -77,13 +77,14 @@ public class BookControllerIT {
 	}
 	
 	@AfterClass
-	public static void shutdownServerAndHibernate() {
-		HibernateUtil.resetSessionFactory();
+	public static void shutdownServerAndCloseSessionFactory() {
+		HibernateUtil.closeSessionFactory();
 		mySQLContainer.stop();
 	}
 	
 	@Before
 	public void setup() {
+		cleanDatabaseTables();
 		closeable = MockitoAnnotations.openMocks(this);
 		bookRepository = new BookMySQLRepository();
 		bookController = new BookController(bookRepository, bookView, libraryController);
@@ -92,7 +93,6 @@ public class BookControllerIT {
 	@After
 	public void releaseMocksAndCleanTables() throws Exception {
 		closeable.close();
-		cleanDatabaseTables();
 	}
 	
 	private void cleanDatabaseTables() {
@@ -115,9 +115,9 @@ public class BookControllerIT {
 		addLibraryToDatabase(library);
 		Book book = new Book("1", "book1");
 		book.setLibrary(library);
+		bookRepository.saveBookInTheLibrary(library, book);
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
-		bookRepository.saveBookInTheLibrary(library, book);
 		
 		// exercise
 		bookController.allBooks(library);
@@ -158,9 +158,9 @@ public class BookControllerIT {
 		addLibraryToDatabase(library);
 		Book bookDeleted = new Book("1", "book1");
 		bookDeleted.setLibrary(library);
+		bookRepository.saveBookInTheLibrary(library, bookDeleted);
 		when(libraryController.getLibraryRepository()).thenReturn(libraryRepository);
 		when(libraryRepository.findLibraryById(library.getId())).thenReturn(library);
-		bookRepository.saveBookInTheLibrary(library, bookDeleted);
 		
 		// exercise
 		bookController.deleteBook(library, bookDeleted);

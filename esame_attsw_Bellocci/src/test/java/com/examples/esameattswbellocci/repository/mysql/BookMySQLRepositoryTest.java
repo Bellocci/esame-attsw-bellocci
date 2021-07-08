@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,7 +24,7 @@ public class BookMySQLRepositoryTest {
 	private static Properties settings;
 
 	@BeforeClass
-	public static void setupHibernateWithH2() {		
+	public static void setupHibernateWithH2() {	
 		settings = new Properties();
 		
 		settings.put(AvailableSettings.DRIVER, "org.h2.Driver");
@@ -43,19 +42,14 @@ public class BookMySQLRepositoryTest {
 	}
 	
 	@AfterClass
-	public static void clearHibernateUtil() {
-		HibernateUtil.resetSessionFactory();
+	public static void closeSessionFactory(){
+		HibernateUtil.closeSessionFactory();
 	}
 	
 	@Before
 	public void setup() {
 		bookRepository = new BookMySQLRepository();
 		cleanDatabaseTables();
-	}
-
-	@After
-	public void resetSessionFactory(){
-		HibernateUtil.resetSessionFactory();
 	}
 	
 	private void cleanDatabaseTables() {
@@ -74,7 +68,8 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testTakeAllBooksOfLibraryWhenListIsEmptyShouldReturnAnEmptyListAndCloseTheSession() {
 		// setup
-		addLibraryToDatabase("1", "library1");
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
 		
 		// exercise & verify
 		assertThat(bookRepository.takeAllBooksOfLibrary("1")).isEmpty();
@@ -82,8 +77,7 @@ public class BookMySQLRepositoryTest {
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
-	private void addLibraryToDatabase(String id, String name) {
-		Library library = new Library(id, name);
+	private void addLibraryToDatabase(Library library) {
 		Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
         session.save(library);
@@ -94,12 +88,17 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testTakeAllBooksOfLibraryWhenListIsNotEmptyShouldReturnListOfBooksAndCloseTheSession() {
 		// setup
-		addLibraryToDatabase("1", "library1");
-		addLibraryToDatabase("2", "library2");
+		Library library1 = new Library("1", "library1");
+		addLibraryToDatabase(library1);
+		Library library2 = new Library("2", "library2");
+		addLibraryToDatabase(library2);
 		
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
-		addBookOfLibraryToDatabase("2", "book2", "1", "library1");
-		addBookOfLibraryToDatabase("3", "book3", "2", "library2");
+		Book book1 = new Book("1", "book1");
+		addBookOfLibraryToDatabase(book1, library1);
+		Book book2 = new Book("2", "book2");
+		addBookOfLibraryToDatabase(book2, library1);
+		Book book3 = new Book("3", "book3");
+		addBookOfLibraryToDatabase(book3, library2);
 		
 		// exercise
 		List<Book> books = bookRepository.takeAllBooksOfLibrary("1");
@@ -117,9 +116,8 @@ public class BookMySQLRepositoryTest {
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
-	private void addBookOfLibraryToDatabase(String id, String name, String idLibrary, String nameLibrary) {
-		Book book = new Book(id, name);
-		book.setLibrary(new Library(idLibrary, nameLibrary));
+	private void addBookOfLibraryToDatabase(Book book, Library library) {
+		book.setLibrary(library);
 		Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
         session.save(book);
@@ -130,9 +128,12 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testFindBookByIdWhenDatabaseContainsTheBookShouldReturnItAndCloseTheSession() {
 		// setup
-		addLibraryToDatabase("1", "library1");
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
-		addBookOfLibraryToDatabase("2", "book2", "1", "library1");
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		Book book1 = new Book("1", "book1");
+		Book book2 = new Book("2", "book2");
+		addBookOfLibraryToDatabase(book1, library);
+		addBookOfLibraryToDatabase(book2, library);
 		
 		// exercise
 		Book bookFound = bookRepository.findBookById("2");
@@ -147,7 +148,8 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testFindBookByIdWhenDatabaseDoesntContainTheBookShouldReturnNullAndCloseTheSession() {
 		// setup
-		addLibraryToDatabase("1", "library1");
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
 		
 		// exercise & verify
 		assertThat(bookRepository.findBookById("1")).isNull();
@@ -158,11 +160,14 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testSaveBookInTheLibraryWhenDatabaseDoesntContainNewBookShouldAddItToDatabaseAndCloseTheSession() {
 		// setup
-		addLibraryToDatabase("1", "library1");
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		Book book = new Book("1", "book1");
+		addBookOfLibraryToDatabase(book, library);
+		Book newBook = new Book("2", "new_book");
 		
 		// exercise
-		bookRepository.saveBookInTheLibrary(new Library("1", "library1"), new Book("2", "new_book"));
+		bookRepository.saveBookInTheLibrary(library, newBook);
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
@@ -183,12 +188,13 @@ public class BookMySQLRepositoryTest {
 	public void testSaveBookInTheLibraryWhenDatabaseAlreadyContainsNewBookShouldThrowAndCloseSession() {
 		// setup
 		Library library = new Library("1", "library1");
-		Book book = new Book("1", "book1");
-		addLibraryToDatabase("1", "library1");
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		addLibraryToDatabase(library);
+		Book book = new Book("1", "existing_book");
+		addBookOfLibraryToDatabase(book, library);
+		Book newBook = new Book("1", "new_book");
 		
 		// exercise
-		assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(library, book))
+		assertThatThrownBy(() -> bookRepository.saveBookInTheLibrary(library, newBook))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("Database already contains the book with id 1");
 		
@@ -197,7 +203,7 @@ public class BookMySQLRepositoryTest {
 		List<Book> books = getAllBooksFromDatabase();
 		assertThat(books)
 			.hasSize(1)
-			.noneMatch(e -> e.getName().equals("existing_book"));
+			.noneMatch(e -> e.getName().equals("new_book"));
 		
 		assertThat(bookRepository.getSession()).isNotNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
@@ -206,35 +212,37 @@ public class BookMySQLRepositoryTest {
 	@Test
 	public void testDeleteBookFromLibraryWhenDatabaseContainsBookInTheLibraryShouldRemoveIt() {
 		// setup
-		addLibraryToDatabase("1", "library1");
-		Book bookToRemove = new Book("2", "book2");
-		bookToRemove.setLibrary(new Library("1", "library1"));
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
-		addBookOfLibraryToDatabase("2", "book2", "1", "library1");
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		Book book = new Book("1", "book1");
+		addBookOfLibraryToDatabase(book, library);
+		Book bookToRemove = new Book("2", "to_remove");
+		addBookOfLibraryToDatabase(bookToRemove, library);
 		
 		assertThat(getAllBooksFromDatabase()).hasSize(2);
 		
 		// exercise
-		bookRepository.deleteBookFromLibrary("2", "1");
+		bookRepository.deleteBookFromLibrary("2");
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();
 		assertThat(books)
 			.hasSize(1)
-			.noneMatch(e -> e.getId().equals("2") && e.getName().equals("book2"));
+			.noneMatch(e -> e.getId().equals("2") && e.getName().equals("to_remove"));
 		assertThat(bookRepository.getSession()).isNotNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();
 	}
 	
-	
 	@Test
 	public void testDeleteBookFromLibraryWhenDatabaseDoesntContainsBookShouldThrow() {
 		// setup
-		addLibraryToDatabase("1", "library1");
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
+		Library library = new Library("1", "library1");
+		addLibraryToDatabase(library);
+		Book book = new Book("1", "book1");
+		addBookOfLibraryToDatabase(book, library);
 		
 		// exercise & verify
-		assertThatThrownBy(() -> bookRepository.deleteBookFromLibrary("2", "1"))
+		assertThatThrownBy(() -> bookRepository.deleteBookFromLibrary("2"))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("Database doesn't contain book with id 2");
 		
@@ -243,23 +251,6 @@ public class BookMySQLRepositoryTest {
 			.hasSize(1)
 			.anyMatch(e -> e.getId().equals("1"))
 			.anyMatch(e -> e.getName().equals("book1"));
-		
-		assertThat(bookRepository.getSession()).isNotNull();
-		assertThat(bookRepository.getSession().isOpen()).isFalse();
-	}
-	
-	@Test
-	public void testDeleteBookFromLibraryWhenDatabaseContainsTheBookButInAnotherLibraryShouldThrow() {
-		// setup
-		addLibraryToDatabase("1", "library1");
-		addLibraryToDatabase("2", "library2");
-		addBookOfLibraryToDatabase("1", "book1", "1", "library1");
-		addBookOfLibraryToDatabase("2", "book2", "2", "library2");
-		
-		// exercise
-		assertThatThrownBy(() -> bookRepository.deleteBookFromLibrary("2", "1"))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("Library with id 1 doesn't contain book with id 2");
 		
 		assertThat(bookRepository.getSession()).isNotNull();
 		assertThat(bookRepository.getSession().isOpen()).isFalse();

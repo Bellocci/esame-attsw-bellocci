@@ -45,7 +45,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	private static Properties settings;
 	
 	@BeforeClass
-	public static void setupServer() {
+	public static void setupHibernateWithH2() {
 		settings = new Properties();
 		
 		settings.put(AvailableSettings.DRIVER, "org.h2.Driver");
@@ -67,7 +67,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	
 	@AfterClass
 	public static void closeSessionFactory() {
-		HibernateUtil.resetSessionFactory();
+		HibernateUtil.closeSessionFactory();
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test @GUITest
-	public void testAddLibraryButtonError() {
+	public void testAddLibraryButtonErrorWhenLibraryAlreadyExistIntoDatabase() {
 		// setup
 		libraryRepository.saveLibrary(new Library("1", "library1"));		
 		window.textBox("idTextBox").enterText("1");
@@ -154,7 +154,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test @GUITest
-	public void testDeleteLibraryButtonError() {
+	public void testDeleteLibraryButtonErrorWhenLibraryDoesntExistIntoDatabase() {
 		// setup
 		Library library = new Library("1", "library1");
 		GuiActionRunner.execute(() -> librarySwingView.libraryAdded(library));
@@ -208,7 +208,7 @@ public class LibrarySwingViewIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test @GUITest
-	public void testOpenLibraryButtonError() {
+	public void testOpenLibraryButtonErrorWhenLibraryDoesntExistIntoDatabase() {
 		// setup
 		Library library = new Library("1", "library1");
 		GuiActionRunner.execute(() -> {

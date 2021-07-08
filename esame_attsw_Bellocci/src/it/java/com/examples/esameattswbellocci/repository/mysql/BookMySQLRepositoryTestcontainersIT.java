@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,7 +28,7 @@ public class BookMySQLRepositoryTestcontainersIT {
 	private static Properties settings;
 	
 	@BeforeClass
-	public static void setupServerAndHibernate() {
+	public static void setupServerAndHibernateWithMySQL() {
 		mySQLContainer
 			.withDatabaseName("test")
 			.withUsername("user")
@@ -55,20 +54,15 @@ public class BookMySQLRepositoryTestcontainersIT {
 	}
 	
 	@AfterClass
-	public static void shutdownServerAndHibernate() {
-		HibernateUtil.resetSessionFactory();
+	public static void shutdownServerAndCloseSessionFactory() {
+		HibernateUtil.closeSessionFactory();
 		mySQLContainer.stop();
 	}
 	
 	@Before
 	public void setup() {
-		bookRepository = new BookMySQLRepository();
-		
-	}
-	
-	@After
-	public void cleanTables() {
 		cleanDatabaseTables();
+		bookRepository = new BookMySQLRepository();
 	}
 
 	private void cleanDatabaseTables() {
@@ -189,7 +183,7 @@ public class BookMySQLRepositoryTestcontainersIT {
 		assertThat(getAllBooksFromDatabase()).hasSize(2);
 		
 		// exercise
-		bookRepository.deleteBookFromLibrary("2", "1");
+		bookRepository.deleteBookFromLibrary("2");
 		
 		// verify
 		List<Book> books = getAllBooksFromDatabase();

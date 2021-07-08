@@ -10,5 +10,5 @@ public interface BookRepository {
 	public List<Book> takeAllBooksOfLibrary(String idLibrary);
 	public Book findBookById(String idBook);
 	public void saveBookInTheLibrary(Library library, Book newBook);
-	public void deleteBookFromLibrary(String idBook, String idLibrary);
+	public void deleteBookFromLibrary(String idBook);
 }

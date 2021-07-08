@@ -41,8 +41,8 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@AfterClass
-	public static void clearHibernateUtil() {
-		HibernateUtil.resetSessionFactory();
+	public static void closeSessionFactory() {
+		HibernateUtil.closeSessionFactory();
 	}
 
 	@Before
@@ -103,7 +103,7 @@ public class LibraryMySQLRepositoryTest {
 	}
 	
 	@Test
-	public void testFindLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnIt() {
+	public void testFindLibraryByIdWhenLibraryIsContainedInTheDatabaseShouldReturnItAndCloseTheSession() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibrariesToDatabase(library);
@@ -114,21 +114,23 @@ public class LibraryMySQLRepositoryTest {
 		// verify
 		assertThat(libraryFound.getId()).isEqualTo("1");
 		assertThat(libraryFound.getName()).isEqualTo("library1");
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
-	public void testFindLibraryByIdWhenLibraryDidntContainInTheDatabaseShouldReturnNull() {
+	public void testFindLibraryByIdWhenDatabaseDoesntContainTheLibraryShouldReturnNullAndCloseTheSession() {
 		// exercise
 		Library libraryFound = libraryRepository.findLibraryById("1");
 		
 		// verify
 		assertThat(libraryFound).isNull();
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
-	public void testSaveLibraryWhenDatabaseDoesntContainNewLibraryShouldAddToDatabase() {
+	public void testSaveLibraryWhenDatabaseDoesntContainNewLibraryShouldAddToDatabaseAndCloseTheSession() {
 		// setup
 		Library library = new Library("1", "library1");
 		addLibrariesToDatabase(library);
@@ -157,9 +159,9 @@ public class LibraryMySQLRepositoryTest {
 	@Test
 	public void testSaveLibraryWhenDatabaseAlreadyContainsLibraryWithSameIdShouldThrowAndCloseTheSession() {
 		// setup
-		Library library = new Library("1", "library1");
+		Library library = new Library("1", "existing_library");
 		addLibrariesToDatabase(library);
-		Library library2 = new Library("1", "existing_library");
+		Library library2 = new Library("1", "new_library");
 		
 		// exercise & verify
 		assertThatThrownBy(() -> libraryRepository.saveLibrary(library2))
@@ -168,17 +170,18 @@ public class LibraryMySQLRepositoryTest {
 		
 		assertThat(getAllLibrariesFromDatabase())
 			.hasSize(1)
-			.noneMatch(e -> e.getId().equals("1") && e.getName().equals("existing_library"));
+			.noneMatch(e -> e.getId().equals("1") && e.getName().equals("new_library"));
 		
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
 	@Test
-	public void testDeleteLibraryWhenDatabaseContainLibraryShouldRemoveItFromDatabase() {
+	public void testDeleteLibraryWhenDatabaseContainLibraryShouldRemoveItFromDatabaseAndCloseTheSession() {
 		// setup
 		Library library1 = new Library("1", "library");
-		Library library2 = new Library("2", "library2");
 		addLibrariesToDatabase(library1);
+		Library library2 = new Library("2", "library2");
 		addLibrariesToDatabase(library2);
 		
 		// exercise
@@ -189,6 +192,8 @@ public class LibraryMySQLRepositoryTest {
 		assertThat(listLibraries)
 			.hasSize(1)
 			.noneMatch(e -> e.getId().equals("2") && e.getName().equals("library2"));
+		
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	
@@ -196,8 +201,8 @@ public class LibraryMySQLRepositoryTest {
 	public void testDeleteLibraryWhenDatabaseContainLibraryWithBooksShouldRemoveItAndAllItsBooksFromDatabase() {
 		// setup
 		Library library1 = new Library("1", "library1");
-		Library library2 = new Library("2", "library2");
 		addLibrariesToDatabase(library1);
+		Library library2 = new Library("2", "library2");
 		addLibrariesToDatabase(library2);
 		addBookOfLibraryToDatabase(library1, "1", "book1");
 		addBookOfLibraryToDatabase(library2, "2", "book2");
@@ -213,6 +218,8 @@ public class LibraryMySQLRepositoryTest {
 		assertThat(getAllBooksFromDatabase())
 			.hasSize(1)
 			.noneMatch(e -> e.getId().equals("1") && e.getName().equals("book1"));
+		
+		assertThat(libraryRepository.getSession()).isNotNull();
 		assertThat(libraryRepository.getSession().isOpen()).isFalse();
 	}
 	

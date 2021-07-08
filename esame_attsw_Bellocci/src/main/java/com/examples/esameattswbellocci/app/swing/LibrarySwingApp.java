@@ -78,15 +78,15 @@ public class LibrarySwingApp implements Callable<Void> {
 				HibernateUtil.setProperties(settings);
 			}
 			
-			// Instanciate repository
+			// Instance repository
 			LibraryRepository libraryRepository = new LibraryMySQLRepository();
 			BookRepository bookRepository = new BookMySQLRepository();
 			
-			// Istanciate view
+			// Instance view
 			LibrarySwingView libraryView = new LibrarySwingView();
 			BookSwingView bookView = new BookSwingView();
 			
-			// Istanciate controller
+			// Instance controller
 			LibraryController libraryController = new LibraryController(libraryView, libraryRepository);
 			BookController bookController = new BookController(bookRepository, bookView, libraryController);
 			
