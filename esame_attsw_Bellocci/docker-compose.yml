@@ -26,7 +26,7 @@ services:
          - db_data:/var/lib/mysql
          
    adminer_container:
-      image: adminer:latest
+      image: adminer:4
       environment:
          ADMINER_DEFAULT_SERVER: mysql_db_container
       ports:
