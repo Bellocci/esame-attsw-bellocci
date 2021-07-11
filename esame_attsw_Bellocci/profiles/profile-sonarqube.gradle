@@ -2,7 +2,29 @@ apply plugin: "org.sonarqube"
 apply plugin: 'jacoco'
 
 jacocoTestReport {
-	apply from: 'profiles/profile-jacoco.gradle'
+	dependsOn test
+	
+	//  Allow to insert integrationTest and e2eTest also
+	//executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+	
+    reports {
+    	xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+    
+    // Remove Book, Library and LibrarySwingView classes from JaCoCo report
+	afterEvaluate {
+    	getClassDirectories().setFrom(
+    		files(classDirectories.files.collect {
+        		fileTree(dir: it, exclude: [
+        			"**/Library.class",
+        			"**/Book.class",
+        			"**/HibernateUtil.class",
+        			"**/LibrarySwingApp.class"
+        		])
+        	})
+        )
+    }
 }
 
 sonarqube {
@@ -17,7 +39,9 @@ sonarqube {
     property "sonar.projectName", "Esame attsw Bellocci"	
 	property "sonar.sourceEncoding", "UTF-8"
 	property "sonar.sources", "src/main/java"	
-	property "sonar.junit.reportPaths", "$project.projectDir/build/test-results/test"
+	property "sonar.junit.reportPaths", ["$buildDir/test-results/test",
+										"$buildDir/test-results/integrationTest",
+										"$buildDir/test-results/e2eTest"]
 	property 'sonar.coverage.jacoco.xmlReportPaths', "$project.projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
     
     // Ignore rules
@@ -33,18 +57,9 @@ sonarqube {
     // Ignore rule for name of variable
     
     // Rule for ignoring variable name of *SwingView.class
-    //property "sonar.issue.ignore.multicriteria.e13.ruleKey", "java:S120"
-    //property "sonar.issue.ignore.multicriteria.e13.resourceKey", "**/*.java"
     
     property "sonar.issue.ignore.multicriteria.e17.ruleKey","java:S117"
-    property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*.java"
-    
-    //property "sonar.issue.ignore.multicriteria.e18.ruleKey", "java:S3008"
-    //property "sonar.issue.ignore.multicriteria.e18.resourceKey", "**/*.java"
-    
-    // Ignore rule for define variable as var had to JAVA 11
-    //property "sonar.issue.ignore.multicriteria.e19.ruleKey","java:S6212"
-    //property "sonar.issue.ignore.multicriteria.e19.resourceKey", "**/*.java"
+    property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*SwingView.java"
   }
 }
 
