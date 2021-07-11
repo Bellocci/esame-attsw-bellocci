@@ -2,10 +2,10 @@ apply plugin: "org.sonarqube"
 apply plugin: 'jacoco'
 
 jacocoTestReport {
-	dependsOn test
+	dependsOn e2eTest
 	
 	//  Allow to insert integrationTest and e2eTest also
-	//executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+	executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
 	
     reports {
     	xml.enabled = true // coveralls plugin depends on xml format report
