@@ -33,14 +33,14 @@ jobs:
      - name: Build with Gradle
        run: xvfb-run gradle build 
        working-directory: ${{ env.workdir }}
-     - name: Pitest
-       run: xvfb-run gradle -PbuildProfile=pitest pitest
-       working-directory: ${{ env.workdir }}
-     - name: Coveralls
-       run: xvfb-run gradle -PbuildProfile=coveralls jacocoTestReport coveralls
-       working-directory: ${{ env.workdir }}
-       env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+#     - name: Pitest
+#       run: xvfb-run gradle -PbuildProfile=pitest pitest
+#       working-directory: ${{ env.workdir }}
+#     - name: Coveralls
+#       run: xvfb-run gradle -PbuildProfile=coveralls jacocoTestReport coveralls
+#       working-directory: ${{ env.workdir }}
+#       env:
+#          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
      - name: Sonarqube
        run: xvfb-run gradle -PbuildProfile=sonarqube sonarqube
        working-directory: ${{ env.workdir }}
