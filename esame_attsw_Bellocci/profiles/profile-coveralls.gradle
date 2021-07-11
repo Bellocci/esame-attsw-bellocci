@@ -4,14 +4,27 @@
 
 apply plugin: "com.github.kt3k.coveralls"
 apply plugin: 'jacoco'
-apply plugin: 'info.solidsoft.pitest'
 
 jacocoTestReport {
-	apply from: 'profiles/profile-jacoco.gradle'
-}
-
-pitest {
-	apply from: 'profiles/profile-pitest.gradle'
+	dependsOn test
+	
+	reports {
+    	xml.enabled = true
+        html.enabled = true
+    }
+    
+	afterEvaluate {
+    	getClassDirectories().setFrom(
+    		files(classDirectories.files.collect {
+        		fileTree(dir: it, exclude: [
+        			"**/Library.class",
+        			"**/Book.class",
+        			"**/LibrarySwingApp.class",
+        			"**/HibernateUtil.class",
+        		])
+        	})
+        )
+    }
 }
 
 coveralls {
