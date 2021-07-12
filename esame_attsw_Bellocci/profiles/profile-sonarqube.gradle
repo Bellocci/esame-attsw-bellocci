@@ -8,11 +8,10 @@ jacocoTestReport {
 	executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
 	
     reports {
-    	xml.enabled = true // coveralls plugin depends on xml format report
+    	xml.enabled = true
         html.enabled = true
     }
     
-    // Remove Book, Library and LibrarySwingView classes from JaCoCo report
 	afterEvaluate {
     	getClassDirectories().setFrom(
     		files(classDirectories.files.collect {
@@ -83,7 +82,7 @@ sonarqube {
     property "sonar.issue.ignore.multicriteria.e14.ruleKey", "java:S3577"
     property "sonar.issue.ignore.multicriteria.e14.resourceKey", "**/LibrarySwingAppE2E.java"
     
-    // Rule for ignoring variable name of *SwingView.class
+    // Removed rule for variable name of *SwingView.class
     
     property "sonar.issue.ignore.multicriteria.e15.ruleKey","java:S117"
     property "sonar.issue.ignore.multicriteria.e15.resourceKey", "**/*SwingView.java"
