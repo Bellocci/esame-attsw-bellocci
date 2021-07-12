@@ -8,11 +8,10 @@ jacocoTestReport {
 	executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
 	
     reports {
-    	xml.enabled = true // coveralls plugin depends on xml format report
+    	xml.enabled = true
         html.enabled = true
     }
     
-    // Remove Book, Library and LibrarySwingView classes from JaCoCo report
 	afterEvaluate {
     	getClassDirectories().setFrom(
     		files(classDirectories.files.collect {
@@ -66,7 +65,7 @@ sonarqube {
      * Ignore rules
      */
 
-    property "sonar.issue.ignore.multicriteria", "e11, e12, e17"
+    property "sonar.issue.ignore.multicriteria", "e11, e12, e13, e14, e15"
     
     // Removed rule because some test cannot have assertion
     property "sonar.issue.ignore.multicriteria.e11.ruleKey", "java:S2699"
@@ -75,12 +74,18 @@ sonarqube {
     property "sonar.issue.ignore.multicriteria.e12.ruleKey", "java:S2699"
     property "sonar.issue.ignore.multicriteria.e12.resourceKey", "**/LibrarySwingViewTest.java"
     
-    // Ignore rule for name of variable
+    property "sonar.issue.ignore.multicriteria.e13.ruleKey", "java:S2699"
+    property "sonar.issue.ignore.multicriteria.e13.resourceKey", "**/BookSwingViewIT.java"
     
-    // Rule for ignoring variable name of *SwingView.class
+    // Removed rule because class name follow convention for e2e test
     
-    property "sonar.issue.ignore.multicriteria.e17.ruleKey","java:S117"
-    property "sonar.issue.ignore.multicriteria.e17.resourceKey", "**/*SwingView.java"
+    property "sonar.issue.ignore.multicriteria.e14.ruleKey", "java:S3577"
+    property "sonar.issue.ignore.multicriteria.e14.resourceKey", "**/LibrarySwingAppE2E.java"
+    
+    // Removed rule for variable name of *SwingView.class
+    
+    property "sonar.issue.ignore.multicriteria.e15.ruleKey","java:S117"
+    property "sonar.issue.ignore.multicriteria.e15.resourceKey", "**/*SwingView.java"
   }
 }
 
